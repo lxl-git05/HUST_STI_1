@@ -40,12 +40,12 @@ def get_center_point(img, threshold_value=80):
     return cx, cy, img_binary, img_output
 
 # 打开摄像头
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 # 串口传输包
-pack = SerialPacket(port="COM1", baudrate=115200, timeout=0.1)
-
+# pack = SerialPacket(port="COM1", baudrate=115200, timeout=0.1)
+pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
 
 if not cap.isOpened():
     print("无法打开摄像头")
@@ -55,7 +55,7 @@ if not cap.isOpened():
 cv2.namedWindow("ROI + Center")
 def nothing(x):
     pass
-cv2.createTrackbar("Threshold", "ROI + Center", 132, 255, nothing)
+cv2.createTrackbar("Threshold", "ROI + Center", 31, 255, nothing)
 
 try:
     while True:
@@ -74,24 +74,24 @@ try:
         cx, cy, binary, output = get_center_point(roi, threshold_value)
 
         # 在原图上画ROI框
-        cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
-                      (width//2 + 160, height//2 + 120), (0, 255, 0), 2)
+        # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
+        #               (width//2 + 160, height//2 + 120), (0, 255, 0), 2)
 
         # 显示图像
-        cv2.imshow("Frame", frame)
-        cv2.imshow("ROI + Center", output)
-        cv2.imshow("Binary", binary)
+        # cv2.imshow("Frame", frame)
+        # cv2.imshow("ROI + Center", output)
+        # cv2.imshow("Binary", binary)
 
         # 显示中心点X坐标
-        if cx != -1:
-            print(f"中心点: x={cx}, y={cy}, 阈值={threshold_value}")
+        # if cx != -1:
+        #     print(f"中心点: x={cx}, y={cy}, 阈值={threshold_value}")
         
         # 发送数据包
         pack.insert_byte(0x06)
         pack.insert_two_bytes(pack.num_to_bytes(cx+100))
         pack.insert_two_bytes(pack.num_to_bytes(0))
         pack.insert_two_bytes(pack.num_to_bytes(0+100))
-        # pack.send_packet()
+        pack.send_packet()
 
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
