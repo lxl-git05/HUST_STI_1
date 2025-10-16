@@ -1,0 +1,107 @@
+# ========================================
+# STM32 / Keil-MDK 工程临时文件和编译输出
+# ========================================
+
+# 编译产物（不需要提交）
+*.axf
+*.hex
+*.elf
+*.out
+*.map
+*.lst
+*.sct
+*.scr
+*.htm
+*.build_log.htm
+*.uv4.log
+*.uv4.log.lock
+
+# 中间文件
+*.o
+*.obj
+*.d
+*.crf
+*.dmp
+*.lnp
+*.iex
+
+# Keil 工程临时/个性化配置
+# 备份文件
+*.bak            
+# 依赖文件
+*.dep          
+# 用户环境配置（调试窗口布局等，因人而异）  
+*.uvoptx         
+# Keil GUI 配置文件（因人而异）
+*.uvguix.*       
+
+# ==========================
+# IntelliJ IDEA / JetBrains
+# ==========================
+
+# IDEA 工程配置目录
+/.idea/          
+# 模块文件
+*.iml            
+# 工作区文件
+*.iws            
+# 默认编译输出目录
+out/             
+
+# =================
+# VS Code
+# =================
+# VS Code 配置目录
+.vscode/         
+# VS Code 工作区文件
+*.code-workspace 
+
+# 可选：只保留部分配置（如要共享调试/编译配置）
+# .vscode/*
+# !.vscode/settings.json
+# !.vscode/launch.json
+
+# =================
+# 通用系统垃圾文件
+# =================
+# macOS Finder 缓存
+.DS_Store        
+# Windows 缩略图缓存
+Thumbs.db        
+# 日志文件
+*.log            
+# 临时文件
+*.tmp            
+
+# =================
+# 输出目录（可选）
+# =================
+# 常见构建目录
+/build/          
+# Keil/MDK Debug 输出
+/Debug/          
+# Keil/MDK Release 输出
+/Release/        
+
+# ========================================
+# 建议提交的文件（不要忽略）
+# ========================================
+#   - 源码文件: *.c, *.h
+#   - 启动文件: startup_xx.s
+#   - 工程配置: *.uvprojx
+#   - RTE 配置: *.rteconfig
+#   - 链接文件: *.sct (如果团队共享)
+
+# Keil 编译日志文件（全局忽略）
+**/uv4.log
+**/uv4.log.lock
+**/Template.build_log.htm
+
+# ========================================
+# Latex(vscode编辑器)忽略配置
+# ========================================
+
+**/main.log
+**/main.pdf
+**/main.synctex.gz
+**/main.aux
