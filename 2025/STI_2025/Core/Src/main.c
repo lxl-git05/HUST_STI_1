@@ -63,6 +63,11 @@ void SystemClock_Config(void);
 	
 	电脑端为上位机,通过VOFA发送指令(HEX和文本两种类型)
 	STM32段为下位机,通过USART1接受指令,执行相应命令,但是STM32发送个电脑(VOFA)的信息不需要遵循相关协议
+	
+	使用USART1与电脑通信:
+	VOFA改为115200 Serial改为1 Printf重定向为1
+	使用蓝牙与电脑通信:
+	搁置USART1 VOFA改为9600 Serial改为2 Printf重定向为2 
 */
 
 // *******************库/函数导入*******************
@@ -133,6 +138,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 	
 	// ******************* setup *******************

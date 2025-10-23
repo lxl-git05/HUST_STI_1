@@ -8,7 +8,6 @@
 //#define Serial_Debug
 //#define Serial_VOFA
 
-
 // 串口通信通道(代码迁移时修改这里即可)
 #define Serial_huart huart1
 #define Serial_USART USART1
