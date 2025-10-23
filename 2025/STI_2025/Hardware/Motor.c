@@ -21,7 +21,7 @@ void Motor_A_Init(void)
 	Motor_A.PPR = 13.0f ;
 	Motor_A.ReductionRatio = 28.0f ;
 	
-	Motor_A.DIR = DIR_P ;		// 方向判断
+	Motor_A.DIR = DIR_N ;		// 方向判断
 	
 	// PWM初始化
 	HAL_TIM_PWM_Start(&Motor_A.Motor_PWM_htim , Motor_A.Motor_PWM_Channel) ;	
@@ -31,6 +31,9 @@ void Motor_A_Init(void)
 	
 	// PID初始化
 	PID_Init(&Motor_A.PID_s , 0.72f , 0.09f , 0.1f , 100 , -100 , 10000 ) ;
+	
+	// 额外功能
+	Motor_A.PID_s.deadspace = 5.0f ;	// 输出死区
 	
 }
 
@@ -60,8 +63,12 @@ void Motor_B_Init(void)
 	// 编码器初始化
 	Encoder_Init(&Motor_B_Encoder_htim) ;
 	
+	// 新增调试
+	Motor_B.PID_s.d_style = 1.0 ;	// 微分先行
+	
+	
 	// PID初始化
-	PID_Init(&Motor_B.PID_s , 0.72f , 0.09f , 0.1f , 100 , -100 , 10000 ) ;
+	PID_Init(&Motor_B.PID_s , 0.61f , 0.02f , 0.0f , 100 , -100 , 10000 ) ;
 }
 // 调用者执行的逻辑,设置目标速度
 void Motor_SetGoalSpeed(Motor_Typedef *Motor , int speed)

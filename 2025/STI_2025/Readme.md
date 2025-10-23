@@ -8,7 +8,9 @@
 4. TIM2 Encoder
 5. TIM3 Encoder
 
-5. Motor_A_In2 : PB14 Motor_B_In2 : PB15
+6. Motor_A_In2 : PB14 Motor_B_In2 : PB15
+
+7. OLED PA8 PA9
 
 ## 2. 关于PID
 

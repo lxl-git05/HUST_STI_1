@@ -207,9 +207,13 @@ int main(void)
 		OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
 		OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
 		
-		Set_Current_USART(USART1_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
+		Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
+		// 单独展示
 //		printf("%d,%d,%d,%f,%f,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_A.PID_s.pout,Motor_A.PID_s.iout,Motor_A.PID_s.dout);
-		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
+//		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
+		
+		// 联调
+		printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
 
 		// 电机目标速度和输出速度更新
 		Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
@@ -217,7 +221,6 @@ int main(void)
 		
 		Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;
 		Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;
-		
 		
 		// 必须存在:OLED更新
 		OLED_Update() ;

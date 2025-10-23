@@ -42,9 +42,16 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 	pid->pout = pid->Kp * pid->PreError ;
 	pid->iout = pid->Ki * pid->SumError ;	// 这里还可以进行积分分离+变速积分,后续有需要再加入
 	pid->dout = pid->Kd * (1.0f - pid->d_filter) * dError + pid->d_filter * pid->dout  ;		// *不完全微分*(滤波,默认不滤波)
-
+	
 	// 得到PID的输出值
 	pid->setPoint = pid->pout + pid->iout + pid->dout ;
+	
+	// 输出死区,死区超过0.1f视为存在死区
+	if ( fabs(pid->deadspace) > 0.1f && fabs (pid->setPoint - pid->realPoint_Now) < pid->deadspace )
+	{
+		pid->SumError = 0.0f ;
+//		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ; 
+	}
 	
 	// 输出限幅
 	if ( pid->setPoint > pid->OutMax ) { pid->setPoint = pid->OutMax ; }
