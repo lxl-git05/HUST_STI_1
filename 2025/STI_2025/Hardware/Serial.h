@@ -116,5 +116,12 @@ bool Serial_SetFloatData( char *KeyWord , char *cmd , float *Data) ;
 // 文本:2. 封装一个函数,实现简易整数变量调试
 bool Serial_SetIntData( char *KeyWord , char *cmd , int *Data) ;
 
+// 临时加
+Serial_RX_FLAG_Typedef Serial_Rx_State_Check(void) ;
+
+void Serial_Data_Check_HEX(void) ;
+
+void Serial_Data_Check_ABC(void) ;
+
 #endif
 

@@ -72,7 +72,7 @@ void Serial_SendData_DMA(uint8_t *pData, uint16_t Size)
 }
 
 // 从高8位和低8位合成一个数据
-uint16_t Merge_2Bytes(uint8_t high, uint8_t low)
+uint16_t Merge_2Bytes_Serial(uint8_t high, uint8_t low)
 {
     return ((uint16_t)high << 8) | low;
 }
@@ -164,7 +164,7 @@ void Serial_Data_Deal_HEX(void)
 	// 2. 存入数据
 	for (int i = 3 , j = 1 ; i < 3 + Serial_Rx_Data.rxBuf[2] ; i += 2 , j ++)
 	{
-		Serial_Hex_Data.Serial_New_Package[j] = Merge_2Bytes(Serial_Rx_Data.rxBuf[i] , Serial_Rx_Data.rxBuf[i + 1] ) ;
+		Serial_Hex_Data.Serial_New_Package[j] = Merge_2Bytes_Serial(Serial_Rx_Data.rxBuf[i] , Serial_Rx_Data.rxBuf[i + 1] ) ;
 	}
 }	
 
@@ -323,34 +323,5 @@ bool Serial_SetIntData( char *KeyWord , char *cmd , int *Data)
 	}
 }
 
-// 串口空闲中断回调函数
-/*串口接收中断回调*/
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart->Instance == Serial_USART)
-	{
-		#ifdef Serial_Debug
-		Serial_check[Serial_Count++] = Serial_Rx_Data.rx_temp ;	// 得到所有接收到的数据
-		#endif 
-		
-		// 获得串口数据传输状态(更新)
-		Serial_Rx_State = Serial_Rx_State_Check();
-		
-		// HEX数据包
-		if (Serial_Rx_State == RX_OK_HEX)
-		{
-			// 开始处理原始数据包:HEX
-			Serial_Data_Check_HEX() ;
-		}
-		// ABC数据包
-		else if (Serial_Rx_State == RX_OK_ABC)
-		{
-			// 开始处理原始数据包:ABC
-			Serial_Data_Check_ABC() ;
-		}
-		
-		// 重新打开串口DMA接收，DMA配置为不连续模式
-		HAL_UART_Receive_DMA(huart, &Serial_Rx_Data.rx_temp , 1);   
-	}
-}
+
 

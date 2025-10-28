@@ -22,7 +22,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include <math.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -76,10 +75,12 @@ void SystemClock_Config(void);
 #include <stdlib.h>
 #include "string.h"
 #include <stdio.h>
+#include <math.h>
 // 自设库
 #include "OLED.h"
 #include "Key.h"
 #include "Serial.h"
+#include "Serial3.h"
 
 #include "Encoder_Motor.h"
 #include "Encoder.h"
@@ -89,11 +90,23 @@ void SystemClock_Config(void);
 extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;			// 解析好的HEX数据包
 extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
 
+// 临时加
+extern Serial3_HEX_Data_Typedef   Serial3_Hex_Data ;			// 解析好的HEX数据包
+extern Serial3_ABC_Data_Typedef   Serial3_ABC_Data ;			// 解析好的ABC数据包
+
 extern Motor_Typedef Motor_A ;	// 电机A
 extern Motor_Typedef Motor_B ;	// 电机B
 
 int goalPoint_A ;	// 电机目标转速
 int goalPoint_B ;	// 电机目标转速
+
+// 临时加
+extern Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
+extern Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
+
+// 临时加3
+extern Serial3_RX_FLAG_Typedef 		Serial3_Rx_State;							// 数据接收情况标志位-枚举
+extern Serial3_RX_Data_TypeDef 		Serial3_Rx_Data ;							// 数据接收缓存区
 
 // *******************实验区域*******************
 
@@ -140,6 +153,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM1_Init();
   MX_USART2_UART_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 	
 	// ******************* setup *******************
@@ -149,6 +163,8 @@ int main(void)
 	OLED_Init() ;
 	// 串口初始化
 	Serial_Init(&Serial_huart) ;
+	// 串口初始化
+	Serial3_Init(&Serial3_huart) ;
 	// 电机初始化:PWM , Encoder , PID
 	Motor_A_Init();
 	Motor_B_Init();
@@ -156,6 +172,12 @@ int main(void)
   __enable_irq();
 	
 	// ******************* 实验区域 *******************
+	
+	// ***新增巡线功能***
+	
+	
+	
+	
 	
   /* USER CODE END 2 */
 
@@ -171,6 +193,8 @@ int main(void)
 		if (Key_Check(KEY_1 , KEY_SINGLE))
 		{
 			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin) ;
+			Set_Current_USART(USART3_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
+			printf("Serial3\n") ;
 		}
 		// ******************* 实验区域 *******************
 		// 逻辑:电脑通过VOFA发送数据包,STM32通过串口1接受指令,然后进行相应的操作,如下:
@@ -202,17 +226,19 @@ int main(void)
 			}
 		}
 		// OLED展示
+		/*
 		OLED_Printf(0 , 0 , OLED_8X16 , "Asrg:%d %d %d" ,Motor_A.SetSpeed, Motor_A.RealSpeed, Motor_A.GoalSpeed ) ;
 		OLED_Printf(0 ,15 , OLED_8X16 , "A:%.2f,%.2f,%.2f",Motor_A.PID_s.Kp,Motor_A.PID_s.Ki,Motor_A.PID_s.Kd) ;
 		
 		OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
 		OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
+		*/
 		
 		Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
+		// PID调参
 		// 单独展示
 //		printf("%d,%d,%d,%f,%f,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_A.PID_s.pout,Motor_A.PID_s.iout,Motor_A.PID_s.dout);
 //		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
-		
 		// 联调
 		printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
 
@@ -223,6 +249,15 @@ int main(void)
 		Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;
 		Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;
 		
+		// ***新增巡线功能***
+		if (Serial3_GetNewPackageFlag_HEX() == 1)
+		{
+			if (Serial3_Hex_Data.Serial3_New_Package[0] == 2) 
+			{
+				HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+			}
+		}
+
 		// 必须存在:OLED更新
 		OLED_Update() ;
   }
@@ -298,6 +333,65 @@ void HAL_SYSTICK_Callback(void)
 		
 		Motor_Speed_Update(&Motor_B) ;			// 编码器测速
 		Motor_PID_Update(&Motor_B) ;				// PID更新
+	}
+	// 功能3: 
+	
+		
+}
+
+// 串口空闲中断回调函数
+/*串口接收中断回调*/
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance == Serial_USART)
+	{
+		#ifdef Serial_Debug
+		Serial_check[Serial_Count++] = Serial_Rx_Data.rx_temp ;	// 得到所有接收到的数据
+		#endif 
+		
+		// 获得串口数据传输状态(更新)
+		Serial_Rx_State = Serial_Rx_State_Check();
+		
+		// HEX数据包
+		if (Serial_Rx_State == RX_OK_HEX)
+		{
+			// 开始处理原始数据包:HEX
+			Serial_Data_Check_HEX() ;
+		}
+		// ABC数据包
+		else if (Serial_Rx_State == RX_OK_ABC)
+		{
+			// 开始处理原始数据包:ABC
+			Serial_Data_Check_ABC() ;
+		}
+		
+		// 重新打开串口DMA接收，DMA配置为不连续模式
+		HAL_UART_Receive_DMA(huart, &Serial_Rx_Data.rx_temp , 1);   
+	}
+	if(huart->Instance == Serial3_USART)
+	{
+		#ifdef Serial3_Debug
+		Serial3_check[Serial3_Count++] = Serial3_Rx_Data.rx_temp ;	// 得到所有接收到的数据
+		#endif 
+		
+		// 获得串口数据传输状态(更新)
+		Serial3_Rx_State = Serial3_Rx_State_Check();
+		
+		// HEX数据包
+		if (Serial3_Rx_State == RX_OK_HEX)
+		{
+			// 开始处理原始数据包:HEX
+			Serial3_Data_Check_HEX() ;
+		}
+		// ABC数据包
+		else if (Serial3_Rx_State == RX_OK_ABC)
+		{
+			// 开始处理原始数据包:ABC
+			Serial3_Data_Check_ABC() ;
+		}
+		
+		// 重新打开串口DMA接收，DMA配置为不连续模式
+		HAL_UART_Receive_DMA(huart, &Serial3_Rx_Data.rx_temp , 1);   
 	}
 }
 
