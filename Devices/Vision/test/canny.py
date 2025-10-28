@@ -31,8 +31,7 @@ if __name__ == '__main__':
         current_threshold2 = cv2.getTrackbarPos('Threshold2', window_name)
         edges = cv2.Canny(img_gray, current_threshold1, current_threshold2)
         # 显示图像
-        stack = np.hstack((img,
-                           cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)))
+        stack = np.hstack((img,cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)))
         cv2.imshow("www", img_gray)
         cv2.imshow(window_name, stack)
 

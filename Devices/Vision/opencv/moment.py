@@ -5,7 +5,7 @@ import cv2
 
 def get_center_point(img):
     img_output = img.copy()
-    min_area_threshold = 1000  # 降低最小面积阈值（根据实际调整）
+    min_area_threshold = 400  # 降低最小面积阈值（根据实际调整）
 
     # 1. 灰度转换与二值化（优化）
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
