@@ -87,26 +87,30 @@ void SystemClock_Config(void);
 #include "Motor.h"
 
 // *******************全局变量*******************
-extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;			// 解析好的HEX数据包
+// 数据包
 extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
 
-// 临时加
 extern Serial3_HEX_Data_Typedef   Serial3_Hex_Data ;			// 解析好的HEX数据包
-extern Serial3_ABC_Data_Typedef   Serial3_ABC_Data ;			// 解析好的ABC数据包
 
+// 电机
 extern Motor_Typedef Motor_A ;	// 电机A
 extern Motor_Typedef Motor_B ;	// 电机B
 
 int goalPoint_A ;	// 电机目标转速
 int goalPoint_B ;	// 电机目标转速
 
-// 临时加
+// 临时加(USART2 + USART3)
 extern Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
 extern Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
 
-// 临时加3
 extern Serial3_RX_FLAG_Typedef 		Serial3_Rx_State;							// 数据接收情况标志位-枚举
 extern Serial3_RX_Data_TypeDef 		Serial3_Rx_Data ;							// 数据接收缓存区
+
+// 树莓派视觉传感器
+// 巡线
+int xLine_goal ;	// x 的目标值
+int xLine_real ;	// x 的真实值
+bool isTurn	;			// 判断是否需要转向
 
 // *******************实验区域*******************
 
@@ -257,7 +261,9 @@ int main(void)
 				HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
 			}
 		}
-
+		
+		
+		
 		// 必须存在:OLED更新
 		OLED_Update() ;
   }
@@ -312,7 +318,7 @@ void HAL_SYSTICK_Callback(void)
 	count_sys ++ ;
 	// 功能1 : 按键
 	Key_Tick() ;
-	// 功能2 : 编码器测速+PID调控
+	// 功能2 : 编码器测速+PID调控 + ***** 双环调控:偏转角度外环 + 速度内环 *****
 	if (count_sys % Encoder_PID_Gap_Time == 0)
 	{
 		// 对电机B进行Kp限制
