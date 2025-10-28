@@ -40,7 +40,7 @@ def get_center_point(img):
         print(f"有效轮廓数量: {len(main_contours)}")  # 调试信息
 
         # 5. 判断是否为岔路（有效轮廓≥2）
-        is_junction = 1 if len(main_contours) >= 2 else 0
+        is_junction = 1 if len(main_contours) > 2 else 0
         print(f"is_junction: {is_junction}")  # 调试信息
 
         # 6. 绘制所有轮廓（可视化）
@@ -51,7 +51,7 @@ def get_center_point(img):
 
 
 
-    return cx, cy, img_output, is_junction
+    return cx, cy, img_binary, is_junction
 
 
 class SerialPacket:

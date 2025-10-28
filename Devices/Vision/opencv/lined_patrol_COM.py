@@ -23,15 +23,16 @@ cv2.namedWindow(windowname)
 try:
     while True:
         ret, frame = cap.read()
-        cv2.imshow(windowname,frame)
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
+        
         if not ret:
             print("获取帧失败")
             continue
 
         height, width = frame.shape[:2]
-        roi = frame[height // 2:, :]
+        roi = frame[height // 2 - 60:height // 2 + 60, width // 2 - 80:width // 2 + 60]
+        cv2.imshow(windowname,roi)
+        if cv2.waitKey(1) & 0xFF == 27:
+            break
         x, y, roi, isj = get_center_point(roi)
         # x = int(x*255/640)
         print(f"x: {x}, isj: {isj}")
@@ -41,7 +42,7 @@ try:
        #pack.send_packet()
 
         #cv2.imshow('frame',frame)
-        time.sleep(0.01)
+        #time.sleep(0.01)
         #cv2.destroyAllWindows()
 
 except KeyboardInterrupt:
