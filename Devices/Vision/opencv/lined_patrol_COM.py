@@ -29,13 +29,14 @@ try:
             continue
 
         height, width = frame.shape[:2]
-        roi = frame[height // 2 - 60:height // 2 + 60, width // 2 - 80:width // 2 + 60]
+        roi = frame[height // 2 - 120:height // 2 + 120, width // 2 - 160:width // 2 + 160]
+        
+        x, y, roi, isj = get_center_point(roi)
+        # x = int(x*255/640)
         cv2.imshow(windowname,roi)
         if cv2.waitKey(1) & 0xFF == 27:
             break
-        x, y, roi, isj = get_center_point(roi)
-        # x = int(x*255/640)
-        print(f"x: {x}, isj: {isj}")
+        #print(f"x: {x},y: {y}, isj: {isj}")
         num=0x04
         pack.insert_two_bytes(pack.num_to_bytes(x+100))
         pack.insert_two_bytes(pack.num_to_bytes(isj))

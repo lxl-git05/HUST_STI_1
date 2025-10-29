@@ -5,15 +5,20 @@ import cv2
 
 def get_center_point(img):
     img_output = img.copy()
-    min_area_threshold = 400  # 降低最小面积阈值（根据实际调整）
+    min_area_threshold = 30  # 降低最小面积阈值（根据实际调整）
 
     # 1. 灰度转换与二值化（优化）
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # 使用自适应阈值（适应光照变化）
-    img_binary = cv2.adaptiveThreshold(
-        img_gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
-        cv2.THRESH_BINARY_INV, 11, 2
-    )
+    # threshold_value = 80
+    # img_binary = cv2.adaptiveThreshold(
+    #     img_gray, 255,cv2.ADAPTIVE_THRESH_MEAN_C,
+    #     cv2.THRESH_BINARY_INV, 11, 2
+    # )
+
+    # 使用固定阈值（需要手动调整阈值）
+    threshold_value = 80  # 阈值，范围0-255
+    _, img_binary = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY)
 
     # 2. 提取所有轮廓（包括内部）
     cnts = cv2.findContours(img_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -22,7 +27,7 @@ def get_center_point(img):
     is_junction = 0  # 0: 无岔路，1: 有岔路
 
     if len(cnts) > 0:
-        print(f"原始轮廓数量: {len(cnts)}")  # 调试信息
+        #print(f"原始轮廓数量: {len(cnts)}")  # 调试信息
 
         # 3. 计算中心点（主路径）
         largest_cnt = max(cnts, key=cv2.contourArea)
@@ -41,7 +46,7 @@ def get_center_point(img):
 
         # 5. 判断是否为岔路（有效轮廓≥2）
         is_junction = 1 if len(main_contours) > 2 else 0
-        print(f"is_junction: {is_junction}")  # 调试信息
+        #print(f"is_junction: {is_junction}")  # 调试信息
 
         # 6. 绘制所有轮廓（可视化）
         cv2.putText(img_output, f'contour: {len(cnts)}', (10, 30),

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
 
 
 # 最小二乘法拟合直线

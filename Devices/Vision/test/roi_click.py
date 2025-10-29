@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 import os
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+
 # 全局变量，用于存储点击的坐标和点击计数
 drawing = False  # 标志，表示是否正在选择区域
 points = []  # 存储点击的 (x, y) 坐标
