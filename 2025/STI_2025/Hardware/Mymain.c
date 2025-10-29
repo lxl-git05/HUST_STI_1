@@ -71,7 +71,19 @@ void Mymain(void)
 			Pi_task1 = Serial3_Hex_Data.Serial3_New_Package[2] ;	
 			Pi_angle = Serial3_Hex_Data.Serial3_New_Package[3] - 100 ;
 		}
-		
+		OLED_Printf(0 , 0 ,OLED_8X16 , "x_Line_real:%d", Pi_xLine_real ) ;
+		if (Motor_A.RealSpeed > Motor_B.RealSpeed)
+		{
+			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Left") ;
+		}
+		else if (Motor_A.RealSpeed < Motor_B.RealSpeed)
+		{
+			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Right") ;
+		}
+		else
+		{
+			OLED_Printf(0 , 20 , OLED_8X16 , "Go ahead") ;
+		}
 		// 必须存在:OLED更新
 		OLED_Update() ;
 	}
@@ -122,14 +134,14 @@ void Motor_Pi_Check(void)
 	if (Serial_GetNewPackageFlag_ABC() == 1)
 	{
 		// 文本包调试程序
-		/*
+		
 		Serial_SetIntData("xLine_goal" , "xLine_goal=%d" , &Pi_xLine_goal) ;
 		Serial_SetIntData("xLine_real" , "xLine_real=%d" , &Pi_xLine_real) ;
 		
 		Serial_SetFloatData("KpC" , "KpC=%f" , &PID_Line.Kp) ;
 		Serial_SetFloatData("KiC" , "KiC=%f" , &PID_Line.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &PID_Line.Kd) ;
-		*/
+		
 		// 两个轮子调试
 		// 刹车
 		if ( Serial_SetIntData("break" , "break=%d" , &check1) )
