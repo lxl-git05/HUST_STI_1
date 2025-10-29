@@ -6,6 +6,12 @@
 #include "string.h"
 #include <stdio.h>
 #include <math.h>
+#include "main.h"
+#include "dma.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+
 // ×ÔÉè¿â
 #include "OLED.h"
 #include "Key.h"

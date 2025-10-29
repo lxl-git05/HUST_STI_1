@@ -72,31 +72,6 @@ void SystemClock_Config(void);
 
 // *******************库/函数导入*******************
 #include "Mymain.h"
-// *******************全局变量*******************
-
-// 数据包
-extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
-
-extern Serial3_HEX_Data_Typedef   Serial3_Hex_Data ;			// 解析好的HEX数据包
-
-// 电机
-extern Motor_Typedef Motor_A ;	// 电机A
-extern Motor_Typedef Motor_B ;	// 电机B
-
-int goalPoint_A ;	// 电机目标转速
-int goalPoint_B ;	// 电机目标转速
-
-// 树莓派视觉传感器
-// 巡线
-int Pi_xLine_goal ;	// x 的目标值
-int Pi_xLine_real ;	// x 的真实值
-bool Pi_isTurn	;			// 判断是否需要转向
-
-// *******************实验区域*******************
-
-int check1 ;
-int check2 ;
-int check[50] ;
 
 /* USER CODE END 0 */
 
@@ -141,28 +116,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	
 	// ******************* setup *******************
+	
 	Mymain() ;
-	// 启动Systick时钟
-	HAL_SYSTICK_Config(SystemCoreClock / 1000);
-	// 初始化OLED
-	OLED_Init() ;
-	// 串口初始化
-	Serial_Init(&Serial_huart) ;
-	// 串口初始化
-	Serial3_Init(&Serial3_huart) ;
-	// 电机初始化:PWM , Encoder , PID
-	Motor_A_Init();
-	Motor_B_Init();
-	// 全部初始化完毕后再开启中断
-  __enable_irq();
 	
 	// ******************* 实验区域 *******************
-	
-	// ***新增巡线功能***
-	
-	
-	
-	
 	
   /* USER CODE END 2 */
 
@@ -173,80 +130,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		// ******************* while *******************
-		// 测试按键功能
-		if (Key_Check(KEY_1 , KEY_SINGLE))
-		{
-			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin) ;
-			Set_Current_USART(USART3_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-			printf("Serial3\n") ;
-		}
-		// ******************* 实验区域 *******************
-		// 逻辑:电脑通过VOFA发送数据包,STM32通过串口1接受指令,然后进行相应的操作,如下:
-		if (Serial_GetNewPackageFlag_ABC() == 1)
-		{
-			// 文本包调试程序
-			Serial_SetIntData("goalPoint_A" , "goalPoint_A=%d" , &goalPoint_A) ;
-			Serial_SetIntData("goalPoint_B" , "goalPoint_B=%d" , &goalPoint_B) ;
-			
-			Serial_SetFloatData("KpA" , "KpA=%f" , &Motor_A.PID_s.Kp) ;
-			Serial_SetFloatData("KiA" , "KiA=%f" , &Motor_A.PID_s.Ki) ;
-			Serial_SetFloatData("KdA" , "KdA=%f" , &Motor_A.PID_s.Kd) ;
-			
-			Serial_SetFloatData("KpB" , "KpB=%f" , &Motor_B.PID_s.Kp) ;
-			Serial_SetFloatData("KiB" , "KiB=%f" , &Motor_B.PID_s.Ki) ;
-			Serial_SetFloatData("KdB" , "KdB=%f" , &Motor_B.PID_s.Kd) ;
-			
-			// 两个轮子调试
-			// 刹车
-			if ( Serial_SetIntData("break" , "break=%d" , &goalPoint_A) )
-			{
-				goalPoint_A = 0 ;
-				goalPoint_B = 0 ;
-			}
-			// 一起跑
-			if (Serial_SetIntData("goalSpeed" , "goalSpeed=%d" , &goalPoint_A))
-			{
-				goalPoint_B = goalPoint_A ;
-			}
-		}
-		// OLED展示
-		/*
-		OLED_Printf(0 , 0 , OLED_8X16 , "Asrg:%d %d %d" ,Motor_A.SetSpeed, Motor_A.RealSpeed, Motor_A.GoalSpeed ) ;
-		OLED_Printf(0 ,15 , OLED_8X16 , "A:%.2f,%.2f,%.2f",Motor_A.PID_s.Kp,Motor_A.PID_s.Ki,Motor_A.PID_s.Kd) ;
 		
-		OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
-		OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
-		*/
-		
-		Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-		// PID调参
-		// 单独展示
-//		printf("%d,%d,%d,%f,%f,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_A.PID_s.pout,Motor_A.PID_s.iout,Motor_A.PID_s.dout);
-//		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
-		// 联调
-		printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
-
-		// 电机目标速度和输出速度更新
-		Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
-		Motor_SetPWM(&Motor_A , Motor_A.SetSpeed ) ;
-		
-		Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;
-		Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;
-		
-		// ***新增巡线功能***
-		if (Serial3_GetNewPackageFlag_HEX() == 1)
-		{
-			if (Serial3_Hex_Data.Serial3_New_Package[0] == 2) 
-			{
-				HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-			}
-		}
-		
-		
-		
-		// 必须存在:OLED更新
-		OLED_Update() ;
   }
   /* USER CODE END 3 */
 }
@@ -291,40 +175,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// Systick定时中断
-void HAL_SYSTICK_Callback(void)
-{
-	// 计时
-	static int count_sys = 0 ;
-	count_sys ++ ;
-	// 功能1 : 按键
-	Key_Tick() ;
-	// 功能2 : 编码器测速+PID调控 + ***** 双环调控:偏转角度外环 + 速度内环 *****
-	if (count_sys % Encoder_PID_Gap_Time == 0)
-	{
-		// 对电机B进行Kp限制
-		if (fabs(Motor_B.PID_s.PreError) < 5)
-		{
-			Motor_B.PID_s.Kp = 0.04f * fabs(Motor_B.PID_s.PreError) ;
-		}
-		else if (fabs(Motor_B.PID_s.PreError) >= 5 && fabs(Motor_B.PID_s.PreError) < 20)
-		{
-			Motor_B.PID_s.Kp = 0.03f * fabs(Motor_B.PID_s.PreError) + 0.05f ;
-		}
-		else
-		{
-			Motor_B.PID_s.Kp = 0.6f ;
-		}
-		Motor_Speed_Update(&Motor_A) ;			// 编码器测速
-		Motor_PID_Update(&Motor_A) ;				// PID更新
-		
-		Motor_Speed_Update(&Motor_B) ;			// 编码器测速
-		Motor_PID_Update(&Motor_B) ;				// PID更新
-	}
-	// 功能3: 
-	
-		
-}
+
 
 // 串口空闲中断回调函数
 /*串口接收中断回调*/
