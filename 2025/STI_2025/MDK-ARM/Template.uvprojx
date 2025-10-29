@@ -813,6 +813,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Serial3.h</FilePath>
             </File>
+            <File>
+              <FileName>Mymain.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Mymain.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mymain.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Mymain.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

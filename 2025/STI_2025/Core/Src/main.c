@@ -71,22 +71,9 @@ void SystemClock_Config(void);
 */
 
 // *******************库/函数导入*******************
-// 系统库
-#include <stdlib.h>
-#include "string.h"
-#include <stdio.h>
-#include <math.h>
-// 自设库
-#include "OLED.h"
-#include "Key.h"
-#include "Serial.h"
-#include "Serial3.h"
-
-#include "Encoder_Motor.h"
-#include "Encoder.h"
-#include "Motor.h"
-
+#include "Mymain.h"
 // *******************全局变量*******************
+
 // 数据包
 extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
 
@@ -99,18 +86,11 @@ extern Motor_Typedef Motor_B ;	// 电机B
 int goalPoint_A ;	// 电机目标转速
 int goalPoint_B ;	// 电机目标转速
 
-// 临时加(USART2 + USART3)
-extern Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
-extern Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
-
-extern Serial3_RX_FLAG_Typedef 		Serial3_Rx_State;							// 数据接收情况标志位-枚举
-extern Serial3_RX_Data_TypeDef 		Serial3_Rx_Data ;							// 数据接收缓存区
-
 // 树莓派视觉传感器
 // 巡线
-int xLine_goal ;	// x 的目标值
-int xLine_real ;	// x 的真实值
-bool isTurn	;			// 判断是否需要转向
+int Pi_xLine_goal ;	// x 的目标值
+int Pi_xLine_real ;	// x 的真实值
+bool Pi_isTurn	;			// 判断是否需要转向
 
 // *******************实验区域*******************
 
@@ -161,6 +141,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	
 	// ******************* setup *******************
+	Mymain() ;
 	// 启动Systick时钟
 	HAL_SYSTICK_Config(SystemCoreClock / 1000);
 	// 初始化OLED

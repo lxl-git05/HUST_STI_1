@@ -17,9 +17,6 @@
 // DMA等待帧尾判断溢出阈值
 #define Serial_Wait_Tail_MAX 25
 
-// 通过检验的数据包的长度(肯定比DMA的小,根据情况处理)
-
-
 // ********** 结构体初始化 **********
 // 数据接收过程标志位
 typedef enum
@@ -88,6 +85,10 @@ typedef struct
 	int error_Serial	;								  				 // 错误查询参数
 }Serial_ABC_Data_Typedef;
 
+
+// ********** 变量extern **********
+extern Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
+extern Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
 
 
 // ********** 函数声明 **********

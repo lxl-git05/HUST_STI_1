@@ -88,7 +88,9 @@ typedef struct
 	int error_Serial3	;								  				 // 错误查询参数
 }Serial3_ABC_Data_Typedef;
 
-
+// ********** 变量extern **********
+extern Serial3_RX_FLAG_Typedef 		Serial3_Rx_State;							// 数据接收情况标志位-枚举
+extern Serial3_RX_Data_TypeDef 		Serial3_Rx_Data ;							// 数据接收缓存区
 
 // ********** 函数声明 **********
 // DMA串口接收初始化
