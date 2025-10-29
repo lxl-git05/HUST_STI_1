@@ -5,7 +5,7 @@ import cv2
 
 def get_center_point(img):
     img_output = img.copy()
-    min_area_threshold = 30  # 降低最小面积阈值（根据实际调整）
+    min_area_threshold = 100  # 降低最小面积阈值（根据实际调整）
 
     # 1. 灰度转换与二值化（优化）
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -42,7 +42,7 @@ def get_center_point(img):
         # 4. 筛选有效轮廓（面积>最小阈值）
         cnts_sorted = sorted(cnts, key=cv2.contourArea, reverse=True)
         main_contours = [cnt for cnt in cnts_sorted if cv2.contourArea(cnt) > min_area_threshold]
-        print(f"有效轮廓数量: {len(main_contours)}")  # 调试信息
+        #print(f"有效轮廓数量: {len(main_contours)}")  # 调试信息
 
         # 5. 判断是否为岔路（有效轮廓≥2）
         is_junction = 1 if len(main_contours) > 2 else 0

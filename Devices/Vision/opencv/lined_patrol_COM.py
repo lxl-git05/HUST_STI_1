@@ -36,7 +36,7 @@ try:
         cv2.imshow(windowname,roi)
         if cv2.waitKey(1) & 0xFF == 27:
             break
-        #print(f"x: {x},y: {y}, isj: {isj}")
+        print(f"x: {x},y: {y}, isj: {isj}")
         num=0x04
         pack.insert_two_bytes(pack.num_to_bytes(x+100))
         pack.insert_two_bytes(pack.num_to_bytes(isj))
