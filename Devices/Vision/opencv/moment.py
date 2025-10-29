@@ -2,6 +2,16 @@ import serial
 import time
 import cv2
 
+def count_black_pixels_at_y(binary_img, y):
+        try:
+                # 获取指定行的所有像素
+            row = binary_img[y, :]
+                # 统计黑色像素（值为0）
+            black_count = np.sum(row == 0)
+            return black_count
+        except Exception as e:
+            print(f"错误: {e}")
+            return 0
 
 def get_center_point(img):
     img_output = img.copy()
