@@ -18,10 +18,12 @@ bool isBreak = true;			// 刹车判断
 
 // 树莓派视觉传感器
 // 巡线
-Pid_Typedef PID_Line ;// 树莓派巡线PID
-int Pi_xLine_goal = 320;		// x 的目标值
-int Pi_xLine_real = 320;		// x 的真实值
-bool Pi_isTurn	;			// 判断是否需要转向
+Pid_Typedef PID_Line ;			// 树莓派巡线PID
+
+int Pi_xLine_goal = 160;		// x 的目标值
+int Pi_xLine_real = 160;		// x 的真实值,数据量 x_real + 100
+int Pi_task1	;							// 检测岔路口(0:直走 , 1: 有岔路口) + 停车指令(2)
+int Pi_angle ;							// angle + 100:偏转角度
 
 // *******************实验区域*******************
 int check1 ;
@@ -60,6 +62,15 @@ void Mymain(void)
 		// **********实验区域**********
 //		Motor_PID_Check() ;		// 调节电机PID
 		Motor_Pi_Check() ;		// 联合巡线机制调节巡线PID
+		
+		// 树莓派数据更新
+		if (Serial3_GetNewPackageFlag_HEX() == 1)
+		{
+			// Serial3_New_Package:// 3个 : x_real , task1 , angle
+			Pi_xLine_real = Serial3_Hex_Data.Serial3_New_Package[1] - 100 ;	
+			Pi_task1 = Serial3_Hex_Data.Serial3_New_Package[2] ;	
+			Pi_angle = Serial3_Hex_Data.Serial3_New_Package[3] - 100 ;
+		}
 		
 		// 必须存在:OLED更新
 		OLED_Update() ;
@@ -111,13 +122,14 @@ void Motor_Pi_Check(void)
 	if (Serial_GetNewPackageFlag_ABC() == 1)
 	{
 		// 文本包调试程序
+		/*
 		Serial_SetIntData("xLine_goal" , "xLine_goal=%d" , &Pi_xLine_goal) ;
 		Serial_SetIntData("xLine_real" , "xLine_real=%d" , &Pi_xLine_real) ;
 		
 		Serial_SetFloatData("KpC" , "KpC=%f" , &PID_Line.Kp) ;
 		Serial_SetFloatData("KiC" , "KiC=%f" , &PID_Line.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &PID_Line.Kd) ;
-		
+		*/
 		// 两个轮子调试
 		// 刹车
 		if ( Serial_SetIntData("break" , "break=%d" , &check1) )
@@ -134,17 +146,13 @@ void Motor_Pi_Check(void)
 		// 一起跑
 		if (Serial_SetIntData("goalSpeed" , "goalSpeed=%d" , &goalPointTwo))
 		{
-			goalPoint_A = -goalPointTwo ;
-			goalPoint_B = -goalPointTwo ;
+			goalPoint_A = goalPointTwo ;
+			goalPoint_B = goalPointTwo ;
 		}
 	}
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	// VOFA展示PID调参
-	// 电机单独展示
-//		printf("%d,%d,%d,%f,%f,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_A.PID_s.pout,Motor_A.PID_s.iout,Motor_A.PID_s.dout);
-//		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
-	// 电机联调
-	printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
+	// VOFA展示电机状态
+	printf("%d,%d,%f,%d,%d,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , PID_Line.goalPoint,Motor_B.GoalSpeed , Motor_B.RealSpeed , PID_Line.realPoint_Now);
 
 	// 电机目标速度和输出速度更新
 	Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
