@@ -29,7 +29,7 @@ def ls(img):
 
     # 至少要有两个点才能拟合直线
     if len(center_points) < 2:
-        return 0, width // 2, img  # 如果没有找到足够点，返回默认值
+        return 0.0  # 如果没有找到足够点，返回默认值
 
     # 使用np.polyfit对直线进行拟合,次数为1
     # 获得斜率slope和截距intercept

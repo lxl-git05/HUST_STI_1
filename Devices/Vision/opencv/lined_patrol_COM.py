@@ -4,6 +4,7 @@ import serial
 from moment import get_center_point
 from moment import SerialPacket
 from moment import ls
+from moment import count_black_pixels_at_y
 
 # 打开默认摄像头
 cap = cv2.VideoCapture(0)
@@ -33,17 +34,18 @@ try:
         roi = frame[height // 2 - 120:height // 2 + 120, width // 2 - 160:width // 2 + 160]
         angel = ls(roi)
         x, y, roi, isj = get_center_point(roi)
-
         print(angel)
+        print(count_black_pixels_at_y(roi,60))
         # x = int(x*255/640)
         cv2.imshow(windowname, roi)
         if cv2.waitKey(1) & 0xFF == 27:
             break
         print(f"x: {x},y: {y}, isj: {isj}")
-        num = 0x04
-        pack.insert_two_bytes(pack.num_to_bytes(x + 100))
+        angel=int(angel)+100
+        pack.insert_two_bytes(pack.num_to_bytes(x+100))
         pack.insert_two_bytes(pack.num_to_bytes(isj))
-    # pack.send_packet()
+        pack.insert_two_bytes(pack.num_to_bytes(angel+100))
+        # pack.send_packet()
 
     # cv2.imshow('frame',frame)
     # time.sleep(0.01)
