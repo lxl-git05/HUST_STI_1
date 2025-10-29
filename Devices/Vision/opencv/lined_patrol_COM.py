@@ -35,7 +35,9 @@ try:
         angel = ls(roi)
         x, y, roi, isj = get_center_point(roi)
         print(angel)
-        print(count_black_pixels_at_y(roi,60))
+        print(count_black_pixels_at_y(roi,120))
+        if(count_black_pixels_at_y(roi,120)>200):
+            isj = 2
         # x = int(x*255/640)
         cv2.imshow(windowname, roi)
         if cv2.waitKey(1) & 0xFF == 27:
