@@ -26,6 +26,8 @@ def get_center_point(img, min_area_threshold = 40, threshold_value=51):
 
     cx, cy = -1, -1
 
+    is_junction = 0
+
     if len(cnts) > 0:
         # 找最大轮廓
         largest_cnt = max(cnts, key=cv2.contourArea)
@@ -79,9 +81,11 @@ try:
         cx, cy, binary, output, is_junction = get_center_point(roi, 40, threshold_value)
 
         # 判断是否在停止标识
-        white_pixels = count_white_pixels_at_y(roi, height // 2)
+        roi_height, roi_width = roi.shape[:2]
+        white_pixels = count_white_pixels_at_y(roi, roi_height // 2)
         # 中间一行白色像素超过80后停止标志置1
-        is_stop = 1 if white_pixels >= 80 and is_junction = 0
+        is_stop = 1 if white_pixels >= 80 and is_junction == 0 else 0
+
 
         # 在原图上画ROI框
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
