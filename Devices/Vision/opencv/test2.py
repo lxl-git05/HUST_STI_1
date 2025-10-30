@@ -3,7 +3,7 @@ import numpy as np
 from moment import SerialPacket
 from moment import count_white_pixels_at_y
 
-def get_center_point(img, threshold_value=51):
+def get_center_point(img, min_area_threshold = 40, threshold_value=51):
     """
     输入：
         img: BGR图像
@@ -37,8 +37,12 @@ def get_center_point(img, threshold_value=51):
             cv2.circle(img_output, (cx, cy), 5, (0, 255, 0), -1)
             # 绘制纵向中心线
             cv2.line(img_output, (cx, 0), (cx, img_output.shape[0]), (255, 0, 0), 2)
+        # 筛选有效轮廓
+        cnts_sorted = sorted(cnts, key=cv2.contourArea, reverse=True)
+        main_contours = [cnt for cnt in cnts_sorted if cv2.contourArea(cnt) > min_area_threshold]
+        is_junction = 1 if len(main_contours) > 2 else 0
 
-    return cx, cy, img_binary, img_output
+    return cx, cy, img_binary, img_output, is_junction
 
 # 打开摄像头
 cap = cv2.VideoCapture(0)
@@ -72,11 +76,12 @@ try:
         threshold_value = cv2.getTrackbarPos("Threshold", "ROI + Center")
 
         # 计算中心点
-        cx, cy, binary, output = get_center_point(roi, threshold_value)
+        cx, cy, binary, output, is_junction = get_center_point(roi, 40, threshold_value)
 
         # 判断是否在停止标识
         white_pixels = count_white_pixels_at_y(roi, height // 2)
-        is_stop = 1 if white_pixels >= 80 # 中间一行白色像素超过80后停止标志置1
+        # 中间一行白色像素超过80后停止标志置1
+        is_stop = 1 if white_pixels >= 80 and is_junction = 0
 
         # 在原图上画ROI框
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
