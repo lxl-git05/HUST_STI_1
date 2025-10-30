@@ -67,12 +67,43 @@ def count_white_pixels_at_y(binary_img, y):
         try:
                 # 获取指定行的所有像素
             row = binary_img[y, :]
-                # 统计白色像素（值为1）
-            white_count = np.sum(row == 1)
+                # 统计白色像素（值为255）
+            white_count = np.sum(row == 255)
             return white_count
         except Exception as e:
             print(f"错误: {e}")
             return 0
+
+def get_stop(binary_img, roi_height):
+    state = 0
+    # last_state = 0
+    count = 0
+    line_height = 0
+    for i in range(roi_height):
+        white_pixels = count_white_pixels_at_y(binary_img, i)
+        state = 1 if white_pixels >= 80 else 0
+        if state == 1:
+            line_height += 1
+        else:
+            if line_height >= 5:
+                count += 1
+                line_height = 0
+            else:
+                line_height = 0
+        #     line_height = 0
+        # if (line_height >= 5 and state == 0):
+        #     count += 1
+        # count += 1 if last_state == 0 and state ==1 else 0
+        # last_state = state
+    if line_height >= 5:
+        count += 1
+    if count == 0:
+        return 0
+    elif count == 1:
+        return 1
+    else:
+        return 2
+
 
 def get_center_point(img):
     img_output = img.copy()

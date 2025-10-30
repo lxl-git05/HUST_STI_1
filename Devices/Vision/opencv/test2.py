@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from moment import SerialPacket
-from moment import count_white_pixels_at_y
+from moment import get_stop
 
 def get_center_point(img, min_area_threshold = 40, threshold_value=51):
     """
@@ -82,10 +82,11 @@ try:
 
         # 判断是否在停止标识
         roi_height, roi_width = roi.shape[:2]
-        white_pixels = count_white_pixels_at_y(roi, roi_height // 2)
+        # white_pixels = count_white_pixels_at_y(binary, roi_height // 2)
         # 中间一行白色像素超过80后停止标志置1
-        is_stop = 1 if white_pixels >= 80 and is_junction == 0 else 0
-
+        # is_stop = 1 if white_pixels >= 80 and is_junction == 0 else 0
+        # 判断停止标识和等停标识
+        is_stop = get_stop
 
         # 在原图上画ROI框
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
