@@ -15,6 +15,8 @@ int goalPoint_A ;	// 电机目标转速
 int goalPoint_B ;	// 电机目标转速
 int goalPointTwo;	// 共同速度
 bool isBreak = true;			// 刹车判断
+// 实验
+float C = 1.0f ;	// x_real倍增系数
 
 // 树莓派视觉传感器
 // 巡线
@@ -174,6 +176,8 @@ void Motor_Pi_Check(void)
 		Serial_SetFloatData("KpC" , "KpC=%f" , &PID_Line.Kp) ;
 		Serial_SetFloatData("KiC" , "KiC=%f" , &PID_Line.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &PID_Line.Kd) ;
+		
+		Serial_SetFloatData("C" , "C=%f" , &C) ;
 		
 		// 两个轮子调试
 		// 刹车
