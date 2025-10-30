@@ -22,8 +22,10 @@ Pid_Typedef PID_Line ;			// 树莓派巡线PID
 
 int Pi_xLine_goal = 160;		// x 的目标值
 int Pi_xLine_real = 160;		// x 的真实值,数据量 x_real + 100
-int Pi_task1	;							// 检测岔路口(0:直走 , 1: 有岔路口) + 停车指令(2)
+int Pi_task1	;							// 识别到停止即为1,否则为0,2是等5s
 int Pi_angle ;							// angle + 100:偏转角度
+int Pi_Speed_Max = 10 ;			// 速度环最大差值
+int Pi_Wait_Flag = 0 ;			// 等停标示标志位,0:等待停止标志位中 , 1:识别到等停 2:注销等停模式
 
 // *******************实验区域*******************
 int check1 ;
@@ -48,7 +50,8 @@ void Mymain(void)
 	Serial3_Init(&Serial3_huart) ;							// 串口_树莓派初始化
 	Motor_A_Init();															// 电机A初始化
 	Motor_B_Init();															// 电机B初始化
-	PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , 10 , -10 , 1000) ;	// 树莓派巡线初始化
+	PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
+	PID_Line.d_style = 1.0f ;
 	
 	// 全部初始化完毕后再开启中断
 	__enable_irq();
@@ -59,6 +62,14 @@ void Mymain(void)
 	
 	while (1)
 	{
+		if(Key_Check(0 , KEY_SINGLE) == 1)
+		{
+			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+			goalPointTwo = -60 ;
+			goalPoint_A = goalPointTwo ;
+			goalPoint_B = goalPointTwo ;
+			isBreak = false ;
+		}
 		// **********实验区域**********
 //		Motor_PID_Check() ;		// 调节电机PID
 		Motor_Pi_Check() ;		// 联合巡线机制调节巡线PID
@@ -72,17 +83,34 @@ void Mymain(void)
 			Pi_angle = Serial3_Hex_Data.Serial3_New_Package[3] - 100 ;
 		}
 		OLED_Printf(0 , 0 ,OLED_8X16 , "x_Line_real:%d", Pi_xLine_real ) ;
-		if (Motor_A.RealSpeed > Motor_B.RealSpeed)
+		if (fabs(Motor_A.RealSpeed) > fabs(Motor_B.RealSpeed))
 		{
 			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Left") ;
 		}
-		else if (Motor_A.RealSpeed < Motor_B.RealSpeed)
+		else if (fabs(Motor_A.RealSpeed) < fabs(Motor_B.RealSpeed))
 		{
 			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Right") ;
 		}
 		else
 		{
 			OLED_Printf(0 , 20 , OLED_8X16 , "Go ahead") ;
+		}
+		// 停止标示
+		if (Pi_task1 == 1)
+		{
+			OLED_ShowString(0 , 40 , "Break" , OLED_8X16) ;
+			isBreak = true ;
+		}
+		// 等停标示,等待5s
+		else if (Pi_task1 == 2 && Pi_Wait_Flag == 0)
+		{
+			OLED_ShowString(0 , 40 , "Waiting" , OLED_8X16) ;
+			isBreak = true ;
+			Pi_Wait_Flag = 1 ;	// 标志位置1,开始倒计时
+		}
+		else
+		{
+			OLED_ShowString(0 , 40 , "Run" , OLED_8X16) ;
 		}
 		// 必须存在:OLED更新
 		OLED_Update() ;
@@ -138,6 +166,11 @@ void Motor_Pi_Check(void)
 		Serial_SetIntData("xLine_goal" , "xLine_goal=%d" , &Pi_xLine_goal) ;
 		Serial_SetIntData("xLine_real" , "xLine_real=%d" , &Pi_xLine_real) ;
 		
+		// 测试
+		Serial_SetIntData("Pi_Speed_Max" , "Pi_Speed_Max=%d" , &Pi_Speed_Max) ;
+		PID_Line.OutMax = Pi_Speed_Max ;
+		PID_Line.OutMin = -Pi_Speed_Max;
+		
 		Serial_SetFloatData("KpC" , "KpC=%f" , &PID_Line.Kp) ;
 		Serial_SetFloatData("KiC" , "KiC=%f" , &PID_Line.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &PID_Line.Kd) ;
@@ -161,10 +194,13 @@ void Motor_Pi_Check(void)
 			goalPoint_A = goalPointTwo ;
 			goalPoint_B = goalPointTwo ;
 		}
+		
 	}
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
 	// VOFA展示电机状态
-	printf("%d,%d,%f,%d,%d,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , PID_Line.goalPoint,Motor_B.GoalSpeed , Motor_B.RealSpeed , PID_Line.realPoint_Now);
+//	printf("%d,%d,%f,%d,%d,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , PID_Line.goalPoint,Motor_B.GoalSpeed , Motor_B.RealSpeed , PID_Line.realPoint_Now);
+	printf("%f,%f,%f,%f,%f\n",PID_Line.goalPoint , PID_Line.realPoint_Now ,PID_Line.setPoint ,PID_Line.pout,PID_Line.dout );
+//		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
 
 	// 电机目标速度和输出速度更新
 	Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
@@ -248,7 +284,6 @@ void Motor_PID_Check(void)
 	Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;
 	Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;
 }
-
 // Systick定时中断
 void HAL_SYSTICK_Callback(void)
 {
@@ -256,6 +291,17 @@ void HAL_SYSTICK_Callback(void)
 	Key_Tick() ;
 	// 任务1:电机状态更新
 	task_possess(&Motor_Status) ;
+	// 任务2:等停5s
+	if (Pi_Wait_Flag == 1)
+	{
+		static int Pi_Line_Wait_Count = 5000 ;
+		Pi_Line_Wait_Count -- ;
+		if (Pi_Line_Wait_Count == 0)
+		{
+			isBreak = false ;
+			Pi_Wait_Flag = 2 ;	// 再也不允许运行第二次了
+		}
+	}
 }
 
 // 任务初始化(setup)

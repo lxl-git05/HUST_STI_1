@@ -33,7 +33,7 @@ void Motor_A_Init(void)
 	PID_Init(&Motor_A.PID_s , 0.42f , 0.064f , 0.0f , 100 , -100 , 10000 ) ;
 	
 	// 额外功能
-	Motor_A.PID_s.deadspace = 5.0f ;	// 输出死区
+//	Motor_A.PID_s.deadspace = 5.0f ;	// 输出死区
 	
 }
 
@@ -68,7 +68,7 @@ void Motor_B_Init(void)
 	
 	
 	// PID初始化
-	PID_Init(&Motor_B.PID_s , 0.70f , 0.031f , 0.0f , 100 , -100 , 10000 ) ;
+	PID_Init(&Motor_B.PID_s , 0.70f , 0.044f , 0.0f , 100 , -100 , 10000 ) ;
 }
 // 调用者执行的逻辑,设置目标速度
 void Motor_SetGoalSpeed(Motor_Typedef *Motor , int speed)
