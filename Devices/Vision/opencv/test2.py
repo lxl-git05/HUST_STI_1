@@ -86,7 +86,7 @@ try:
         # 中间一行白色像素超过80后停止标志置1
         # is_stop = 1 if white_pixels >= 80 and is_junction == 0 else 0
         # 判断停止标识和等停标识
-        is_stop = get_stop
+        is_stop = get_stop(binary, roi_height)
 
         # 在原图上画ROI框
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
@@ -104,7 +104,7 @@ try:
         # 发送数据包
         pack.insert_byte(0x06)
         pack.insert_two_bytes(pack.num_to_bytes(cx+100))
-        pack.insert_two_bytes(pack.num_to_bytes(0))
+        pack.insert_two_bytes(pack.num_to_bytes(is_stop))
         pack.insert_two_bytes(pack.num_to_bytes(0+100))
         pack.send_packet()
 

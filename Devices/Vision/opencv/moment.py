@@ -79,22 +79,23 @@ def get_stop(binary_img, roi_height):
     # last_state = 0
     count = 0
     line_height = 0
-    for i in range(roi_height):
-        white_pixels = count_white_pixels_at_y(binary_img, i)
-        state = 1 if white_pixels >= 80 else 0
-        if state == 1:
-            line_height += 1
-        else:
-            if line_height >= 5:
-                count += 1
-                line_height = 0
+    if count_white_pixels_at_y(binary_img, roi_height * 2 // 3) >= 80:
+        for i in range(roi_height):
+            white_pixels = count_white_pixels_at_y(binary_img, i)
+            state = 1 if white_pixels >= 80 else 0
+            if state == 1:
+                line_height += 1
             else:
-                line_height = 0
-        #     line_height = 0
-        # if (line_height >= 5 and state == 0):
-        #     count += 1
-        # count += 1 if last_state == 0 and state ==1 else 0
-        # last_state = state
+                if line_height >= 5:
+                    count += 1
+                    line_height = 0
+                else:
+                    line_height = 0
+            #     line_height = 0
+            # if (line_height >= 5 and state == 0):
+            #     count += 1
+            # count += 1 if last_state == 0 and state ==1 else 0
+            # last_state = state
     if line_height >= 5:
         count += 1
     if count == 0:
