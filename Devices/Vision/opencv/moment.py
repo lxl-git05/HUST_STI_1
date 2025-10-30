@@ -63,13 +63,13 @@ def ls(img):
 
     return angle_deg
 
-def count_black_pixels_at_y(binary_img, y):
+def count_white_pixels_at_y(binary_img, y):
         try:
                 # 获取指定行的所有像素
             row = binary_img[y, :]
-                # 统计黑色像素（值为0）
-            black_count = np.sum(row == 0)
-            return black_count
+                # 统计白色像素（值为1）
+            white_count = np.sum(row == 1)
+            return white_count
         except Exception as e:
             print(f"错误: {e}")
             return 0

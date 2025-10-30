@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 from moment import SerialPacket
+from moment import count_white_pixels_at_y
 
-def get_center_point(img, threshold_value=80):
+def get_center_point(img, threshold_value=51):
     """
     输入：
         img: BGR图像
@@ -72,6 +73,10 @@ try:
 
         # 计算中心点
         cx, cy, binary, output = get_center_point(roi, threshold_value)
+
+        # 判断是否在停止标识
+        white_pixels = count_white_pixels_at_y(roi, height // 2)
+        is_stop = 1 if white_pixels >= 80 # 中间一行白色像素超过80后停止标志置1
 
         # 在原图上画ROI框
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
