@@ -92,6 +92,8 @@ typedef struct
 extern Serial3_RX_FLAG_Typedef 		Serial3_Rx_State;							// 数据接收情况标志位-枚举
 extern Serial3_RX_Data_TypeDef 		Serial3_Rx_Data ;							// 数据接收缓存区
 
+extern Serial3_HEX_Data_Typedef   Serial3_Hex_Data ;						// 解析好的HEX数据包
+
 // ********** 函数声明 **********
 // DMA串口接收初始化
 void Serial3_Init(UART_HandleTypeDef *huart) ;

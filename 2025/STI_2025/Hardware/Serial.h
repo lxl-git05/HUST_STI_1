@@ -90,6 +90,7 @@ typedef struct
 extern Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
 extern Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
 
+extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;							// 解析好的ABC数据包
 
 // ********** 函数声明 **********
 // DMA串口接收初始化

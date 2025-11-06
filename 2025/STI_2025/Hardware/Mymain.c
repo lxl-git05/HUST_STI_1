@@ -1,31 +1,25 @@
 #include "Mymain.h"
 
+// *******************调试模式*******************
+//#define PID_Check
+
 // *******************全局变量*******************
-
-// 数据包
-extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
-
-extern Serial3_HEX_Data_Typedef   Serial3_Hex_Data ;			// 解析好的HEX数据包
-
 // 电机
-extern Motor_Typedef Motor_A ;	// 电机A
-extern Motor_Typedef Motor_B ;	// 电机B
-
-int goalPoint_A ;	// 电机目标转速
-int goalPoint_B ;	// 电机目标转速
-int goalPointTwo;	// 共同速度
+int goalPoint_A ;					// 电机目标转速
+int goalPoint_B ;					// 电机目标转速
+int goalPointTwo;					// 共同速度
 bool isBreak = true;			// 刹车判断
-// 实验
-float C = 1.0f ;	// x_real倍增系数
 
 // 树莓派视觉传感器
 // 巡线
 Pid_Typedef PID_Line ;			// 树莓派巡线PID
 
-int Pi_xLine_goal = 160;		// x 的目标值
-int Pi_xLine_real = 160;		// x 的真实值,数据量 x_real + 100
-int Pi_task1	;							// 识别到停止即为1,否则为0,2是等5s
-int Pi_angle ;							// angle + 100:偏转角度
+extern int Pi_xLine_goal ;					// x 的目标值
+// 数据包内容
+extern int Pi_xLine_real ;					// x 的真实值,数据量 x_real + 100
+extern int Pi_task1	;								// 运动: 0 , 停止: 1 ,等停5秒: 2
+extern int Pi_angle 	;							// angle + 100:偏转角度
+
 int Pi_Speed_Max = 10 ;			// 速度环最大差值
 int Pi_Wait_Flag = 0 ;			// 等停标示标志位,0:等待停止标志位中 , 1:识别到等停 2:注销等停模式
 
@@ -39,73 +33,75 @@ float time_us ;
 // 任务1:电机状态更新
 mytask Motor_Status ;	
 void Motor_Update_Entray(void) ;
-void Motor_Update_Line_Entray(void) ;
-void Motor_PID_Check(void) ;	// 电机调节PID测试函数
 void Motor_Pi_Check(void) ;		// 电机与树莓派联调函数(模拟)
+// 实验
+void Motor_Update_Entray_Check(void) ;
+void Motor_PID_Check(void) ;	// 电机调节PID测试函数
 // 任务2:
 
 void Mymain(void)
 {
 	// ***********初始化***********
-	HAL_SYSTICK_Config(SystemCoreClock / 1000);	// 启动Systick时钟
-	OLED_Init() ;																// 初始化OLED
-	Serial_Init(&Serial_huart) ;								// 串口_初始化
-	Serial3_Init(&Serial3_huart) ;							// 串口_树莓派初始化
-	Motor_A_Init();															// 电机A初始化
-	Motor_B_Init();															// 电机B初始化
-	PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
-	PID_Line.d_style = 1.0f ;
-	// *********实验********
+	{
+		HAL_SYSTICK_Config(SystemCoreClock / 1000);	// 启动Systick时钟
+		OLED_Init() ;																// 初始化OLED
+		Serial_Init(&Serial_huart) ;								// 串口_初始化
+		Serial3_Init(&Serial3_huart) ;							// 串口_树莓派初始化
+		Motor_A_Init();															// 电机A初始化
+		Motor_B_Init();															// 电机B初始化
+		PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
+	}
 	// 初始化 DWT 计时器
+	/*
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;     // 清零
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+	uint32_t start = DWT->CYCCNT;
+	// func-begin
 	
-//	uint32_t start = DWT->CYCCNT;
-//	// func-begin
-//	
-//	// func-end
-//	uint32_t end = DWT->CYCCNT;
-//	uint32_t cycles = end - start;
-//	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);
-	
+	// func-end
+	uint32_t end = DWT->CYCCNT;
+	uint32_t cycles = end - start;
+	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);
+	*/
 	// 全部初始化完毕后再开启中断
 	__enable_irq();
 	
 	// ***********任务调度清单***********
+	#ifdef PID_Check
+	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Check) ;	// 任务1:电机状态更新
+	#else
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray) ;	// 任务1:电机状态更新
-//	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Line_Entray) ;	// 任务1:电机状态更新
+	#endif
 	
 	while (1)
 	{
-		if(Key_Check(0 , KEY_SINGLE) == 1)
-		{
-			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-			goalPointTwo = -60 ;
-			goalPoint_A = goalPointTwo ;
-			goalPoint_B = goalPointTwo ;
-			isBreak = false ;
-		}
 		// **********实验区域**********
+		#ifdef PID_Check
 		Motor_PID_Check() ;		// 调节电机PID
-//		Motor_Pi_Check() ;		// 联合巡线机制调节巡线PID
-		
-		// 树莓派数据更新
-		if (Serial3_GetNewPackageFlag_HEX() == 1)
-		{
-			// Serial3_New_Package:// 3个 : x_real , task1 , angle
-			Pi_xLine_real = Serial3_Hex_Data.Serial3_New_Package[1] - 100 ;	
-			Pi_task1 = Serial3_Hex_Data.Serial3_New_Package[2] ;	
-			Pi_angle = Serial3_Hex_Data.Serial3_New_Package[3] - 100 ;
-		}
-		OLED_Printf(0 , 0 ,OLED_8X16 , "x_Line_real:%d", Pi_xLine_real ) ;
+		#else
+		Motor_Pi_Check() ;		// 联合巡线机制调节巡线PID
+		#endif
 
-		// 必须存在:OLED更新
-		OLED_Update() ;
+		// 树莓派数据更新+亮灯调节
+		RasPi_Data_Update() ;
+		
+		// 等停功能实现
+		if (Pi_task1 == 1)
+		{
+			isBreak = true ;
+		}
+		// 等停标示,等待5s
+		else if (Pi_task1 == 2 && Pi_Wait_Flag == 0)
+		{
+			isBreak = true ;
+			Pi_Wait_Flag = 1 ;	// 标志位置1,开始倒计时
+		}
 	}
 }
 
-void Motor_Update_Line_Entray(void)
+void Motor_Update_Entray(void)
 {
 	// 对电机B进行Kp限制
 	if (fabs(Motor_B.PID_s.PreError) < 5)
@@ -163,8 +159,6 @@ void Motor_Pi_Check(void)
 		Serial_SetFloatData("KiC" , "KiC=%f" , &PID_Line.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &PID_Line.Kd) ;
 		
-		Serial_SetFloatData("C" , "C=%f" , &C) ;
-		
 		// 两个轮子调试
 		// 刹车
 		if ( Serial_SetIntData("break" , "break=%d" , &check1) )
@@ -200,7 +194,7 @@ void Motor_Pi_Check(void)
 	Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;
 }
 
-void Motor_Update_Entray(void)
+void Motor_Update_Entray_Check(void)
 {
 //	// 计时
 //	static uint32_t last = 0;
@@ -259,13 +253,12 @@ void Motor_PID_Check(void)
 		}
 	}
 	// OLED展示
-	OLED_Printf(0 , 0 , OLED_8X16 , "Asrg:%d %d %d" ,Motor_A.SetSpeed, Motor_A.RealSpeed, Motor_A.GoalSpeed ) ;
-	OLED_Printf(0 ,15 , OLED_8X16 , "A:%.2f,%.2f,%.2f",Motor_A.PID_s.Kp,Motor_A.PID_s.Ki,Motor_A.PID_s.Kd) ;
-	
-	OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
-	OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
-	
-	
+//	OLED_Printf(0 , 0 , OLED_8X16 , "Asrg:%d %d %d" ,Motor_A.SetSpeed, Motor_A.RealSpeed, Motor_A.GoalSpeed ) ;
+//	OLED_Printf(0 ,15 , OLED_8X16 , "A:%.2f,%.2f,%.2f",Motor_A.PID_s.Kp,Motor_A.PID_s.Ki,Motor_A.PID_s.Kd) ;
+//	
+//	OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
+//	OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
+
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
 	// VOFA展示PID调参
 	// 单独展示
@@ -301,33 +294,3 @@ void HAL_SYSTICK_Callback(void)
 	}
 }
 
-// 任务初始化(setup)
-void taskInit(mytask* task,uint32_t cnt_init,uint32_t cycle_init , void (*callback_func)(void) )  
-{
-	task->Flag=0;							
-	task->cnt=cnt_init;				// 计数器
-	task->cycle=cycle_init;		// 计数时长(周期)
-	task->Enable=1;						// 任务启动标志位,初始化之后就打开
-	task->callback = callback_func;  // 注册任务函数
-}
-
-// 任务周期函数(放在定时器)
-void task_possess(mytask* task)
-{
-	// 任务一旦启动开始进行process判断
-	if(task->Enable == 1)
-	{
-		task->cnt++;
-		if(task->cnt >= task->cycle)
-		{
-			task->cnt = 0;
-			task->Flag = 1;
-			// 自动调用任务回调函数（若存在）
-			if(task->callback != NULL)
-			{
-					task->callback();
-					task->Flag = 0;  // 任务执行后自动清零
-			}
-		}
-	}
-}

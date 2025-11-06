@@ -55,6 +55,11 @@ typedef struct
 	
 }Motor_Typedef ;
 
+// 声明
+extern Motor_Typedef Motor_A ;	// 电机A
+extern Motor_Typedef Motor_B ;	// 电机B
+
+
 // 初始化函数:包含PWM,Encoder,PID初始化
 void Motor_A_Init(void) ;																		// Motor_A初始化
 // Motor_B初始化

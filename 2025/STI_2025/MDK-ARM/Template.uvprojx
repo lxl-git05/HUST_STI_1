@@ -823,6 +823,26 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Mymain.h</FilePath>
             </File>
+            <File>
+              <FileName>Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Task.h</FilePath>
+            </File>
+            <File>
+              <FileName>RasPi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\RasPi.c</FilePath>
+            </File>
+            <File>
+              <FileName>RasPi.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\RasPi.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
