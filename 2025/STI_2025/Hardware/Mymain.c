@@ -33,6 +33,7 @@ int Pi_Wait_Flag = 0 ;			// µÈÍ£±êÊ¾±êÖ¾Î»,0:µÈ´ýÍ£Ö¹±êÖ¾Î»ÖÐ , 1:Ê¶±ðµ½µÈÍ£ 2:×
 int check1 ;
 int check2 ;
 int check[50] ;
+float time_us ;
 
 // *******************ÈÎÎñµ÷¶È*******************
 // ÈÎÎñ1:µç»ú×´Ì¬¸üÐÂ
@@ -54,13 +55,26 @@ void Mymain(void)
 	Motor_B_Init();															// µç»úB³õÊ¼»¯
 	PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// Ê÷Ý®ÅÉÑ²Ïß³õÊ¼»¯
 	PID_Line.d_style = 1.0f ;
+	// *********ÊµÑé********
+	// ³õÊ¼»¯ DWT ¼ÆÊ±Æ÷
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	DWT->CYCCNT = 0;     // ÇåÁã
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+	
+//	uint32_t start = DWT->CYCCNT;
+//	// func-begin
+//	
+//	// func-end
+//	uint32_t end = DWT->CYCCNT;
+//	uint32_t cycles = end - start;
+//	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);
 	
 	// È«²¿³õÊ¼»¯Íê±ÏºóÔÙ¿ªÆôÖÐ¶Ï
 	__enable_irq();
 	
 	// ***********ÈÎÎñµ÷¶ÈÇåµ¥***********
-//	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray) ;	// ÈÎÎñ1:µç»ú×´Ì¬¸üÐÂ
-	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Line_Entray) ;	// ÈÎÎñ1:µç»ú×´Ì¬¸üÐÂ
+	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray) ;	// ÈÎÎñ1:µç»ú×´Ì¬¸üÐÂ
+//	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Line_Entray) ;	// ÈÎÎñ1:µç»ú×´Ì¬¸üÐÂ
 	
 	while (1)
 	{
@@ -73,8 +87,8 @@ void Mymain(void)
 			isBreak = false ;
 		}
 		// **********ÊµÑéÇøÓò**********
-//		Motor_PID_Check() ;		// µ÷½Úµç»úPID
-		Motor_Pi_Check() ;		// ÁªºÏÑ²Ïß»úÖÆµ÷½ÚÑ²ÏßPID
+		Motor_PID_Check() ;		// µ÷½Úµç»úPID
+//		Motor_Pi_Check() ;		// ÁªºÏÑ²Ïß»úÖÆµ÷½ÚÑ²ÏßPID
 		
 		// Ê÷Ý®ÅÉÊý¾Ý¸üÐÂ
 		if (Serial3_GetNewPackageFlag_HEX() == 1)
@@ -85,35 +99,7 @@ void Mymain(void)
 			Pi_angle = Serial3_Hex_Data.Serial3_New_Package[3] - 100 ;
 		}
 		OLED_Printf(0 , 0 ,OLED_8X16 , "x_Line_real:%d", Pi_xLine_real ) ;
-		if (fabs(Motor_A.RealSpeed) > fabs(Motor_B.RealSpeed))
-		{
-			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Left") ;
-		}
-		else if (fabs(Motor_A.RealSpeed) < fabs(Motor_B.RealSpeed))
-		{
-			OLED_Printf(0 , 20 , OLED_8X16 , "Turn Right") ;
-		}
-		else
-		{
-			OLED_Printf(0 , 20 , OLED_8X16 , "Go ahead") ;
-		}
-		// Í£Ö¹±êÊ¾
-		if (Pi_task1 == 1)
-		{
-			OLED_ShowString(0 , 40 , "Break" , OLED_8X16) ;
-			isBreak = true ;
-		}
-		// µÈÍ£±êÊ¾,µÈ´ý5s
-		else if (Pi_task1 == 2 && Pi_Wait_Flag == 0)
-		{
-			OLED_ShowString(0 , 40 , "Waiting" , OLED_8X16) ;
-			isBreak = true ;
-			Pi_Wait_Flag = 1 ;	// ±êÖ¾Î»ÖÃ1,¿ªÊ¼µ¹¼ÆÊ±
-		}
-		else
-		{
-			OLED_ShowString(0 , 40 , "Run" , OLED_8X16) ;
-		}
+
 		// ±ØÐë´æÔÚ:OLED¸üÐÂ
 		OLED_Update() ;
 	}
@@ -216,6 +202,12 @@ void Motor_Pi_Check(void)
 
 void Motor_Update_Entray(void)
 {
+//	// ¼ÆÊ±
+//	static uint32_t last = 0;
+//	uint32_t now = DWT->CYCCNT;
+//	time_us = (now - last) / (SystemCoreClock / 1000000.0f);
+//	last = now;
+
 	// ¶Ôµç»úB½øÐÐKpÏÞÖÆ
 	if (fabs(Motor_B.PID_s.PreError) < 5)
 	{
@@ -273,13 +265,14 @@ void Motor_PID_Check(void)
 	OLED_Printf(0 ,30 , OLED_8X16 , "Bsrg:%d %d %d" ,Motor_B.SetSpeed, Motor_B.RealSpeed, Motor_B.GoalSpeed ) ;
 	OLED_Printf(0 ,45 , OLED_8X16 , "B:%.2f,%.2f,%.2f",Motor_B.PID_s.Kp,Motor_B.PID_s.Ki,Motor_B.PID_s.Kd) ;
 	
+	
 	Set_Current_USART(USART2_IDX); /* ÏëÒªÖ¸¶¨²»Í¬´®¿Ú±ØÐëÔÚprintfÇ°¼ÓÉÏ´Ëº¯Êý */
 	// VOFAÕ¹Ê¾PIDµ÷²Î
 	// µ¥¶ÀÕ¹Ê¾
 //		printf("%d,%d,%d,%f,%f,%f\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_A.PID_s.pout,Motor_A.PID_s.iout,Motor_A.PID_s.dout);
-//		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
+		printf("%d,%d,%d,%f,%f,%f\n",Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed,Motor_B.PID_s.pout,Motor_B.PID_s.iout,Motor_B.PID_s.dout);
 	// Áªµ÷
-	printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
+//	printf("%d,%d,%d,%d,%d,%d\n",Motor_A.GoalSpeed , Motor_A.RealSpeed , Motor_A.SetSpeed,Motor_B.GoalSpeed , Motor_B.RealSpeed , Motor_B.SetSpeed);
 
 	// µç»úÄ¿±êËÙ¶ÈºÍÊä³öËÙ¶È¸üÐÂ
 	Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
