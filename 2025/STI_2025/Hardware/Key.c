@@ -5,7 +5,7 @@
 #define KEY_UNPRESSED			0
 
 #define KEY_TIME_DOUBLE			200		// 判断双击阈值,变为0时单击响应速度很快
-#define KEY_TIME_LONG				2000	// 判断长按阈值
+#define KEY_TIME_LONG				1200	// 判断长按阈值
 #define KEY_TIME_REPEAT			100		// 长按下数据变化快慢
 
 uint8_t Key_Flag[KEY_COUNT];			// 各个按键的标志位

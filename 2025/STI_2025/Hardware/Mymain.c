@@ -2,7 +2,6 @@
 
 // *******************调试模式*******************
 //#define PID_Check
-
 // *******************全局变量*******************
 // 电机
 int goalPoint_A ;					// 电机目标转速
@@ -12,7 +11,7 @@ bool isBreak = true;			// 刹车判断
 
 // 树莓派视觉传感器
 // 巡线
-Pid_Typedef PID_Line ;			// 树莓派巡线PID
+Pid_Typedef PID_Line ;							// 树莓派巡线PID
 
 extern int Pi_xLine_goal ;					// x 的目标值
 // 数据包内容
@@ -23,11 +22,17 @@ extern int Pi_angle 	;							// angle + 100:偏转角度
 int Pi_Speed_Max = 10 ;			// 速度环最大差值
 int Pi_Wait_Flag = 0 ;			// 等停标示标志位,0:等待停止标志位中 , 1:识别到等停 2:注销等停模式
 
+// 计时器
+extern float time_us ;			// 计时参数,计算时间戳
+
+// 小车状态机编写
+int Car_Flag ;
+
 // *******************实验区域*******************
 int check1 ;
 int check2 ;
 int check[50] ;
-float time_us ;
+
 
 // *******************任务调度*******************
 // 任务1:电机状态更新
@@ -49,55 +54,35 @@ void Mymain(void)
 		Serial3_Init(&Serial3_huart) ;							// 串口_树莓派初始化
 		Motor_A_Init();															// 电机A初始化
 		Motor_B_Init();															// 电机B初始化
+		Timer_Counter_Init() ;											// 计时器初始化,计算任务时间戳
 		PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
 	}
-	// 初始化 DWT 计时器
-	/*
-	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-	DWT->CYCCNT = 0;     // 清零
-	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-
-	uint32_t start = DWT->CYCCNT;
-	// func-begin
-	
-	// func-end
-	uint32_t end = DWT->CYCCNT;
-	uint32_t cycles = end - start;
-	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);
-	*/
 	// 全部初始化完毕后再开启中断
 	__enable_irq();
 	
 	// ***********任务调度清单***********
 	#ifdef PID_Check
-	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Check) ;	// 任务1:电机状态更新
+	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Check) ;	// 调试:电机状态更新
 	#else
-	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray) ;	// 任务1:电机状态更新
+	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray) ;				// 任务1:电机状态更新
 	#endif
 	
 	while (1)
 	{
-		// **********实验区域**********
 		#ifdef PID_Check
-		Motor_PID_Check() ;		// 调节电机PID
+		Motor_PID_Check() ;		// 调试:调节电机PID
 		#else
 		Motor_Pi_Check() ;		// 联合巡线机制调节巡线PID
 		#endif
-
+		
 		// 树莓派数据更新+亮灯调节
 		RasPi_Data_Update() ;
+		// 树莓派指令
+		RasPi_Func() ;
+		// 菜单执行功能
+		Menu_Func() ;
+		// **********实验区域**********
 		
-		// 等停功能实现
-		if (Pi_task1 == 1)
-		{
-			isBreak = true ;
-		}
-		// 等停标示,等待5s
-		else if (Pi_task1 == 2 && Pi_Wait_Flag == 0)
-		{
-			isBreak = true ;
-			Pi_Wait_Flag = 1 ;	// 标志位置1,开始倒计时
-		}
 	}
 }
 

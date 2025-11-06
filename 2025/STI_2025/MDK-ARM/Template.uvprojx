@@ -843,6 +843,26 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\RasPi.h</FilePath>
             </File>
+            <File>
+              <FileName>Timer_Counter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Timer_Counter.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Timer_Counter.h</FilePath>
+            </File>
+            <File>
+              <FileName>OLED_Menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\OLED_Menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>OLED_Menu.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\OLED_Menu.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

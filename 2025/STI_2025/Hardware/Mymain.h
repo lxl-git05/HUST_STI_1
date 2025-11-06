@@ -23,6 +23,8 @@
 #include "Encoder.h"
 #include "Motor.h"
 #include "RasPi.h"
+#include "Timer_Counter.h"
+#include "OLED_Menu.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;
