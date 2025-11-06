@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from moment import SerialPacket
 from moment import get_stop
+from moment import count_red_green_pixels_rgb
+from moment import recognize_text
+import time
 
 def get_center_point(img, min_area_threshold = 40, threshold_value=51):
     """
@@ -20,6 +23,7 @@ def get_center_point(img, min_area_threshold = 40, threshold_value=51):
 
     # 2. 反二值化，黑色道路变白
     _, img_binary = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY_INV)
+    _, img_binary_0 = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY)
 
     # 3. 查找轮廓
     cnts = cv2.findContours(img_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -44,7 +48,7 @@ def get_center_point(img, min_area_threshold = 40, threshold_value=51):
         main_contours = [cnt for cnt in cnts_sorted if cv2.contourArea(cnt) > min_area_threshold]
         is_junction = 1 if len(main_contours) > 2 else 0
 
-    return cx, cy, img_binary, img_output, is_junction
+    return cx, cy, img_binary,img_gray, img_output, is_junction
 
 # 打开摄像头
 cap = cv2.VideoCapture(0)
@@ -76,9 +80,23 @@ try:
 
         # 获取滑块阈值
         threshold_value = cv2.getTrackbarPos("Threshold", "ROI + Center")
+        red_count, green_count = count_red_green_pixels_rgb(roi)
+        rgb_control = 0
+        if red_count>3000:
+            rgb_control = 1
+        elif green_count>3000:
+            rgb_control = 2
 
         # 计算中心点
-        cx, cy, binary, output, is_junction = get_center_point(roi, 40, threshold_value)
+        cx, cy, binary, img_gray, output, is_junction = get_center_point(roi, 40, threshold_value)
+        text = recognize_text(img_gray)
+        str_control = 0
+        if text == 'L':
+            str_control = 1
+        elif text == 'R':
+            str_control = 2
+        print(f"红绿灯判断：{rgb_control}")
+        print(f"字符识别:{str_control}")
 
         # 判断是否在停止标识
         roi_height, roi_width = roi.shape[:2]
@@ -92,22 +110,29 @@ try:
         # cv2.rectangle(frame, (width//2 - 160, height//2 - 120),
         #               (width//2 + 160, height//2 + 120), (0, 255, 0), 2)
 
-        # 显示图像
+        # 显示图像+
+
+
+
+
         # cv2.imshow("Frame", frame)
         # cv2.imshow("ROI + Center", output)
         # cv2.imshow("Binary", binary)
+        cv2.imshow("Binary_0", img_gray)
 
         # 显示中心点X坐标
         # if cx != -1:
         #     print(f"中心点: x={cx}, y={cy}, 阈值={threshold_value}")
         
         # 发送数据包
-        pack.insert_byte(0x06)
+        pack.insert_byte(0x0A)
         pack.insert_two_bytes(pack.num_to_bytes(cx+100))
         pack.insert_two_bytes(pack.num_to_bytes(is_stop))
         pack.insert_two_bytes(pack.num_to_bytes(0+100))
+        pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
+        pack.insert_two_bytes(pack.num_to_bytes(str_control))
         pack.send_packet()
-
+        # time.sleep(1)
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
 
@@ -117,3 +142,12 @@ except KeyboardInterrupt:
 finally:
     cap.release()
     cv2.destroyAllWindows()
+
+
+#新增串口发送数据（红绿灯与指示牌）协议说明：
+#共发送10位数据（即5个实际数据），前6位数据与之前保持不变
+
+#第7,8位数据rgb_control发送的是红绿灯识别结果：
+#当值为1为红灯与停止效果相同，但是需要能在该值变为2时离开这个状态进入正常行驶状态
+#第9,10位数据strcontrol发送的是指示牌R和L识别结果：
+#当值为1时走内圈，由于岔路的识别x会偏向主路，为成功转弯建议给得到的x值乘上一个倍数，值为2走外圈，与此前我们的控制代码一致，无需单独修改

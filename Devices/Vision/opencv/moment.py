@@ -2,7 +2,79 @@ import serial
 import time
 import cv2
 import numpy as np
+import pytesseract
 
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+def recognize_text(gray):
+
+    if np.mean(gray) < 127:
+        gray = cv2.bitwise_not(gray)
+
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # 使用单字符配置
+    config_single_char = '--psm 10 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+    # 获取详细数据
+    data = pytesseract.image_to_data(binary, lang='eng+chi_sim',
+                                   config=config_single_char,
+                                   output_type=pytesseract.Output.DICT)
+
+    # 找到置信度最高的单个字符
+    most_confident_char = ''
+    highest_confidence = 0
+    char_position = None
+
+    for i in range(len(data['text'])):
+        text = data['text'][i].strip()
+        confidence = int(data['conf'][i]) if data['conf'][i] else 0
+
+        # 只考虑单个字符且置信度>0
+        if len(text) == 1 and confidence > highest_confidence:
+            highest_confidence = confidence
+            most_confident_char = text
+            char_position = (data['left'][i], data['top'][i],
+                           data['width'][i], data['height'][i])
+
+    # if most_confident_char:
+    #     print(f"最明显字符: '{most_confident_char}'")
+    # else:
+    #     print("未找到明显的字符")
+
+    return most_confident_char
+
+def count_red_green_pixels_rgb(img):
+    """
+    使用RGB颜色空间计算红色和绿色像素数量（修正版）
+    """
+
+    if img is None:
+        print("无法加载图像，请检查")
+        return 0, 0
+
+
+    # 将BGR转换为RGB
+    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    # 定义红色和绿色的阈值（RGB空间）
+    # 红色: R值高，G和B值低
+    red_mask = (rgb[:, :, 0] > 140) & (rgb[:, :, 1] < 100) & (rgb[:, :, 2] < 100)
+
+    # 绿色: G值高，R和B值低
+    green_mask = (rgb[:, :, 1] > 110) & (rgb[:, :, 0] < 110) & (rgb[:, :, 2] < 110)
+
+    red_count = np.sum(red_mask)
+    green_count = np.sum(green_mask)
+    total_pixels = 320 * 240
+
+    # print(f"红色像素数量: {red_count}")
+    # print(f"绿色像素数量: {green_count}")
+    # print(f"总像素数量: {total_pixels}")
+    # print(f"红色占比: {red_count / total_pixels * 100:.2f}%")
+    # print(f"绿色占比: {green_count / total_pixels * 100:.2f}%")  # 修正了这一行
+
+    return red_count, green_count
 
 def ls(img):
 
