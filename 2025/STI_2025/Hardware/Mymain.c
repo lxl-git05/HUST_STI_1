@@ -82,7 +82,7 @@ void Mymain(void)
 		// 菜单执行功能
 		Menu_Func() ;
 		// **********实验区域**********
-		
+		Y8_LineSensor_Update() ;
 	}
 }
 
