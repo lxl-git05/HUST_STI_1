@@ -8,6 +8,10 @@ int Menu_Level = 0 ;         		  // 0:主菜单, 1:子菜单层
 
 int Menu_Open_Flag ;							// OLED开关标志位,0:关 1:开 2:即将关闭
 // *************外部变量*************
+// task1
+extern uint8_t Y8_Line_Array[] ;
+
+// task2
 
 
 // *************回调函数*************
@@ -32,7 +36,15 @@ void Menu_home(void)
 
 void Menu_Task1(void)
 {
-	OLED_Printf(0 , 0 , OLED_8X16 , "======Task1======") ;
+	OLED_Clear() ;
+	
+	OLED_Printf(0 , 0 , OLED_8X16 , "======Track======") ;
+	
+	OLED_Printf( 0 , 20 , OLED_8X16 , "1 2 3 4 5 6 7 8 ") ;
+	OLED_Printf( 0 , 40 , OLED_8X16 , "%d %d %d %d %d %d %d %d ", Y8_Line_Array[1] ,
+	Y8_Line_Array[2] ,Y8_Line_Array[3] ,Y8_Line_Array[4] ,Y8_Line_Array[5] ,Y8_Line_Array[6] ,
+	Y8_Line_Array[7] ,Y8_Line_Array[8] ) ;
+	
 }
 void Menu_Task2(void)
 {

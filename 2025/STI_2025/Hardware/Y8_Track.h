@@ -2,6 +2,8 @@
 #define __Y8_TRACK_H
 
 #include "main.h"
+#include "MyI2C.h"
+#include "i2c.h"
 
 extern uint8_t Y8_Line_Array[9] ;	// 8路传感器数据包
 
