@@ -61,16 +61,18 @@ extern Motor_Typedef Motor_B ;	// 电机B
 
 
 // 初始化函数:包含PWM,Encoder,PID初始化
-void Motor_A_Init(void) ;																		// Motor_A初始化
+void Motor_A_Init(void) ;																				// Motor_A初始化
 // Motor_B初始化
-void Motor_B_Init(void)	;																		// Motor_B初始化
+void Motor_B_Init(void)	;																				// Motor_B初始化
 
 // 速度函数
-void Motor_SetGoalSpeed(Motor_Typedef *Motor , int speed) ;	// 设置目标速度,调用者执行的逻辑
+void Motor_SetGoalSpeed(Motor_Typedef *Motor , int speed) ;			// 设置目标速度,调用者执行的逻辑
 
-void Motor_Speed_Update(Motor_Typedef *Motor) ;							// 测速,使用M法公式,得到Motor的转速:n圈/s !务必配置计时器!
+void Motor_Speed_Update(Motor_Typedef *Motor) ;									// 测速,使用M法公式,得到Motor的转速:n圈/s !务必配置计时器!
 
-void Motor_SetPWM(Motor_Typedef *Motor , int PWM) ;					// 设置PWM,幕后执行的速度逻辑(setPoint)
+void Motor_SetPWM(Motor_Typedef *Motor , int PWM) ;							// 设置PWM,幕后执行的速度逻辑(setPoint)
+
+void Motor_Set_Speed(int Motor_A_Speed  , int Motor_B_Speed);		// 设置两个轮子的速度
 
 // 电机PID计算与更新,!记得配置计时器!
 void Motor_PID_Update(Motor_Typedef *Motor) ;

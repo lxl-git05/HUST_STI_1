@@ -19,15 +19,20 @@ void Y8_LineSensor_Update(void)
 	// 转化数据
 	for (int i = 1; i < 9; i++)
 	{
-			Y8_Line_Array[i] = (Y8_Line_Value >> (8 - i)) & 0x01;   // 从高位到低位依次提取
+			Y8_Line_Array[i] = 1 - ( (Y8_Line_Value >> (8 - i)) & 0x01 );   // 从高位到低位依次提取
 	}
 }
 
-// uint8转为2进制,存入数组
-//void Byte_To_BitArray(uint8_t data, uint8_t bitArray[8])
-//{
-//    for (int i = 0; i < 8; i++)
-//    {
-//        bitArray[i] = (data >> (7 - i)) & 0x01;   // 从高位到低位依次提取
-//    }
-//}
+// 巡线算法编写
+
+
+
+
+
+
+
+
+
+
+
+

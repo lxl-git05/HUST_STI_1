@@ -137,3 +137,10 @@ void Motor_PID_Update(Motor_Typedef *Motor)
 	Motor->SetSpeed = Motor->PID_s.setPoint ;
 	
 }
+
+// 设置两个轮子的目标速度
+void Motor_Set_Speed(int Motor_A_Goal_Speed  , int Motor_B_Goal_Speed)
+{
+	Motor_A.GoalSpeed = Motor_A_Goal_Speed ;
+	Motor_B.GoalSpeed = Motor_B_Goal_Speed ;
+}
