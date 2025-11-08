@@ -178,6 +178,51 @@ def get_stop(binary_img, roi_height):
         return 2
 
 
+def detect_horizontal_line_in_region(binary_img, min_white=80, min_length=5):
+    """
+    检测一个区域中是否存在有效横线（连续 >= min_length 行，每行白像素 >= min_white）
+    """
+    if binary_img.size == 0:
+        return False
+
+    white_pixels = (binary_img > 0).sum(axis=1)
+    is_white_line = white_pixels >= min_white
+
+    # 找连续段
+    padded = np.concatenate(([0], is_white_line.astype(int), [0]))
+    diff = np.diff(padded)
+    starts = np.where(diff == 1)[0]
+    ends = np.where(diff == -1)[0]
+    lengths = ends - starts
+    return np.any(lengths >= min_length)
+
+def get_stop_dynamic(binary_img, total_roi_height=100, split_ratio=0.5):
+    """
+    动态场景下识别单根/双根横线
+    :param binary_img: 二值图（H x W），OpenCV 输出
+    :param total_roi_height: 总ROI高度（建议取图像底部区域）
+    :param split_ratio: 分割比例，0.5 表示上下平分
+    :return: 0=无, 1=单根（下区）, 2=双根（上下都有）
+    """
+    h, w = binary_img.shape
+    start_y = max(0, h - total_roi_height)
+    roi = binary_img[start_y:start_y + total_roi_height]
+
+    split_idx = int(total_roi_height * split_ratio)
+    lower_roi = roi[:split_idx]      # 靠近图像底部（先看到）
+    upper_roi = roi[split_idx:]      # 靠近图像顶部（后看到）
+
+    has_lower = detect_horizontal_line_in_region(lower_roi)
+    has_upper = detect_horizontal_line_in_region(upper_roi)
+
+    if has_lower and has_upper:
+        return 2  # 两根都看到
+    elif has_lower or has_upper:
+        return 1  # 只看到一根（优先认为是进入状态）
+    else:
+        return 0
+
+
 def get_center_point(img):
     img_output = img.copy()
     min_area_threshold = 100  # 降低最小面积阈值（根据实际调整）
