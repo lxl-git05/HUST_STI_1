@@ -65,21 +65,41 @@ void MyI2C_SendByte(uint8_t Byte)
 	}	
 }
 
+//uint8_t MyI2C_ReceiveByte(void)
+//{
+//	uint8_t i , Byte = 0x00 ;
+//	MyI2C_W_SDA(1);
+//	for (i = 0; i < 8; i++)
+//	{
+//		MyI2C_W_SCL(1);
+//		if (MyI2C_R_SDA() == 1)
+//		{
+//			Byte |= (0x80 >> i);
+//		}
+//		MyI2C_W_SCL(0);
+//	}
+//	return Byte ;
+//}
+
 uint8_t MyI2C_ReceiveByte(void)
 {
-	uint8_t i , Byte = 0x00 ;
-	MyI2C_W_SDA(1);
-	for (i = 0; i < 8; i++)
-	{
-		MyI2C_W_SCL(1);
-		if (MyI2C_R_SDA() == 1)
-		{
-			Byte |= (0x80 >> i);
-		}
-		MyI2C_W_SCL(0);
-	}
-	return Byte ;
+    uint8_t i, Byte = 0x00;
+    MyI2C_W_SDA(1);  // 释放SDA线，准备接收
+
+    for (i = 0; i < 8; i++)
+    {
+        MyI2C_W_SCL(1);          // 产生时钟高电平
+        Delay_us_diy_MPU(5);     // 增加采样稳定性
+        if (MyI2C_R_SDA())       // 读取SDA电平
+        {
+            Byte |= (1 << (7 - i)); // 从高位到低位填充
+        }
+        MyI2C_W_SCL(0);          // 产生时钟低电平
+        Delay_us_diy_MPU(5);
+    }
+    return Byte;
 }
+
 
 void MyI2C_SendAck(uint8_t Ackbit)
 {

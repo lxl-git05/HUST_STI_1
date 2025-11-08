@@ -11,6 +11,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "stdbool.h"
 
 // ×ÔÉè¿â
 #include "OLED.h"

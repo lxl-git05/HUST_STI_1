@@ -10,6 +10,8 @@ int goalPoint_A ;					// 电机目标转速
 int goalPoint_B ;					// 电机目标转速
 int goalPointTwo;					// 共同速度
 bool isBreak = true;			// 刹车判断
+int goalPoint_Basic_High;	// 基础高速模式
+int goalPoint_Basic_Low ;	// 基础低速模式
 
 // 树莓派视觉传感器
 // 巡线
@@ -34,7 +36,8 @@ int Car_Flag ;
 int check1 ;
 int check2 ;
 int check[50] ;
-
+extern float Y8_Line_C ;
+extern Pid_Typedef Y8_Line_PID ;
 
 // *******************任务调度*******************
 // 任务1:电机状态更新
@@ -42,11 +45,13 @@ mytask Motor_Status ;
 void Motor_Update_Entray_Pi(void) ;
 void Motor_Pi_Check(void) ;		// 电机与树莓派联调函数(模拟)
 
-void Motor_Update_Entray_Y8(void)	;// Mode1:Y8寻迹
 // 实验
 void Motor_Update_Entray_Check(void) ;
 void Motor_PID_Check(void) ;	// 电机调节PID测试函数
 // 任务2:
+extern mytask Y8_Line_Status ;
+void Motor_Update_Entray_Y8(void)	;// Mode1:Y8寻迹
+void Motor_VOFA_Set_Y8(void) ;		 // Mode1:Y8寻迹
 
 void Mymain(void)
 {
@@ -60,6 +65,7 @@ void Mymain(void)
 		Motor_B_Init();															// 电机B初始化
 		Timer_Counter_Init() ;											// 计时器初始化,计算任务时间戳
 		PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
+		Y8_Line_Init(0.0f , 0.0f , 0.0f , 30 , -30 , 1000 ) ;															// 巡线模块初始化
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();
 	}
@@ -82,7 +88,8 @@ void Mymain(void)
 		Motor_Pi_Check() ;		
 		#endif
 		#ifdef Y8_Line_Mode		// 8度寻迹巡线模式
-		
+		Motor_VOFA_Set_Y8() ;
+		Y8_LineSensor_Update() ;
 		#endif
 		// 树莓派数据更新+亮灯调节
 		RasPi_Data_Update() ;
@@ -91,7 +98,7 @@ void Mymain(void)
 		// 菜单执行功能
 		Menu_Func() ;
 		// **********实验区域**********
-		Y8_LineSensor_Update() ;
+		
 	}
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
@@ -115,11 +122,6 @@ void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 		Motor_A.GoalSpeed = 0 ;
 		Motor_B.GoalSpeed = 0 ;
 	}
-	else
-	{
-		// 寻迹模块指令
-		
-	}
 	// 测速与PID更新
 	Motor_Speed_Update(&Motor_A) ;								// 编码器测速,得到真实速度
 	Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;	// 配置目标速度
@@ -135,12 +137,17 @@ void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 }
 void Motor_VOFA_Set_Y8(void)
 {
+	// *文本包调试程序*
 	if (Serial_GetNewPackageFlag_ABC() == 1)
 	{
-		// *文本包调试程序*
+		// 基础速度设置
+		if (Serial_SetIntData("goalSpeed" , "goalSpeed=%d" , &goalPointTwo)){ ; }
 		
-		// 两个轮子调试
-		if ( Serial_SetIntData("break" , "break=%d" , &check1) )						// 刹车
+		// 寻迹倍增系数调整
+		if (Serial_SetFloatData("Line_C" , "Line_C=%f" , &Y8_Line_C)) { ; }
+		
+		// 刹车与重启
+		if ( Serial_SetIntData("break" , "break=%d" , &check1) )						
 		{
 			if (isBreak == false)
 			{
@@ -151,18 +158,13 @@ void Motor_VOFA_Set_Y8(void)
 				isBreak = false ;
 			}
 		}
-		if (Serial_SetIntData("goalSpeed" , "goalSpeed=%d" , &goalPointTwo))	// 一起跑
-		{
-			goalPoint_A = goalPointTwo ;
-			goalPoint_B = goalPointTwo ;
-		}
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	
+	printf("%f,%f,%f\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint ) ;
 }
 
-void Motor_Update_Entray_Pi(void)	// Mode2:树莓派
+void Motor_Update_Entray_Pi(void)			// Mode2:树莓派
 {
 	// 对电机B进行Kp限制
 	if (fabs(Motor_B.PID_s.PreError) < 5)
@@ -208,7 +210,7 @@ void Motor_Update_Entray_Pi(void)	// Mode2:树莓派
 	Motor_SetPWM(&Motor_B , Motor_B.SetSpeed ) ;	// 配置设定速度
 }
 
-void Motor_Pi_Check(void)					// Mode2:树莓派
+void Motor_Pi_Check(void)							// Mode2:树莓派
 {
 	if (Serial_GetNewPackageFlag_ABC() == 1)
 	{
@@ -339,5 +341,7 @@ void HAL_SYSTICK_Callback(void)
 			Pi_Wait_Flag = 2 ;	// 再也不允许运行第二次了
 		}
 	}
+	// 任务3:Y8巡线
+	task_possess(&Y8_Line_Status) ;
 }
 
