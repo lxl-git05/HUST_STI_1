@@ -21,7 +21,8 @@ void Motor_A_Init(void)
 	Motor_A.PPR = 13.0f ;
 	Motor_A.ReductionRatio = 28.0f ;
 	
-	Motor_A.DIR = DIR_N ;		// 方向判断
+	Motor_A.DIR = DIR_N ;			// 方向判断
+	Motor_A.Encoder_Dir = 1; // 编码器正方向
 	
 	// PWM初始化
 	HAL_TIM_PWM_Start(&Motor_A.Motor_PWM_htim , Motor_A.Motor_PWM_Channel) ;	
@@ -56,6 +57,7 @@ void Motor_B_Init(void)
 	Motor_B.ReductionRatio = 28.0f ;
 	
 	Motor_B.DIR = DIR_N ;	// 方向判断
+	Motor_B.Encoder_Dir = -1; // 编码器正方向
 	
 	// PWM初始化
 	HAL_TIM_PWM_Start(&Motor_B.Motor_PWM_htim , Motor_B.Motor_PWM_Channel) ;
@@ -117,7 +119,7 @@ void Motor_Speed_Update(Motor_Typedef *Motor)
 	// !!!自己配置计时器!!!
 
 	// 得到总脉冲数
-	int Motor_CNT = Encoder_Get_CNT(&Motor->Motor_Encoder_htim);
+	int Motor_CNT = Encoder_Get_CNT(&Motor->Motor_Encoder_htim) * Motor->Encoder_Dir;
 	
 	// 转速n = 总脉冲数/4倍频/单圈脉冲数(13)/减速比(28)/采样时间
 	// Motor->Motor_RealSpeed = (float)Motor_CNT / 4 / 13 / 28 / Encoder_Gap_Time * 1000 ; ,直接算出来:4*13*28/1000=1.456

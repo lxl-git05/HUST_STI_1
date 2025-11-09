@@ -65,6 +65,7 @@ void MyI2C_SendByte(uint8_t Byte)
 	}	
 }
 
+// 源代码会导致数据偏移一位,增加延时后改为下方代码
 //uint8_t MyI2C_ReceiveByte(void)
 //{
 //	uint8_t i , Byte = 0x00 ;
@@ -81,6 +82,7 @@ void MyI2C_SendByte(uint8_t Byte)
 //	return Byte ;
 //}
 
+// 延时版接收代码
 uint8_t MyI2C_ReceiveByte(void)
 {
     uint8_t i, Byte = 0x00;

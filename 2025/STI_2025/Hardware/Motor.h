@@ -46,6 +46,7 @@ typedef struct
 	float PPR;                          // 编码器线数
 	float ReductionRatio;               // 减速比
 	int8_t DIR;                         // 正方向
+	int8_t Encoder_Dir ;								// 编码器修正方向
 	
 	int GoalSpeed	;											// 电机目标速度
 	int RealSpeed	;											// 电机实际速度
@@ -78,4 +79,3 @@ void Motor_Set_Speed(int Motor_A_Speed  , int Motor_B_Speed);		// 设置两个轮子的
 void Motor_PID_Update(Motor_Typedef *Motor) ;
 
 #endif
-

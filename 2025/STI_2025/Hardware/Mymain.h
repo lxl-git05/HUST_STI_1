@@ -27,6 +27,7 @@
 #include "Timer_Counter.h"
 #include "OLED_Menu.h"
 #include "Y8_Track.h"
+#include "Con_Motor.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;
