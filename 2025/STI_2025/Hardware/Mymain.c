@@ -106,8 +106,8 @@ void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 	// 刹车判断
 	if (isBreak)
 	{
-		Motor_A.GoalSpeed = 0 ;
-		Motor_B.GoalSpeed = 0 ;
+		goalPoint_A = 0 ;
+		goalPoint_B = 0 ;
 	}
 	// 测速与PID更新
 	Motor_Speed_Update(&Motor_A) ;								// 编码器测速,得到真实速度
@@ -117,6 +117,17 @@ void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 	Motor_Speed_Update(&Motor_B) ;								// 编码器测速,得到真实速度
 	Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;	// 配置目标速度
 	Motor_PID_Update(&Motor_B) ;									// PID更新,得到设定速度
+	
+	// 左边大于右边就亮灯A右B左
+	if (goalPoint_B > goalPoint_A)
+	{
+		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin ,GPIO_PIN_RESET ) ;
+	}
+	else if (goalPoint_B < goalPoint_A)
+	{
+		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin ,GPIO_PIN_SET ) ;
+	}
+	
 	
 	// 电机配置速度
 	Motor_SetPWM(&Motor_A , Motor_A.SetSpeed ) ;	// 配置设定速度
@@ -133,6 +144,11 @@ void Motor_VOFA_Set_Y8(void)
 		// 寻迹倍增系数调整
 		if (Serial_SetFloatData("Line_C" , "Line_C=%f" , &Y8_Line_C)) { ; }
 		
+		// 调节PID
+		Serial_SetFloatData("KpC" , "KpC=%f" , &Y8_Line_PID.Kp) ;
+		Serial_SetFloatData("KiC" , "KiC=%f" , &Y8_Line_PID.Ki) ;
+		Serial_SetFloatData("KdC" , "KdC=%f" , &Y8_Line_PID.Kd) ;
+		
 		// 刹车与重启
 		if ( Serial_SetIntData("break" , "break=%d" , &check1) )						
 		{
@@ -147,8 +163,10 @@ void Motor_VOFA_Set_Y8(void)
 		}
 	}
 	// *VOFA展示电机状态*
+	Timer_Counter_Begin() ;
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-//	printf("%f,%f,%f\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint ) ;
+	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Motor_A.RealSpeed , Motor_B.RealSpeed ) ;
+	Timer_Counter_End() ;
 }
 
 // Systick定时中断

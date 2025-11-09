@@ -125,8 +125,8 @@ void Y8_Line_Control(void)
     // 如果刹车未启用，则执行
     if (!isBreak)
     {
-      goalPoint_A  = goalPointTwo + Y8_Line_PID.setPoint ;
-			goalPoint_B  = goalPointTwo - Y8_Line_PID.setPoint ;
+      goalPoint_A  = goalPointTwo - Y8_Line_PID.setPoint ;
+			goalPoint_B  = goalPointTwo + Y8_Line_PID.setPoint ;
     }
 		// 寻迹更新标志位置0,等待下次更新
 		Y8_Update_Flag = false ;

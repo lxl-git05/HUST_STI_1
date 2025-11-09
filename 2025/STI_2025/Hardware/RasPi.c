@@ -24,15 +24,15 @@ void RasPi_Data_Update(void)
 		
 	}
 	
-	// 巡线逻辑判断:偏差较小就亮灯,偏差大就灭灯
-	if (Pi_xLine_real - Pi_xLine_goal < 20 && Pi_xLine_real - Pi_xLine_goal > -20)
-	{
-		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET);
-	}
+//	// 巡线逻辑判断:偏差较小就亮灯,偏差大就灭灯
+//	if (Pi_xLine_real - Pi_xLine_goal < 20 && Pi_xLine_real - Pi_xLine_goal > -20)
+//	{
+//		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET);
+//	}
+//	else
+//	{
+//		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET);
+//	}
 }
 
 // 树莓派指令代码实现
