@@ -49,18 +49,6 @@
 |        |      |      |
 |        |      |      |
 
-
-
-1. USART1- PA9 , PA10
-2. USART2 - PA2,PA3
-3. TIM1 PWM_CH1 + CH4 PSC = 72-1 ARR = 100 - 1 
-4. TIM2 Encoder
-5. TIM3 Encoder
-
-6. Motor_A_In2 : PB14 Motor_B_In2 : PB15
-
-7. OLED PA8 PA9
-
 ## 2. 关于PID
 
 ​	真实PWM达到90+之后会有速度剧烈抖动,难以调控,所以建议进行限制,PWM达到90就别再上去了
@@ -75,6 +63,28 @@ USART1已经被Serial接管,数据接收只能以一定的协议进行
 STM32段为下位机,通过USART1接受指令,执行相应命令,但是STM32发送个电脑(VOFA)的信息不需要遵循相关协议
 
 **使用USART1与电脑通信:**
-VOFA改为115200 Serial改为1 Printf重定向为1
+VOFA改为115200 Serial改为1 `Printf`重定向为1
 **使用蓝牙与电脑通信:**
-搁置USART1 VOFA改为9600 Serial改为2 Printf重定向为2 
+搁置USART1 VOFA改为9600 Serial改为2 `Printf`重定向为2 
+
+
+
+## 4. 库函数部署计划
+
+* 库函数计划分为三层
+
+  * 底层:构建的底层架构,必须与STM32的内设有关,如`PWM , ADC , Encoder , MyIIC` 等,作为简化语句书写,作为前缀命名
+
+  * 中层:根据底层架构架设的外设底层 , 与外设强相关 , 如`Motor , Servo , HC05`等 , 以及自设算法如`Serial , PID`一样作为前缀命名
+  * 上层:根据底层逻辑和中层架构实现功能控制如`Motor_Control , RasPi_Control`等
+
+* 举例:(电机操作)
+  * 底层:
+    * PWM:功能:PWM初始化 , PWM输出
+    * Encoder:功能:Encoder初始化 , Encoder计数(与电机无任何参数关系)
+  * 中层:
+    * PID:功能:PID初始化 , PID更新
+    * Motor:功能:电机初始化(PWM+Encoder) , 电机驱动(PWM输出逻辑) , 电机计速(Encoder底层逻辑)
+  * 上层:
+    * Con_Motor:功能:电机PID算法实现负反馈 , 电机受到主控指令控制运动
+* ==**总结:底层是STM32内设基础 , 中层是外设的最基本操作(与底层一样仍然与项目无关) , 上层就与项目强相关,通过调用中层与底层的函数实现项目功能**==
