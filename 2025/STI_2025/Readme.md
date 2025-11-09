@@ -7,8 +7,8 @@
 | 引脚号 |   标签   |      备注       |
 | :----: | :------: | :-------------: |
 |  PC13  |   LED0   |     板载LED     |
-|  PB8   | OLED_SDA | 第一次PCB接反了 |
-|  PB9   | OLED_SCL | 第一次PCB接反了 |
+|  PB8   | OLED_SCL | 第一次PCB接反了 |
+|  PB9   | OLED_SDA | 第一次PCB接反了 |
 |  PB12  |   KEY1   |      按键1      |
 |  PB13  |   KEY2   |      按键2      |
 
@@ -43,7 +43,7 @@
 |  PA4   |   Y8_SCL    | 软件IIC |
 |  PA5   |   Y8_SDA    | 软件IIC |
 |  PB3   | MPU6050_SCL | 软件IIC |
-|  PB4   | MPU6050_SCL | 软件IIC |
+|  PB4   | MPU6050_SDA | 软件IIC |
 |        |             |         |
 |        |             |         |
 |        |             |         |
