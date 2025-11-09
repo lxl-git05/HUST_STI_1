@@ -103,19 +103,6 @@ void Mymain(void)
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 {
-	// 对电机B进行Kp限制
-	if (fabs(Motor_B.PID_s.PreError) < 5)
-	{
-		Motor_B.PID_s.Kp = 0.04f * fabs(Motor_B.PID_s.PreError) ;
-	}
-	else if (fabs(Motor_B.PID_s.PreError) >= 5 && fabs(Motor_B.PID_s.PreError) < 20)
-	{
-		Motor_B.PID_s.Kp = 0.03f * fabs(Motor_B.PID_s.PreError) + 0.05f ;
-	}
-	else
-	{
-		Motor_B.PID_s.Kp = 0.6f ;
-	}
 	// 刹车判断
 	if (isBreak)
 	{

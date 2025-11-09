@@ -25,6 +25,11 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 	// 更新真实值(Actual)
 	pid->realPoint_Bef = pid->realPoint_Now ;
 	pid->realPoint_Now = ActualValue ;
+	// 特殊化处理函数
+	if (pid->PID_Func != NULL)
+	{
+		pid->PID_Func() ;
+	}
 	// 微分误差:*微分先行*(默认为0,也就是不先行)
 	float dError = (1.0f - pid->d_style)*(pid->PreError - pid->LastError) - pid->d_style * (pid->realPoint_Now - pid->realPoint_Bef);
 	// 累次积分
@@ -50,7 +55,6 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 	if ( fabs(pid->deadspace) > 0.1f && fabs (pid->setPoint - pid->realPoint_Now) < pid->deadspace )
 	{
 		pid->SumError = 0.0f ;
-//		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ; 
 	}
 	
 	// 输出限幅

@@ -18,19 +18,6 @@ extern int Pi_Speed_Max  ;
 // *电机PID调试模式*下驱动函数
 void Motor_Update_Entray_Check(void)	// Mode1:电机PID检查
 {
-	// 对电机B进行Kp限制
-	if (fabs(Motor_B.PID_s.PreError) < 5)
-	{
-		Motor_B.PID_s.Kp = 0.04f * fabs(Motor_B.PID_s.PreError) ;
-	}
-	else if (fabs(Motor_B.PID_s.PreError) >= 5 && fabs(Motor_B.PID_s.PreError) < 20)
-	{
-		Motor_B.PID_s.Kp = 0.03f * fabs(Motor_B.PID_s.PreError) + 0.05f ;
-	}
-	else
-	{
-		Motor_B.PID_s.Kp = 0.6f ;
-	}
 	Motor_Speed_Update(&Motor_A) ;			// 编码器测速
 	Motor_SetGoalSpeed(&Motor_A , goalPoint_A) ;
 	Motor_PID_Update(&Motor_A) ;				// PID更新
@@ -88,19 +75,6 @@ void Motor_PID_Check(void)						// Mode1:电机PID检查
 // *树莓派巡线调节模式*下驱动函数
 void Motor_Update_Entray_Pi(void)			// Mode2:树莓派
 {
-	// 对电机B进行Kp限制
-	if (fabs(Motor_B.PID_s.PreError) < 5)
-	{
-		Motor_B.PID_s.Kp = 0.04f * fabs(Motor_B.PID_s.PreError) ;
-	}
-	else if (fabs(Motor_B.PID_s.PreError) >= 5 && fabs(Motor_B.PID_s.PreError) < 20)
-	{
-		Motor_B.PID_s.Kp = 0.03f * fabs(Motor_B.PID_s.PreError) + 0.05f ;
-	}
-	else
-	{
-		Motor_B.PID_s.Kp = 0.6f ;
-	}
 	// 树莓派Line_PID更新
 	PID_Line.realPoint_Now = Pi_xLine_real ;
 	PID_Line.goalPoint = Pi_xLine_goal ;

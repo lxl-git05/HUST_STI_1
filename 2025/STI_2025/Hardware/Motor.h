@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "tim.h"
+#include "math.h"
 
 #include "Encoder.h"
 #include "MyPID.h"

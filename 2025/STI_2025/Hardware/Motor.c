@@ -38,6 +38,24 @@ void Motor_A_Init(void)
 	
 }
 
+// 电机B的PID特殊处理
+void Motor_B_PID_Func(void)
+{
+// 对电机B进行Kp限制
+	if (fabs(Motor_B.PID_s.PreError) < 5)
+	{
+		Motor_B.PID_s.Kp = 0.04f * fabs(Motor_B.PID_s.PreError) ;
+	}
+	else if (fabs(Motor_B.PID_s.PreError) >= 5 && fabs(Motor_B.PID_s.PreError) < 20)
+	{
+		Motor_B.PID_s.Kp = 0.03f * fabs(Motor_B.PID_s.PreError) + 0.05f ;
+	}
+	else
+	{
+		Motor_B.PID_s.Kp = 0.6f ;
+	}
+}
+
 // Motor_B初始化
 void Motor_B_Init(void)
 {
@@ -68,10 +86,14 @@ void Motor_B_Init(void)
 	// 新增调试
 	Motor_B.PID_s.d_style = 1.0 ;	// 微分先行
 	
+	// 针对性函数
+	Motor_B.PID_s.PID_Func = Motor_B_PID_Func;
 	
 	// PID初始化
 	PID_Init(&Motor_B.PID_s , 0.70f , 0.044f , 0.0f , 100 , -100 , 10000 ) ;
 }
+
+
 // 调用者执行的逻辑,设置目标速度
 void Motor_SetGoalSpeed(Motor_Typedef *Motor , int speed)
 {

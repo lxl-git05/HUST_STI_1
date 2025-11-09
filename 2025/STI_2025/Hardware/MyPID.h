@@ -21,14 +21,15 @@ typedef struct PID
 	float iout ;	// 积分系数输出值
 	float dout ;	// 微分系数输出值
 	
-	float OutMax ;		// 输出限幅最大值
-	float OutMin ;		// 输出限幅最小值
-	float ioutMax;		// 积分限幅
-	float deadspace;	// 输入死区,暂时不使用
-	float d_style;		// 微分先行系数,默认为0,也就是不微分先行,Init不进行配置,想用自己配
-	float d_filter;		// 不完全微分(去除杂波滤波系数),默认为0,也就是不进行滤波,Init不进行配置,想用自己配
+	float OutMax ;						// 输出限幅最大值
+	float OutMin ;						// 输出限幅最小值
+	float ioutMax;						// 积分限幅
+	float deadspace;					// 输入死区,暂时不使用
+	float d_style;						// 微分先行系数,默认为0,也就是不微分先行,Init不进行配置,想用自己配
+	float d_filter;						// 不完全微分(去除杂波滤波系数),默认为0,也就是不进行滤波,Init不进行配置,想用自己配
+	void (*PID_Func)(void); 	// 针对性PID特殊处理
 	
-	float setPoint ;	// 即output,输出值
+	float setPoint ;					// 即output,输出值
 	
 }Pid_Typedef;
 
