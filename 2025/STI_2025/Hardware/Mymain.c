@@ -3,7 +3,7 @@
 // *******************µ÷ÊÔÄ£Ê½*******************
 //#define PID_Check			// µ÷ÊÔµç»úPID
 //#define PI_Line_Mode	// Ê÷İ®ÅÉÊÓ¾õÑ²ÏßÄ£Ê½
-#define Y8_Line_Mode	// 8¶ÈÑ°¼£Ñ²ÏßÄ£Ê½
+#define Y8_LineMode	// 8¶ÈÑ°¼£Ñ²ÏßÄ£Ê½
 // *******************È«¾Ö±äÁ¿*******************
 // µç»ú
 int goalPoint_A ;					// µç»úÄ¿±ê×ªËÙ
@@ -28,9 +28,6 @@ int Pi_Wait_Flag = 0 ;			// µÈÍ£±êÊ¾±êÖ¾Î»,0:µÈ´ıÍ£Ö¹±êÖ¾Î»ÖĞ , 1:Ê¶±ğµ½µÈÍ£ 2:×
 
 // ¼ÆÊ±Æ÷
 extern float time_us ;			// ¼ÆÊ±²ÎÊı,¼ÆËãÊ±¼ä´Á
-
-// Ğ¡³µ×´Ì¬»ú±àĞ´
-int Car_Flag ;
 
 // *******************ÊµÑéÇøÓò*******************
 int check1 ;
@@ -93,8 +90,8 @@ void Mymain(void)
 		#endif
 		#ifdef Y8_Line_Mode		// 8¶ÈÑ°¼£Ñ²ÏßÄ£Ê½
 		Motor_VOFA_Set_Y8() ;
-		Y8_LineSensor_Update() ;
 		#endif
+		Y8_LineSensor_Update() ;
 		// Ê÷İ®ÅÉÊı¾İ¸üĞÂ+ÁÁµÆµ÷½Ú
 		RasPi_Data_Update() ;
 		// Ê÷İ®ÅÉÍ£Ö¹ºÍÇı¶¯Ö¸Áî
@@ -102,7 +99,7 @@ void Mymain(void)
 		// ²Ëµ¥Ö´ĞĞ¹¦ÄÜ
 		Menu_Func() ;
 		// **********ÊµÑéÇøÓò**********
-		
+		// OLEDÏÔÊ¾²ÎÊı
 		if (isBreak == true)
 			OLED_MODE = 1 ;	// ´ò¿ªOLED
 		else if (OLED_MODE == 1 && isBreak == false)
@@ -127,6 +124,9 @@ void Mymain(void)
 			OLED_Update() ;
 			OLED_MODE = 0 ;	// ÕıÊ½¹Ø±Õ
 		}
+		
+		// Ñ²ÏßÊ¶±ğÂß¼­·ÖÎö
+		Y8_Task1() ;
 	}
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8Ñ°¼£
@@ -193,6 +193,7 @@ void Motor_VOFA_Set_Y8(void)
 	// *VOFAÕ¹Ê¾µç»ú×´Ì¬*
 	Set_Current_USART(USART2_IDX); /* ÏëÒªÖ¸¶¨²»Í¬´®¿Ú±ØĞëÔÚprintfÇ°¼ÓÉÏ´Ëº¯Êı */
 	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Motor_A.RealSpeed , Motor_B.RealSpeed ) ;
+//	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.iout , Y8_Line_PID.dout ) ;
 }
 
 // Systick¶¨Ê±ÖĞ¶Ï

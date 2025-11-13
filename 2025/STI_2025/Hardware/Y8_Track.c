@@ -7,21 +7,33 @@
 // 寻迹模块读取的数据
 uint8_t Y8_Line_Value   			;
 uint8_t Y8_Line_Array[9] = {0};
+uint8_t Y8_Line_Num ;
 
 // ***************寻迹算法变量***************
+// 电机变量
+extern bool isBreak ;							// 刹车变量
+extern int goalPoint_A ;					// 电机目标转速
+extern int goalPoint_B ;					// 电机目标转速
+extern int goalPointTwo;					// 共同速度(待优化,算作基础速度,不分高低)
+
 // 寻迹变量
 mytask Y8_Line_Status ;				// 任务2:寻迹
 bool Y8_Update_Flag = false ;	// 寻迹更新标志位
 Pid_Typedef Y8_Line_PID ;			// 寻迹PID
 float Y8_Line_Error ;					// 巡线误差
 float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
-float Y8_JQ[9] ;
+float Y8_JQ[9];
 
-// 电机变量
-extern bool isBreak ;							// 刹车变量
-extern int goalPoint_A ;					// 电机目标转速
-extern int goalPoint_B ;					// 电机目标转速
-extern int goalPointTwo;					// 共同速度(待优化,算作基础速度,不分高低)
+// 寻迹标志位
+typedef enum
+{
+	Turn_1 ,	// 第一个弯道(包含内外圈)
+	Cros_1 ,	// 第一个直道
+	Turn_2 ,	// 第二个弯道
+	Cros_2 		// 第二个直道
+}Car_Position_Typedef;
+
+Car_Position_Typedef Car_State = Turn_1 ;	// 小车状态机参数,最开始肯定是马上进入弯道
 
 // ***************函数***************
 
@@ -31,7 +43,7 @@ void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , f
 	PID_Init(&Y8_Line_PID , kp , ki , kd , OutMax , OutMin , ioutMax) ;
 	Y8_Line_PID.goalPoint = 0.0f ;	// 目标是偏转为0
 	taskInit(&Y8_Line_Status , 0 , 20 , Y8_Line_Control) ;	// 巡线任务初始化
-	Y8_JQ[0] =  0.0f ;
+	Y8_JQ[0] = -4.5f ;
 	Y8_JQ[1] = -3.5f ;
 	Y8_JQ[2] = -2.5f ;
 	Y8_JQ[3] = -1.5f ;
@@ -102,6 +114,8 @@ float Y8_Get_Line_Error(void)
         }
     }
 		
+		Y8_Line_Num = blackCount ;	// Y8本次巡到的黑线数
+		
     if (blackCount == 0)  // 没检测到黑线,这里后续可以优化,变成根据历史找到线路
         return 999.0f;
 		
@@ -110,7 +124,7 @@ float Y8_Get_Line_Error(void)
     return sum / blackCount;  // 平均偏移
 }
 
-// 巡线核心控制函数
+// 巡线核心控制函数,控制速度
 void Y8_Line_Control(void)
 {
 	// 寻迹更新才进行控制
@@ -144,3 +158,37 @@ void Y8_Line_Control(void)
 		Y8_Update_Flag = false ;
 	}
 }
+
+
+bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 , int EX7 , int EX8 )
+{
+	return Y8_Line_Array[1] == EX1 && Y8_Line_Array[2] == EX2 && Y8_Line_Array[3] == EX3 && Y8_Line_Array[4] == EX4 &&
+		Y8_Line_Array[5] == EX5 && Y8_Line_Array[6] == EX6 && Y8_Line_Array[7] == EX7 && Y8_Line_Array[8] == EX8 ;
+}
+
+// 巡线识别逻辑分析
+// 岔路口入口 , 岔路口出口 , 停止标志 , 转弯 , 误识别  
+// 第一题针对性函数
+// 分析:四种状态:
+void Y8_Task1(void)
+{
+	// 状态一:小车在第一个弯道
+	if (Car_State == Turn_1)
+	{
+		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
+				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1))
+		{
+			// 判定为进入分岔路口
+			// 进入内圈
+			if (1)
+			{
+				
+			}
+		}
+	}
+
+}
+
+
+
+
