@@ -1,9 +1,9 @@
 #include "Mymain.h"
 
 // *******************调试模式*******************
-#define PID_Check			// 调试电机PID
+//#define PID_Check			// 调试电机PID
 //#define PI_Line_Mode	// 树莓派视觉巡线模式
-//#define Y8_Line_Mode	// 8度寻迹巡线模式
+#define Y8_Line_Mode	// 8度寻迹巡线模式
 // *******************全局变量*******************
 // 电机
 int goalPoint_A ;					// 电机目标转速
@@ -38,6 +38,10 @@ int check2 ;
 int check[50] ;
 extern float Y8_Line_C ;
 extern Pid_Typedef Y8_Line_PID ;
+
+extern float Y8_JQ[9] ;
+
+int OLED_MODE = 0 ;
 
 // *******************任务调度*******************
 // 任务1:电机状态更新
@@ -99,6 +103,30 @@ void Mymain(void)
 		Menu_Func() ;
 		// **********实验区域**********
 		
+		if (isBreak == true)
+			OLED_MODE = 1 ;	// 打开OLED
+		else if (OLED_MODE == 1 && isBreak == false)
+			OLED_MODE = 2 ;	// 关闭OLED预留状态
+		
+		if (OLED_MODE == 1)
+		{
+			// 使用OLED
+			OLED_Clear() ;
+			
+			OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
+			OLED_Printf( 0 , 15 , OLED_6X8 , "%.1f %.1f %.1f %.1f", Y8_JQ[1] , Y8_JQ[2] , Y8_JQ[3] ,Y8_JQ[4]) ;
+			
+			OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
+			OLED_Printf( 0 , 45 , OLED_6X8 , " %.1f  %.1f  %.1f  %.1f", Y8_JQ[5] , Y8_JQ[6] , Y8_JQ[7] ,Y8_JQ[8]) ;
+			
+			OLED_Update() ;
+		}
+		else if (OLED_MODE == 2)
+		{
+			OLED_Clear() ;
+			OLED_Update() ;
+			OLED_MODE = 0 ;	// 正式关闭
+		}
 	}
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
@@ -118,16 +146,6 @@ void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
 	Motor_SetGoalSpeed(&Motor_B , goalPoint_B) ;	// 配置目标速度
 	Motor_PID_Update(&Motor_B) ;									// PID更新,得到设定速度
 	
-	// 左边大于右边就亮灯A右B左
-	if (goalPoint_B > goalPoint_A)
-	{
-		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin ,GPIO_PIN_RESET ) ;
-	}
-	else if (goalPoint_B < goalPoint_A)
-	{
-		HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin ,GPIO_PIN_SET ) ;
-	}
-	
 	
 	// 电机配置速度
 	Motor_SetPWM(&Motor_A , Motor_A.SetSpeed ) ;	// 配置设定速度
@@ -143,6 +161,16 @@ void Motor_VOFA_Set_Y8(void)
 		
 		// 寻迹倍增系数调整
 		if (Serial_SetFloatData("Line_C" , "Line_C=%f" , &Y8_Line_C)) { ; }
+		
+		// 加权值判定
+		if (Serial_SetFloatData("JQb" , "JQb=%f" , &Y8_JQ[2])) { ; }
+		if (Serial_SetFloatData("JQc" , "JQc=%f" , &Y8_JQ[3])) { ; }
+		if (Serial_SetFloatData("JQd" , "JQd=%f" , &Y8_JQ[4])) { ; }
+		
+		if (Serial_SetFloatData("JQe" , "JQe=%f" , &Y8_JQ[5])) { ; }
+		if (Serial_SetFloatData("JQf" , "JQf=%f" , &Y8_JQ[6])) { ; }
+		if (Serial_SetFloatData("JQg" , "JQg=%f" , &Y8_JQ[7])) { ; }
+		if (Serial_SetFloatData("JQh" , "JQh=%f" , &Y8_JQ[8])) { ; }
 		
 		// 调节PID
 		Serial_SetFloatData("KpC" , "KpC=%f" , &Y8_Line_PID.Kp) ;
@@ -163,10 +191,8 @@ void Motor_VOFA_Set_Y8(void)
 		}
 	}
 	// *VOFA展示电机状态*
-	Timer_Counter_Begin() ;
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
 	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Motor_A.RealSpeed , Motor_B.RealSpeed ) ;
-	Timer_Counter_End() ;
 }
 
 // Systick定时中断

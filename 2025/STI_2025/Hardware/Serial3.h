@@ -9,8 +9,8 @@
 //#define Serial3_VOFA
 
 // 串口通信通道(代码迁移时修改这里即可)
-#define Serial3_huart huart3
-#define Serial3_USART USART3
+#define Serial3_huart huart1
+#define Serial3_USART USART1
 
 // DMA接收数组长度,一次接受的数据不能大于这个长度
 #define RX_Serial3_LEN 50

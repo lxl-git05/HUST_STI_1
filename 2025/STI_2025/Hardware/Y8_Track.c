@@ -1,7 +1,7 @@
 #include "Y8_Track.h"
 
 // 寻迹的IIC模式
-#define Y8_IIC_Soft
+//#define Y8_IIC_Soft
 // 寻迹地址
 #define LINE_I2C_ADDR   (0x12 << 1)   // 注意：HAL库需要左移1位
 // 寻迹模块读取的数据
@@ -15,6 +15,7 @@ bool Y8_Update_Flag = false ;	// 寻迹更新标志位
 Pid_Typedef Y8_Line_PID ;			// 寻迹PID
 float Y8_Line_Error ;					// 巡线误差
 float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
+float Y8_JQ[9] ;
 
 // 电机变量
 extern bool isBreak ;							// 刹车变量
@@ -30,6 +31,15 @@ void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , f
 	PID_Init(&Y8_Line_PID , kp , ki , kd , OutMax , OutMin , ioutMax) ;
 	Y8_Line_PID.goalPoint = 0.0f ;	// 目标是偏转为0
 	taskInit(&Y8_Line_Status , 0 , 20 , Y8_Line_Control) ;	// 巡线任务初始化
+	Y8_JQ[0] =  0.0f ;
+	Y8_JQ[1] = -3.5f ;
+	Y8_JQ[2] = -2.5f ;
+	Y8_JQ[3] = -1.5f ;
+	Y8_JQ[4] = -0.5f ;
+	Y8_JQ[5] =  0.5f ;
+	Y8_JQ[6] =  1.5f ;
+	Y8_JQ[7] =  2.5f ;
+	Y8_JQ[8] =  3.5f ;
 }
 // IIC软件模拟读取数据
 uint8_t MyI2C_ReadReg(uint8_t devAddr, uint8_t regAddr)
@@ -80,7 +90,6 @@ void Y8_LineSensor_Update(void)
 // 计算偏移量函数
 float Y8_Get_Line_Error(void)
 {
-    float weight[9] = {0, -3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5};
     float sum = 0 ;
     int blackCount = 0;
 
@@ -88,7 +97,7 @@ float Y8_Get_Line_Error(void)
     {
         if (Y8_Line_Array[i] == 1) // 黑线有效
         {
-            sum += weight[i];
+            sum += Y8_JQ[i];
             blackCount++;
         }
     }
@@ -112,11 +121,14 @@ void Y8_Line_Control(void)
 
     if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
     {
-        // 丢线,亮灯提示并刹车,*待优化*
-//        HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-				isBreak = true ;
+        // 丢线,灭灯提示,*待优化*
+        HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
         return;
     }
+		else
+		{
+			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
+		}
 
     // 特殊情况检测,暂时没写,*待优化*
 		
