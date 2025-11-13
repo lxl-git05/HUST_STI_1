@@ -75,9 +75,10 @@ try:
         if not ret:
             continue
 
-        height, width = frame.shape[:2]
+        # height, width = frame.shape[:2]
+        height, width = 480, 640
         # 截取ROI区域
-        roi = frame[height//2 - 120: height//2 + 120, width//2 - 160: width//2 + 160].copy()
+        roi = frame# frame[height//2 - 120: height//2 + 120, width - 320: width + 320].copy()
 
         # 获取滑块阈值
         threshold_value = cv2.getTrackbarPos("Threshold", "ROI + Center")
@@ -90,14 +91,14 @@ try:
 
         # 计算中心点
         cx, cy, binary, img_gray, output, is_junction = get_center_point(roi, 40, threshold_value)
-        text = recognize_text(img_gray)
-        str_control = 0
-        if text == 'L':
-            str_control = 1
-        elif text == 'R':
-            str_control = 2
-        print(f"红绿灯判断：{rgb_control}")
-        print(f"字符识别:{str_control}")
+        # text = recognize_text(img_gray)
+        # str_control = 0
+        # if text == 'L':
+        #     str_control = 1
+        # elif text == 'R':
+        #     str_control = 2
+        # print(f"红绿灯判断：{rgb_control}")
+        # print(f"字符识别:{str_control}")
 
         # 判断是否在停止标识
         roi_height, roi_width = roi.shape[:2]
@@ -131,9 +132,9 @@ try:
         pack.insert_two_bytes(pack.num_to_bytes(cx+100))
         pack.insert_two_bytes(pack.num_to_bytes(is_stop))
         pack.insert_two_bytes(pack.num_to_bytes(0+100))
-        pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
-        pack.insert_two_bytes(pack.num_to_bytes(str_control))
-        pack.send_packet()
+        # pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
+        # pack.insert_two_bytes(pack.num_to_bytes(str_control))
+        # pack.send_packet()
         # time.sleep(1)
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
