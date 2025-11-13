@@ -295,8 +295,12 @@ def get_stop_dynamic(binary_img, total_roi_height=100, split_ratio=0.5):
     lower_roi = roi[:split_idx]      # 靠近图像底部（先看到）
     upper_roi = roi[split_idx:]      # 靠近图像顶部（后看到）
 
-    has_lower = detect_horizontal_line_in_region(lower_roi)
     has_upper = detect_horizontal_line_in_region(upper_roi)
+    if(has_upper):
+        has_lower = detect_horizontal_line_in_region(lower_roi)
+    else:
+        has_lower = False
+    # has_upper = detect_horizontal_line_in_region(upper_roi)
 
     if has_lower and has_upper:
         return 2  # 两根都看到

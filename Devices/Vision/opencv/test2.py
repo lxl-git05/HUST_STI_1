@@ -67,7 +67,7 @@ if not cap.isOpened():
 cv2.namedWindow("ROI + Center")
 def nothing(x):
     pass
-cv2.createTrackbar("Threshold", "ROI + Center", 31, 255, nothing)
+cv2.createTrackbar("Threshold", "ROI + Center", 80, 255, nothing)
 
 try:
     while True:
@@ -78,16 +78,16 @@ try:
         # height, width = frame.shape[:2]
         height, width = 480, 640
         # 截取ROI区域
-        roi = frame# frame[height//2 - 120: height//2 + 120, width - 320: width + 320].copy()
+        roi = frame[height//2 - 120: height//2 + 120, width // 2 - 160: width // 2 + 160].copy()
 
         # 获取滑块阈值
         threshold_value = cv2.getTrackbarPos("Threshold", "ROI + Center")
-        red_count, green_count = count_red_green_pixels_rgb(roi)
-        rgb_control = 0
-        if red_count>3000:
-            rgb_control = 1
-        elif green_count>3000:
-            rgb_control = 2
+        # red_count, green_count = count_red_green_pixels_rgb(roi)
+        # rgb_control = 0
+        # if red_count>3000:
+        #     rgb_control = 1
+        # elif green_count>3000:
+        #     rgb_control = 2
 
         # 计算中心点
         cx, cy, binary, img_gray, output, is_junction = get_center_point(roi, 40, threshold_value)
@@ -114,14 +114,14 @@ try:
         #               (width//2 + 160, height//2 + 120), (0, 255, 0), 2)
 
         # 显示图像+
-
+        print(is_stop)
 
 
 
         # cv2.imshow("Frame", frame)
         # cv2.imshow("ROI + Center", output)
-        # cv2.imshow("Binary", binary)
-        cv2.imshow("Binary_0", img_gray)
+        cv2.imshow("Binary", binary)
+        # cv2.imshow("Binary_0", img_gray)
 
         # 显示中心点X坐标
         # if cx != -1:
