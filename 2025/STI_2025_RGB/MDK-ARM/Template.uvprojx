@@ -868,6 +868,16 @@
               <FileType>5</FileType>
               <FilePath>..\Control\BLE.h</FilePath>
             </File>
+            <File>
+              <FileName>Menu_OLED.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Menu_OLED.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_OLED.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Menu_OLED.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

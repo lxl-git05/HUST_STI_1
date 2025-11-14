@@ -6,6 +6,8 @@
 #include "stdbool.h"	// bool
 #include "Task.h"			// 任务调度
 
+extern int Servo_Manu_Num ;					// 舵机手动挡方向
+
 // *******************函数*******************
 
 // 舵机初始化

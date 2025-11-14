@@ -8,7 +8,8 @@
 #include "PWM.h"
 #include "stdbool.h"	// bool
 #include "Task.h"			// 任务调度
-#include "Key.h"			// 按键控制RGB
+
+extern int RGB_Manu_Num ;	// RGB手动挡颜色码
 
 // RGB初始化
 void RGB_Init(void) ;
