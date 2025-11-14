@@ -14,11 +14,14 @@
 实现控制切换这两个模式各自的手动挡和自动档
 */
 
+// *******************全局变量*******************
+
+
 // *******************实验区域变量*******************
 // Debug调试参数
-int check1 ;
+int check1 = 1;
 int check2 ;
-int check[50] ;
+int check[50] = {0};
 
 void Mymain(void)
 {
@@ -38,9 +41,11 @@ void Mymain(void)
 	while(1)
 	{
 		// ******************* while *******************
+//		RGB_Control(check1) ;
+//		RGB_Set_Color(check[0] , check[1] , check[2]) ;
+		
 		
 		// ******************* 实验区域 *******************
-		
 		
 		// 必须存在:OLED更新
 		OLED_Update() ;
@@ -55,9 +60,6 @@ void HAL_SYSTICK_Callback(void)
 	count_sys ++ ;
 	// 功能1: 按键
 	Key_Tick() ;
-	// 功能2:
-	if (count_sys % 1000 == 0)
-	{
-//		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-	}
+	// 功能2:RGB自动档函数
+	RGB_Auto_Task__Possess() ;
 }
