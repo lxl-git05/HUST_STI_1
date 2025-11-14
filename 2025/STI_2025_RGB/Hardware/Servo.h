@@ -3,10 +3,8 @@
 // 引脚:
 // PB0  ------> TIM3_CH3
 #include "PWM.h"
-
-// 舵机相关宏定义
-#define Servo_htim 	  htim3
-#define Servo_Channel TIM_CHANNEL_3
+#include "stdbool.h"	// bool
+#include "Task.h"			// 任务调度
 
 // *******************函数*******************
 
@@ -15,5 +13,11 @@ void Servo_Init(void) ;
 
 // 舵机调节角度:0度-180度
 void Servo_Set_Angle(int Angle) ;
+
+// 舵机转动任务,Mode为1代表自动挡,Mode为0代表手动挡
+void Servo_Control(bool Servo_Mode) ;
+
+// 舵机自动档执行任务Possess
+void Servo_Auto_Task__Possess(void) ;
 
 #endif

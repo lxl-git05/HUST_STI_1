@@ -43,7 +43,7 @@ void Mymain(void)
 		// ******************* while *******************
 //		RGB_Control(check1) ;
 //		RGB_Set_Color(check[0] , check[1] , check[2]) ;
-		
+		Servo_Control(check1) ;
 		
 		// ******************* 实验区域 *******************
 		
@@ -61,5 +61,7 @@ void HAL_SYSTICK_Callback(void)
 	// 功能1: 按键
 	Key_Tick() ;
 	// 功能2:RGB自动档函数
-	RGB_Auto_Task__Possess() ;
+	RGB_Auto_Task__Possess()   ;
+	// 功能3:Servo自动档函数
+	Servo_Auto_Task__Possess() ;
 }

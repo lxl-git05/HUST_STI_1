@@ -10,25 +10,6 @@
 #include "Task.h"			// 任务调度
 #include "Key.h"			// 按键控制RGB
 
-// RGB相关参数
-#define RGB_htim htim2
-#define RGB_R_Channel TIM_CHANNEL_1
-#define RGB_G_Channel TIM_CHANNEL_2
-#define RGB_B_Channel TIM_CHANNEL_3
-
-// RGB颜色码
-typedef enum
-{
-	RGB_DOWN = 0x00U,			// 闭灯
-	RGB_R		 = 0x01U,			// 红色
-	RGB_Y 	 = 0x02U,			// 黄色
-	RGB_G 	 = 0x03U,			// 绿色
-	RGB_B 	 = 0x04U, 		// 蓝色
-	
-}RGB_Color_Num ;
-
-#include "PWM.h"
-
 // RGB初始化
 void RGB_Init(void) ;
 
