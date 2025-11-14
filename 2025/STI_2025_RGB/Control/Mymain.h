@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <math.h>
 
-//#include "tim.h"
+#include "tim.h"
 #include "dma.h"
 #include "usart.h"
 #include "gpio.h"
@@ -19,9 +19,10 @@
 #include "Key.h"
 #include "Serial.h"
 #include "Task.h"
-
 #include "Encoder.h"
 #include "Timer_Counter.h"
+#include "Servo.h"
+#include "RGB.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

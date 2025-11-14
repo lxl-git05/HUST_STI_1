@@ -235,3 +235,14 @@ int Encoder_Get_CNT(TIM_HandleTypeDef *htimx) ;
 | :----: | :-------: | :--: |
 |  PA9   | USART1_TX |      |
 |  PA10  | USART1_RX |      |
+
+
+
+### 2-3 PWM
+
+| 引脚号 |   标签   | 备注 |
+| :----: | :------: | :--: |
+|  PA0   | TIM2_CH1 |      |
+|  PA1   | TIM2_CH2 |      |
+|  PA2   | TIM2_CH3 |      |
+|  PB0   | TIM3_CH3 |      |

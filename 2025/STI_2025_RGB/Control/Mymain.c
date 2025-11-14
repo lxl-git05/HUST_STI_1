@@ -1,5 +1,25 @@
 #include "Mymain.h"
 
+// 要求:
+/*
+1. RGB灯:(可开关)
+1.1 自动档: 每个周期3s, 红灯3s - 黄灯3s - 绿灯3s
+1.2 手动挡: 可选择RGB颜色
+
+2. 指示牌
+2.1 自动档: 每个周期5s, R 5s - L 5s
+2.2 手动档: 可任意选择指示牌的方向: R / L
+
+3. 蓝牙
+实现控制切换这两个模式各自的手动挡和自动档
+*/
+
+// *******************实验区域变量*******************
+// Debug调试参数
+int check1 ;
+int check2 ;
+int check[50] ;
+
 void Mymain(void)
 {
 	// ******************* setup *******************
@@ -8,23 +28,20 @@ void Mymain(void)
 		HAL_SYSTICK_Config(SystemCoreClock / 1000);
 		OLED_Init() ;
 		Serial_Init(&Serial_huart) ;
-		// ***全部初始化完毕后再开启Systick中断***
+		Servo_Init() ;
+		RGB_Init() ;
+		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();	
 	}
 	// *******************实验区域*******************
-//	// Debug调试参数
-//	int check1 ;
-//	int check2 ;
-//	int check[50] ;
+	
 	while(1)
 	{
 		// ******************* while *******************
-		// 测试按键功能
-		if (Key_Check(KEY_1 , KEY_SINGLE))
-		{
-			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin) ;
-		}
+		RGB_Set_Color(check[0] , check[1] , check[2]) ;
+
 		// ******************* 实验区域 *******************
+		
 		
 		// 必须存在:OLED更新
 		OLED_Update() ;
