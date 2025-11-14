@@ -30,9 +30,9 @@ void Mymain(void)
 	{
 		HAL_SYSTICK_Config(SystemCoreClock / 1000);
 		OLED_Init() ;
-		Serial_Init(&Serial_huart) ;
 		Servo_Init() ;
 		RGB_Init() ;
+		BLE_Init() ;
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();	
 	}
@@ -41,14 +41,13 @@ void Mymain(void)
 	while(1)
 	{
 		// ******************* while *******************
-//		RGB_Control(check1) ;
-//		RGB_Set_Color(check[0] , check[1] , check[2]) ;
-		Servo_Control(check1) ;
-		
+		BLE_Data_Update() ;					// 蓝牙接收模式信息
+		RGB_Control(RGB_Mode) 	  ;	// RGB模式
+		Servo_Control(Servo_Mode) ;	// 舵机模式
 		// ******************* 实验区域 *******************
 		
-		// 必须存在:OLED更新
-		OLED_Update() ;
+//		// 必须存在:OLED更新
+//		OLED_Update() ;
 	}
 }
 

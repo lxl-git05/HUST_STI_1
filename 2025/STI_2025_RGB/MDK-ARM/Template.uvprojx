@@ -858,6 +858,16 @@
               <FileType>5</FileType>
               <FilePath>..\Control\Task.h</FilePath>
             </File>
+            <File>
+              <FileName>BLE.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\BLE.c</FilePath>
+            </File>
+            <File>
+              <FileName>BLE.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\BLE.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
