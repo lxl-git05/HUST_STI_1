@@ -5,13 +5,13 @@
 #include <stdbool.h>
 
 // 一些测试模式
-//#define Serial_Debug
+#define Serial_Debug
 //#define Serial_VOFA
 
 
 // 串口通信通道(代码迁移时修改这里即可)
-#define Serial_huart huart1
-#define Serial_USART USART1
+#define Serial_huart huart2
+#define Serial_USART USART2
 
 // DMA接收数组长度,一次接受的数据不能大于这个长度
 #define RX_Serial_LEN 50
