@@ -89,6 +89,9 @@ typedef struct
 	int error_Serial	;								  				 // 错误查询参数
 }Serial_ABC_Data_Typedef;
 
+// ********** 外部变量声明 **********
+extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;			// 解析好的HEX数据包
+extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
 
 
 // ********** 函数声明 **********

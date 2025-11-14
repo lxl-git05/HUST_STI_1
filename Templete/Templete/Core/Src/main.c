@@ -56,31 +56,14 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// *******************前言*******************
-/*
-	USART1已经被Serial接管,数据接收只能以一定的协议进行
-	
-	电脑端为上位机,通过VOFA发送指令(HEX和文本两种类型)
-	STM32段为下位机,通过USART1接受指令,执行相应命令,但是STM32发送个电脑(VOFA)的信息不需要遵循相关协议
-*/
 
-// *******************库/函数导入*******************
-// 系统库
-#include <stdlib.h>
-#include "string.h"
-#include <stdio.h>
-// 自设库
-#include "OLED.h"
-#include "Key.h"
-#include "Serial.h"
-// *******************全局变量*******************
-extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;			// 解析好的HEX数据包
-extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
 
-// *******************实验区域*******************
-int check1 ;
-int check2 ;
-int check[50] ;
+// *******************库导入开始*******************
+
+#include "Mymain.h"
+
+// *******************库导入结束*******************
+
 
 /* USER CODE END 0 */
 
@@ -91,7 +74,12 @@ int check[50] ;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	
+	
+	// 暂时关闭 SysTick 中断,否则可能导致某些功能还没有进行初始化就驱动,导致指针指向空,发生越界错误
+  __disable_irq();
+	
+	
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -116,17 +104,14 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 	
-	// ******************* setup *******************
-	// 启动Systick时钟
-	HAL_SYSTICK_Config(SystemCoreClock / 1000);
-	// 初始化OLED
-	OLED_Init() ;
-	OLED_ShowString(0 , 0 , "Hello World" , OLED_8X16 ) ;
-	// *串口初始化*
-	Serial_Init(&Serial_huart) ;
 	
-	// ******************* 实验区域 *******************
-
+	// ******************* setup 开始*******************
+	
+	Mymain() ;
+	
+	// ******************* setup 结束*******************
+	
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,37 +121,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		// ******************* while *******************
-		// 测试按键功能
-		if (Key_Check(KEY_1 , KEY_SINGLE))
-		{
-			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin) ;
-			
-			Set_Current_USART(USART1_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-			printf("Serial=1\n");
-			
-		}
-		// ******************* 实验区域 *******************
-		// 逻辑:电脑通过VOFA发送数据包,STM32通过串口1接受指令,然后进行相应的操作,如下:
-		if (Serial_GetNewPackageFlag_HEX() == 1)
-		{
-			// OLED展示各个数据
-			OLED_ShowNum(0 , 20 , Serial_Hex_Data.Serial_New_Package[0] , 1 , OLED_8X16 ) ;
-			for (int i = 1 ; i < Serial_Hex_Data.Serial_New_Package[0] + 1 ; i ++)
-			{
-					OLED_ShowNum(20 , 10 + 10 * i , Serial_Hex_Data.Serial_New_Package[i] , 5 , OLED_6X8 ) ;
-			}
-		}
-		if (Serial_GetNewPackageFlag_ABC() == 1)
-		{
-				// 文本包调试程序
-				Serial_SetIntData("test" , "test=%d" , &check1) ;
-
-				// OLED展示
-				OLED_ShowNum(0,  20 , check1 , 3 , OLED_8X16 ) ;
-		}
-		// 必须存在:OLED更新
-		OLED_Update() ;
   }
   /* USER CODE END 3 */
 }
@@ -211,20 +165,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// Systick定时中断
-void HAL_SYSTICK_Callback(void)
-{
-	// 计时
-	static int count_sys = 0 ;
-	count_sys ++ ;
-	// 功能1:
-	if (count_sys % 1000 == 0)
-	{
-//		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-	}
-	// 功能2: 按键
-	Key_Tick() ;
-}
+
 
 /* USER CODE END 4 */
 

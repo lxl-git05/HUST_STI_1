@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;..\Software;..\Control;..\System</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -688,16 +688,6 @@
               <FilePath>..\Hardware\OLED_Data.h</FilePath>
             </File>
             <File>
-              <FileName>PID.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\PID.c</FilePath>
-            </File>
-            <File>
-              <FileName>PID.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\PID.h</FilePath>
-            </File>
-            <File>
               <FileName>Key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\Key.c</FilePath>
@@ -707,15 +697,90 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Key.h</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Software</GroupName>
+          <Files>
+            <File>
+              <FileName>PID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\PID.c</FilePath>
+            </File>
+            <File>
+              <FileName>PID.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\PID.h</FilePath>
+            </File>
             <File>
               <FileName>Serial.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Hardware\Serial.c</FilePath>
+              <FilePath>..\Software\Serial.c</FilePath>
             </File>
             <File>
               <FileName>Serial.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Hardware\Serial.h</FilePath>
+              <FilePath>..\Software\Serial.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Control</GroupName>
+          <Files>
+            <File>
+              <FileName>Mymain.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Mymain.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mymain.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Mymain.h</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Timer_Counter.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Timer_Counter.h</FilePath>
+            </File>
+            <File>
+              <FileName>Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Task.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>System</GroupName>
+          <Files>
+            <File>
+              <FileName>PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\PWM.h</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\Encoder.h</FilePath>
             </File>
           </Files>
         </Group>

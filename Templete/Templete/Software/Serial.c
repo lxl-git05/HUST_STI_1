@@ -5,6 +5,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+// *******************前言*******************
+/*
+	USART1已经被Serial接管,数据接收只能以一定的协议进行
+	电脑端为上位机,通过VOFA发送指令(HEX和文本两种类型)
+	STM32段为下位机,通过USART1接受指令,执行相应命令,但是STM32发送个电脑(VOFA)的信息不需要遵循相关协议
+*/
+
 // ********** 变量 **********
 Serial_RX_FLAG_Typedef 		Serial_Rx_State;							// 数据接收情况标志位-枚举
 Serial_RX_Data_TypeDef 		Serial_Rx_Data ;							// 数据接收缓存区
