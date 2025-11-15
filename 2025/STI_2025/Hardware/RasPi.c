@@ -5,10 +5,12 @@ int Pi_xLine_goal = 160;
 int Pi_xLine_real = 160;		// x 的真实值,数据量 x_real + 100
 int Pi_task1	;							// 运动: 0 , 停止: 1 ,等停5秒: 2
 int Pi_angle 	;							// angle + 100:偏转角度
+bool Pi_is_Left ;						// 小车遇到岔路口默认为右转
 int RGB_Status = 0 ;				// 红绿灯识别状态,1:红灯停 2:绿灯行
 
 extern bool isBreak ;
 extern int Pi_Wait_Flag ;
+
 
 
 // 数据更新函数

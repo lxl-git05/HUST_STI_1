@@ -24,6 +24,9 @@ float Y8_Line_Error ;					// 巡线误差
 float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
 float Y8_JQ[9];
 
+// 树莓派指令和小车判断
+extern bool Pi_is_Left ;	// 默认为右转(外道)
+
 // 寻迹标志位
 typedef enum
 {
@@ -33,6 +36,7 @@ typedef enum
 	Cros_2 		// 第二个直道
 }Car_Position_Typedef;
 
+// 小车位置
 Car_Position_Typedef Car_State = Turn_1 ;	// 小车状态机参数,最开始肯定是马上进入弯道
 
 // ***************函数***************
@@ -133,16 +137,16 @@ void Y8_Line_Control(void)
 		// 得到偏差量
     float offset = Y8_Get_Line_Error();
 
-    if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
-    {
-        // 丢线,灭灯提示,*待优化*
-        HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
-        return;
-    }
-		else
-		{
-			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
-		}
+//    if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
+//    {
+//        // 丢线,灭灯提示,*待优化*
+//        HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
+//        return;
+//    }
+//		else
+//		{
+//			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
+//		}
 
     // 特殊情况检测,暂时没写,*待优化*
 		
@@ -168,9 +172,10 @@ bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 
 
 // 巡线识别逻辑分析
 // 岔路口入口 , 岔路口出口 , 停止标志 , 转弯 , 误识别  
-// 第一题针对性函数
-// 分析:四种状态:
-void Y8_Task1(void)
+
+// 第一题针对性函数:要求:沿外圈行驶一周,越快越好
+// 总函数:状态分析:分析小车现在是出于什么状态
+void Y8_Position_Update(void)
 {
 	// 状态一:小车在第一个弯道
 	if (Car_State == Turn_1)
@@ -179,15 +184,16 @@ void Y8_Task1(void)
 				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1))
 		{
 			// 判定为进入分岔路口
-			// 进入内圈
-			if (1)
-			{
-				
-			}
+			if (1){;}
 		}
 	}
 
 }
+
+
+
+
+
 
 
 

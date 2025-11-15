@@ -20,5 +20,5 @@ void Y8_LineSensor_Update(void) ;
 void Y8_Line_Control(void) ;
 
 // 第一题针对性函数
-void Y8_Task1(void) ;
+//void Y8_Task1(void) ;
 #endif

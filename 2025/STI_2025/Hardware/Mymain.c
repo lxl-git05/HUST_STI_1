@@ -77,7 +77,7 @@ void Mymain(void)
 	#ifdef PI_Line_Mode	// 树莓派视觉巡线模式
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Pi) ;			// 树莓派视觉巡线模式
 	#endif
-	#ifdef Y8_Line_Mode	// 8度寻迹巡线模式
+	#ifdef Y8_LineMode// 8度寻迹巡线模式
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Y8) ;			// 8度寻迹巡线模式
 	#endif
 	while (1)
@@ -88,7 +88,7 @@ void Mymain(void)
 		#ifdef PI_Line_Mode		// 树莓派视觉巡线模式
 		Motor_Pi_Check() ;		
 		#endif
-		#ifdef Y8_Line_Mode		// 8度寻迹巡线模式
+		#ifdef Y8_LineMode		// 8度寻迹巡线模式
 		Motor_VOFA_Set_Y8() ;
 		#endif
 		Y8_LineSensor_Update() ;
@@ -99,6 +99,12 @@ void Mymain(void)
 		// 菜单执行功能
 		Menu_Func() ;
 		// **********实验区域**********
+		if (Key_Check(KEY_2 , KEY_SINGLE))
+		{
+			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		}
+		
+		
 		// OLED显示参数
 		if (isBreak == true)
 			OLED_MODE = 1 ;	// 打开OLED
@@ -124,9 +130,6 @@ void Mymain(void)
 			OLED_Update() ;
 			OLED_MODE = 0 ;	// 正式关闭
 		}
-		
-		// 巡线识别逻辑分析
-		Y8_Task1() ;
 	}
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹

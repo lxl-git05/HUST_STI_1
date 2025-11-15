@@ -22,7 +22,7 @@ void Motor_A_Init(void)
 	Motor_A.ReductionRatio = 28.0f ;
 	
 	Motor_A.DIR = DIR_N ;			// 方向判断
-	Motor_A.Encoder_Dir = 1; // 编码器正方向
+	Motor_A.Encoder_Dir = -1; // 编码器正方向
 	
 	// PWM初始化
 	HAL_TIM_PWM_Start(&Motor_A.Motor_PWM_htim , Motor_A.Motor_PWM_Channel) ;	
@@ -74,7 +74,7 @@ void Motor_B_Init(void)
 	Motor_B.PPR = 13.0f ;
 	Motor_B.ReductionRatio = 28.0f ;
 	
-	Motor_B.DIR = DIR_N ;	// 方向判断
+	Motor_B.DIR = DIR_P;	// 方向判断
 	Motor_B.Encoder_Dir = -1; // 编码器正方向
 	
 	// PWM初始化
