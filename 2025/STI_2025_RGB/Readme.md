@@ -255,7 +255,7 @@ int Encoder_Get_CNT(TIM_HandleTypeDef *htimx) ;
 
 * 蓝牙发送信息:
   * RGB自动档:FFAA040001000255FE(解析:FFAA为帧头 , 04为高低位总数据数 , 0001为RGB自动档 , 0002为Servo保持原样 , 55FE为帧尾)
-  * RGB  手动档:FFAA040001000255FE
+  * RGB  手动档:FFAA040000000255FE
   * Servo自动档:FFAA040002000155FE
   * Servo手动档:FFAA040002000055FE
 
