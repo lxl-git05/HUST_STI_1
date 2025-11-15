@@ -144,31 +144,25 @@ void Mymain(void)
 			isBreak = 1 ;
 		}
 		
-		// 巡线相关工程调试
-		if (Y8_Position_Update( 1 ) == 1)
-		{
-//			while(1)
-//			{
-//				isBreak = 1 ;
-//				HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-//				HAL_Delay(500) ;
-//				
-//				OLED_Clear() ;
-//				OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
-//				OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
-//				OLED_Printf( 0 , 50 , OLED_6X8 , "A:%d , B:%d" , goalPoint_A , goalPoint_B ) ;
-//				
-//				OLED_Update() ;
-//				
-//				if (Key_Check(KEY_2 , KEY_SINGLE))
-//				{
-//					OLED_Clear() ;
+		// 巡线相关工程调试,起始位置识别
+//		if (Y8_is_Init(&is_Car_Init_Pos))
+//		{
+//			 while(1)
+//			 {
+//				 	OLED_Clear() ;
+//			
+//					OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
+//					OLED_Printf( 0 , 15 , OLED_6X8 , "%.1f %.1f %.1f %.1f", Y8_JQ[1] , Y8_JQ[2] , Y8_JQ[3] ,Y8_JQ[4]) ;
+//					
+//					OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
+//					OLED_Printf( 0 , 45 , OLED_6X8 , " %.1f  %.1f  %.1f  %.1f", Y8_JQ[5] , Y8_JQ[6] , Y8_JQ[7] ,Y8_JQ[8]) ;
+//					
 //					OLED_Update() ;
-//					break ;
-//				}
-//				
-//			}
-		}
+
+//					isBreak = 1 ;
+//				 
+//			 }
+//		}
 		
 		// 其他
 	

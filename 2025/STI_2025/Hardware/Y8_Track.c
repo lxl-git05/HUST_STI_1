@@ -24,6 +24,9 @@ float Y8_Line_Error ;					// 巡线误差
 float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
 float Y8_JQ[9];
 
+// 小车位置标志位
+bool is_Car_Init_Pos = false;
+
 // ***************函数***************
 
 // 寻迹模块初始化,其实就是PID初始化
@@ -121,19 +124,16 @@ void Y8_Line_Control(void)
 	{
 		// 得到偏差量
     float offset = Y8_Get_Line_Error();
-
+		
+		// 丢线,数据不能传输给PID,否则会有极大值
     if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
     {
-        // 丢线,灭灯提示,*待优化*
-//        HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
         return;
     }
-		else
-		{
-//			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
-		}
 
     // 特殊情况检测,暂时没写,*待优化*
+		
+		
 		
 		// PID计算
     PID_Update(&Y8_Line_PID , offset) ;
@@ -149,6 +149,67 @@ void Y8_Line_Control(void)
 }
 
 
+// **********************Y8算法逻辑**********************
+// Y8巡线对照函数
+bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 , int EX7 , int EX8 )
+{
+	return Y8_Line_Array[1] == EX1 && Y8_Line_Array[2] == EX2 && Y8_Line_Array[3] == EX3 && Y8_Line_Array[4] == EX4 &&
+		Y8_Line_Array[5] == EX5 && Y8_Line_Array[6] == EX6 && Y8_Line_Array[7] == EX7 && Y8_Line_Array[8] == EX8 ;
+}
+
+// Y8巡线岔路口判断
+bool Y8_is_LR(bool *is_Car_Init_Position)
+{
+	// 状态1:小车在初始化短直道,准备进入分叉路口
+	if (*is_Car_Init_Position == true)
+	{
+		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
+				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 1 , 0 , 0 , 0) || 
+		
+				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1) || 
+				Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 0 , 0 , 1 , 0 , 0 , 0 , 1) || 
+		
+				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 1 , 0 , 0) || 
+				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 1 , 0) 
+			 )
+		{
+			*is_Car_Init_Position = false ;
+			return true ;
+		}
+	}
+	return false ;
+}
+
+// Y8巡线停止标识判断
+bool Y8_is_Init(bool *is_Car_Init_Position)
+{
+	// 不在岔路口 *111 *111 * *1 *
+	if (*is_Car_Init_Position == false)
+	{
+		if (Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 1) || 
+				Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0)
+			 )
+		{
+			*is_Car_Init_Position = true ;
+			return true ;
+		}
+	}
+	return false ;
+}
+
+
+
+//// Y8弯道进入直道逻辑判断
+//bool Turn_to_Cross(void)
+//{
+//	// 走弯道时,理论上不可能出现内轮大于外轮的情况,所以内<外,而进入直道,如果还是这个状态必然偏向,所以内轮与外轮必然产生交叉,所以逻辑如下
+//	// 当然,仅仅一个函数肯定不够,但是在状态机判断方位的逻辑下足够有把握
+//	if (goalPoint_A - goalPoint_B > -5 && goalPoint_A - goalPoint_B < 5)
+//	{
+//		return true ;
+//	}
+//	return false ;
+//}
 
 
 

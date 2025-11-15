@@ -3,11 +3,14 @@
 
 #include "Y8_Track.h"
 #include "main.h"
+#include "stdbool.h"
 
 typedef enum
 {
 	
 	Car_Cross_Init_way ,			// 小车初始点位面对的一段短直线路程
+	
+	Car_Other_way      ,			// 小车不在初始位置
 	
 	Car_Turn_L_In_way ,				// 小车在岔路口的内圈转弯中
 	Car_Turn_R_In_way ,				// 小车在岔路口的外圈转弯中
@@ -30,7 +33,13 @@ typedef enum
 	
 }Car_Position_Typedef ;
 
-// Y8巡线方位判断:*总函数*:状态分析:分析小车现在是出于什么状态 , 巡线识别逻辑分析 
-int Y8_Position_Update(bool is_Turn_Left) ;
+typedef enum
+{
+	wait
+	
+	
+}Car_Status_Typedef;				// 小车状态判断
+
+
 
 #endif
