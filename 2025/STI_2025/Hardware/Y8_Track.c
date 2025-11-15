@@ -33,14 +33,14 @@ void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , f
 	Y8_Line_PID.goalPoint = 0.0f ;	// 目标是偏转为0
 	taskInit(&Y8_Line_Status , 0 , 20 , Y8_Line_Control) ;	// 巡线任务初始化
 	Y8_JQ[0] = -4.5f ;
-	Y8_JQ[1] = -3.5f ;
-	Y8_JQ[2] = -2.5f ;
+	Y8_JQ[1] = -4.5f ;
+	Y8_JQ[2] = -4.5f ;
 	Y8_JQ[3] = -1.5f ;
 	Y8_JQ[4] = -0.5f ;
 	Y8_JQ[5] =  0.5f ;
 	Y8_JQ[6] =  1.5f ;
-	Y8_JQ[7] =  2.5f ;
-	Y8_JQ[8] =  3.5f ;
+	Y8_JQ[7] =  4.5f ;
+	Y8_JQ[8] =  4.5f ;
 }
 // IIC软件模拟读取数据
 uint8_t MyI2C_ReadReg(uint8_t devAddr, uint8_t regAddr)
@@ -122,16 +122,16 @@ void Y8_Line_Control(void)
 		// 得到偏差量
     float offset = Y8_Get_Line_Error();
 
-//    if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
-//    {
-//        // 丢线,灭灯提示,*待优化*
+    if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
+    {
+        // 丢线,灭灯提示,*待优化*
 //        HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
-//        return;
-//    }
-//		else
-//		{
+        return;
+    }
+		else
+		{
 //			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
-//		}
+		}
 
     // 特殊情况检测,暂时没写,*待优化*
 		
@@ -140,8 +140,8 @@ void Y8_Line_Control(void)
     // 如果刹车未启用，则执行
     if (!isBreak)
     {
-      goalPoint_A  = goalPointTwo - Y8_Line_PID.setPoint ;
-			goalPoint_B  = goalPointTwo + Y8_Line_PID.setPoint ;
+      goalPoint_A  = goalPointTwo + Y8_Line_PID.setPoint ;
+			goalPoint_B  = goalPointTwo - Y8_Line_PID.setPoint ;
     }
 		// 寻迹更新标志位置0,等待下次更新
 		Y8_Update_Flag = false ;

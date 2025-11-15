@@ -2,6 +2,7 @@
 #define __CON_CAR_H
 
 #include "Y8_Track.h"
+#include "main.h"
 
 typedef enum
 {
@@ -29,6 +30,7 @@ typedef enum
 	
 }Car_Position_Typedef ;
 
-
+// Y8巡线方位判断:*总函数*:状态分析:分析小车现在是出于什么状态 , 巡线识别逻辑分析 
+int Y8_Position_Update(bool is_Turn_Left) ;
 
 #endif

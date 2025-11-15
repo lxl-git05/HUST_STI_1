@@ -35,6 +35,7 @@ int check2 ;
 int check[50] ;
 extern float Y8_Line_C ;
 extern Pid_Typedef Y8_Line_PID ;
+extern Car_Position_Typedef Car_Y8_Pos ;	
 
 extern float Y8_JQ[9] ;
 
@@ -53,6 +54,7 @@ void Motor_PID_Check(void) ;	// 电机调节PID测试函数
 extern mytask Y8_Line_Status ;
 void Motor_Update_Entray_Y8(void)	;// Mode1:Y8寻迹
 void Motor_VOFA_Set_Y8(void) ;		 // Mode1:Y8寻迹
+int Y8_Speed_MAX = 40;
 
 void Mymain(void)
 {
@@ -66,7 +68,7 @@ void Mymain(void)
 		Motor_B_Init();															// 电机B初始化
 		Timer_Counter_Init() ;											// 计时器初始化,计算任务时间戳
 		PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
-		Y8_Line_Init(0.0f , 0.0f , 0.0f , 30 , -30 , 1000 ) ;															// 巡线模块初始化
+		Y8_Line_Init(15.0f , 0.0f , 0.0f , Y8_Speed_MAX , -Y8_Speed_MAX , 1000 ) ;															// 巡线模块初始化
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();
 	}
@@ -80,6 +82,7 @@ void Mymain(void)
 	#ifdef Y8_LineMode// 8度寻迹巡线模式
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Y8) ;			// 8度寻迹巡线模式
 	#endif
+	
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -98,14 +101,9 @@ void Mymain(void)
 		RasPi_Func() ;
 		// 菜单执行功能
 		Menu_Func() ;
-		// **********实验区域**********
-		if (Key_Check(KEY_2 , KEY_SINGLE))
-		{
-			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		}
-		
-		
+		// **********实验区域**********	
 		// OLED显示参数
+		{
 		if (isBreak == true)
 			OLED_MODE = 1 ;	// 打开OLED
 		else if (OLED_MODE == 1 && isBreak == false)
@@ -130,6 +128,50 @@ void Mymain(void)
 			OLED_Update() ;
 			OLED_MODE = 0 ;	// 正式关闭
 		}
+	}
+		
+		
+	
+		// 巡线调试
+		if (Key_Check(KEY_1 , KEY_SINGLE))
+		{
+			HAL_Delay(2000) ;
+			goalPointTwo = 80 ;
+			isBreak = 0;
+		}
+		if (Key_Check(KEY_2 , KEY_SINGLE))
+		{
+			isBreak = 1 ;
+		}
+		
+		// 巡线相关工程调试
+		if (Y8_Position_Update( 1 ) == 1)
+		{
+//			while(1)
+//			{
+//				isBreak = 1 ;
+//				HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+//				HAL_Delay(500) ;
+//				
+//				OLED_Clear() ;
+//				OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
+//				OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
+//				OLED_Printf( 0 , 50 , OLED_6X8 , "A:%d , B:%d" , goalPoint_A , goalPoint_B ) ;
+//				
+//				OLED_Update() ;
+//				
+//				if (Key_Check(KEY_2 , KEY_SINGLE))
+//				{
+//					OLED_Clear() ;
+//					OLED_Update() ;
+//					break ;
+//				}
+//				
+//			}
+		}
+		
+		// 其他
+	
 	}
 }
 void Motor_Update_Entray_Y8(void)	// Mode1:Y8寻迹
@@ -165,6 +207,13 @@ void Motor_VOFA_Set_Y8(void)
 		// 寻迹倍增系数调整
 		if (Serial_SetFloatData("Line_C" , "Line_C=%f" , &Y8_Line_C)) { ; }
 		
+		// Y8_Speed_MAX
+		if (Serial_SetIntData("Y8_Speed_MAX" , "Y8_Speed_MAX=%d" , &Y8_Speed_MAX))
+		{
+			Y8_Line_PID.OutMax = Y8_Speed_MAX ;
+			Y8_Line_PID.OutMin = -Y8_Speed_MAX ;
+		}
+		
 		// 加权值判定
 		if (Serial_SetFloatData("JQb" , "JQb=%f" , &Y8_JQ[2])) { ; }
 		if (Serial_SetFloatData("JQc" , "JQc=%f" , &Y8_JQ[3])) { ; }
@@ -195,7 +244,7 @@ void Motor_VOFA_Set_Y8(void)
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Motor_A.RealSpeed , Motor_B.RealSpeed ) ;
+	printf("%f,%f,%f,%d,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -goalPoint_A , goalPoint_B , Car_Y8_Pos*100) ;
 //	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.iout , Y8_Line_PID.dout ) ;
 }
 
