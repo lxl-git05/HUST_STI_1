@@ -1,3 +1,11 @@
+#include "MPU.h"
+
+// 全局变量
+int MPU_flag = 0;
+float Ax, Ay, Az;
+float Gx, Gy, Gz;
+float Temperature;
+
 /* MPU6050 I2C设备地址定义 */
 #define MPU6050_ADDR    (0x68 << 1)  // 若AD0接地，7位地址0x68，左移1位得到8位地址0xD0
 #define WHO_AM_I_REG    0x75        // WHO_AM_I寄存器地址，默认值0x68
@@ -6,10 +14,6 @@
 #define CONFIG_REG      0x1A        // 配置寄存器（含DLPF设置）
 #define GYRO_CONFIG_REG 0x1B        // 陀螺仪配置寄存器
 #define ACCEL_CONFIG_REG 0x1C       // 加速度计配置寄存器
-#include "stm32f1xx_hal.h"  // 或者对应您使用的STM32系列头文件
-#include <stdint.h>         // 用于标准整数类型定义
-#include "i2c.h"
-#include "globals.h"
 
 // 添加I2C重试机制
 #define I2C_RETRY_COUNT 3

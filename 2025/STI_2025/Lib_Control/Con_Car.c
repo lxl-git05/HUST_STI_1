@@ -55,15 +55,15 @@ int Y8_Position_Update(bool is_Turn_Left)
 		}
 	}	
 	
-	// 状态2:小车在分叉路口,准备出分叉路口,速度发生交叉说明进入直道
-	else if (Car_Y8_Pos == Car_Turn_L_In_way || Car_Y8_Pos == Car_Turn_R_In_way)
-	{
-		if (Turn_to_Cross() == true)
-		{
-			Car_Y8_Pos = Car_Cross_L_In_way ;
-			return 1 ;
-		}
-	}
+//	// 状态2:小车在分叉路口,准备出分叉路口,速度发生交叉说明进入直道
+//	else if (Car_Y8_Pos == Car_Turn_L_In_way || Car_Y8_Pos == Car_Turn_R_In_way)
+//	{
+//		if (Turn_to_Cross() == true)
+//		{
+//			Car_Y8_Pos = Car_Cross_L_In_way ;
+//			return 1 ;
+//		}
+//	}
 	return 0 ;
 }
 

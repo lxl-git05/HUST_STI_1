@@ -244,7 +244,7 @@ void Motor_VOFA_Set_Y8(void)
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	printf("%f,%f,%f,%d,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -goalPoint_A , goalPoint_B , Car_Y8_Pos*100) ;
+	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -Motor_A.RealSpeed , Motor_B.RealSpeed) ;
 //	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.iout , Y8_Line_PID.dout ) ;
 }
 
