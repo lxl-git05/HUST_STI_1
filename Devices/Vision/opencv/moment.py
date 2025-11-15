@@ -4,20 +4,20 @@ import cv2
 import numpy as np
 import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-def recognize_text(gray):
+def recognize_text(binary):
 
-    if np.mean(gray) < 127:
-        gray = cv2.bitwise_not(gray)
+    # if np.mean(gray) < 127:
+    #     gray = cv2.bitwise_not(gray)
 
-    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     # 使用单字符配置
-    config_single_char = '--psm 10 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    config_single_char = '--oem 1 --psm 10 -c tessedit_char_whitelist=RLrl'# '--psm 10 -c tessedit_char_whitelist=RLrl'
 
     # 获取详细数据
-    data = pytesseract.image_to_data(binary, lang='eng+chi_sim',
+    data = pytesseract.image_to_data(binary, lang='eng',
                                    config=config_single_char,
                                    output_type=pytesseract.Output.DICT)
 

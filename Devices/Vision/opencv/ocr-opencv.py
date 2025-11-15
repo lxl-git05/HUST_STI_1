@@ -3,7 +3,7 @@ import numpy as np
 from moment import SerialPacket, count_red_green_pixels_rgb
 import cv2
 import numpy as np
-from moment import recognize_text
+from moment import recognize_text_opencv
 
 def process_image(img, threshold_value=51):
     """
@@ -16,8 +16,8 @@ def process_image(img, threshold_value=51):
 
 # 初始化摄像头
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)# 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)# 480)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 if not cap.isOpened():
     print("无法打开摄像头")
@@ -45,7 +45,7 @@ try:
         red_count, green_count = count_red_green_pixels_rgb(roi)
         rgb_control = 1 if red_count > 3000 else (2 if green_count > 3000 else 0)
         binary = process_image(roi, threshold_value)
-        text = recognize_text(binary)
+        text = recognize_text_opencv(binary)
         str_control = 1 if text == 'L' else (2 if text == 'R' else 0)
 
         print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
@@ -54,7 +54,7 @@ try:
         cv2.imshow("Binary_0", binary)
 
         # 发送数据包
-        pack.insert_byte(0x0A)
+        pack.insert_byte(0x04)
         pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
         pack.insert_two_bytes(pack.num_to_bytes(str_control))
         # pack.send_packet()
