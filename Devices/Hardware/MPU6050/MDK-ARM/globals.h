@@ -12,4 +12,5 @@ extern float Gx;
 extern float Gy;
 extern float Gz;
 extern float Temperature;
+
 #endif /* __GLOBALS_H */

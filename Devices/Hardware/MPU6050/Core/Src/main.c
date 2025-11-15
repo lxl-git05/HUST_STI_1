@@ -20,11 +20,12 @@
 #include "main.h"
 #include "i2c.h"
 #include "gpio.h"
-#include "MPU.h"
-#include "globals.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
+#include "MPU.h"
+#include "globals.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +63,7 @@ typedef struct {
 
 Angle_t current_angle = {0};
 
+
 // 自适应补偿参数结构体
 typedef struct {
     // 温度补偿参数
@@ -93,6 +95,9 @@ float Ax_filtered = 0, Ay_filtered = 0, Az_filtered = 0;
 float Gx_filtered = 0, Gy_filtered = 0, Gz_filtered = 0;
 const float FILTER_ALPHA = 0.2f; // 低通滤波系数
 
+int flag = 0;         //判断转向函数过程变量
+int turning_flag = 0; //转向状态指示
+
 // 数据有效性检查
 uint8_t data_valid = 0;
 float prev_Ax = 0, prev_Ay = 0, prev_Az = 0;
@@ -107,6 +112,7 @@ const uint32_t STATIONARY_THRESHOLD = 100; // 需要连续100个采样点静止
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 // 自适应补偿函数
+void calculate_angle_from_gyro(float gx, float gy, float gz, float dt);
 void init_adaptive_compensation(void);
 void update_adaptive_compensation(float temp, float ax, float ay, float az, float gx, float gy, float gz);
 void apply_adaptive_compensation(float temp, float *ax, float *ay, float *az, float *gx, float *gy, float *gz);
@@ -115,19 +121,14 @@ uint8_t is_stationary(float ax, float ay, float az, float gx, float gy, float gz
 // 数据处理函数
 void apply_low_pass_filter(float *filtered, float new_value, float alpha);
 uint8_t is_data_valid(float ax, float ay, float az, float gx, float gy, float gz);
+void turning_state_judge(MPUData_t *data);
 MPUData_t process_MPUdata_improved(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// 初始化自适应补偿
-void calculate_angle_from_gyro(float gx, float gy, float gz, float dt) {
-    // 积分计算角度变化
-    current_angle.pitch += gx * dt;  // 绕X轴旋转影响pitch
-    current_angle.roll += gy * dt;   // 绕Y轴旋转影响roll
-    current_angle.yaw += gz * dt;    // 绕Z轴旋转影响yaw
-}
 
+// 初始化自适应补偿
 void init_adaptive_compensation(void) {
     // 初始化温度补偿系数
     adaptive_comp.accel_offset[0] = 0.101f;
@@ -264,6 +265,7 @@ uint8_t is_data_valid(float ax, float ay, float az, float gx, float gy, float gz
     return 1;
 }
 
+
 // 改进的数据处理函数
 MPUData_t process_MPUdata(void) {
     MPUData_t data;
@@ -325,7 +327,26 @@ MPUData_t process_MPUdata(void) {
     return data;
 }
 
+void calculate_angle_from_gyro(float gx, float gy, float gz, float dt) {
+    // 积分计算角度变化
+    current_angle.pitch += gx * dt;  // 绕X轴旋转影响pitch
+    current_angle.roll += gy * dt;   // 绕Y轴旋转影响roll
+    current_angle.yaw += gz * dt;    // 绕Z轴旋转影响yaw
+}
 
+void turning_state_judge(MPUData_t *data){
+	if(data->Gz_>1&&flag == 0){
+		current_angle.yaw = 0;
+		flag = 1;
+	}
+	else if(data->Gz_<1&&flag == 1){
+		flag = 0;
+		turning_flag = 0;
+	}
+	else if(data->Gz_>1&&flag == 1){
+		if(current_angle.yaw > 20) turning_flag = 1;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -369,11 +390,16 @@ int main(void)
   {
     MPU6050_Data_Update();
     MPUData_t sensor_data = process_MPUdata();
-    uint32_t current_time = HAL_GetTick();
-		float dt = (current_time - current_angle.last_time) / 1000.0f; // 转换为秒
+    //获取参数
+		uint32_t current_time = HAL_GetTick();
+		float dt = (current_time - current_angle.last_time) / 1000.0f; 
 		current_angle.last_time = current_time;
 		calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_, dt);
-    // 可以在这里添加数据使用逻辑
+		//获得角度（并记录在角度结构体中）
+		turning_state_judge(&sensor_data);
+		//获取转向状态，turning_flag为1说明转向
+    
+		// 可以在这里添加数据使用逻辑
     // 例如: 发送到上位机、姿态解算等
     
     HAL_Delay(10); // 添加适当延时控制采样率
