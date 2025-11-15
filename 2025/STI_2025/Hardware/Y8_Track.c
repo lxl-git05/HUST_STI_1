@@ -24,21 +24,6 @@ float Y8_Line_Error ;					// 巡线误差
 float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
 float Y8_JQ[9];
 
-// 树莓派指令和小车判断
-extern bool Pi_is_Left ;	// 默认为右转(外道)
-
-// 寻迹标志位
-typedef enum
-{
-	Turn_1 ,	// 第一个弯道(包含内外圈)
-	Cros_1 ,	// 第一个直道
-	Turn_2 ,	// 第二个弯道
-	Cros_2 		// 第二个直道
-}Car_Position_Typedef;
-
-// 小车位置
-Car_Position_Typedef Car_State = Turn_1 ;	// 小车状态机参数,最开始肯定是马上进入弯道
-
 // ***************函数***************
 
 // 寻迹模块初始化,其实就是PID初始化
@@ -162,36 +147,6 @@ void Y8_Line_Control(void)
 		Y8_Update_Flag = false ;
 	}
 }
-
-
-bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 , int EX7 , int EX8 )
-{
-	return Y8_Line_Array[1] == EX1 && Y8_Line_Array[2] == EX2 && Y8_Line_Array[3] == EX3 && Y8_Line_Array[4] == EX4 &&
-		Y8_Line_Array[5] == EX5 && Y8_Line_Array[6] == EX6 && Y8_Line_Array[7] == EX7 && Y8_Line_Array[8] == EX8 ;
-}
-
-// 巡线识别逻辑分析
-// 岔路口入口 , 岔路口出口 , 停止标志 , 转弯 , 误识别  
-
-// 第一题针对性函数:要求:沿外圈行驶一周,越快越好
-// 总函数:状态分析:分析小车现在是出于什么状态
-void Y8_Position_Update(void)
-{
-	// 状态一:小车在第一个弯道
-	if (Car_State == Turn_1)
-	{
-		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
-				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1))
-		{
-			// 判定为进入分岔路口
-			if (1){;}
-		}
-	}
-
-}
-
-
-
 
 
 

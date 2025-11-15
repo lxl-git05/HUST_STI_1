@@ -233,8 +233,8 @@ int Encoder_Get_CNT(TIM_HandleTypeDef *htimx) ;
 
 | 引脚号 |   标签    | 备注 |
 | :----: | :-------: | :--: |
-|  PA9   | USART1_TX |      |
-|  PA10  | USART1_RX |      |
+|  PA2   | USART2_TX | 蓝牙 |
+|  PA3   | USART2_RX | 蓝牙 |
 
 
 
@@ -242,10 +242,10 @@ int Encoder_Get_CNT(TIM_HandleTypeDef *htimx) ;
 
 | 引脚号 |   标签   | 备注 |
 | :----: | :------: | :--: |
-|  PA0   | TIM2_CH1 |      |
-|  PA1   | TIM2_CH2 |      |
-|  PA2   | TIM2_CH3 |      |
-|  PB0   | TIM3_CH3 |      |
+|  PA0   | TIM2_CH1 |  R   |
+|  PA1   | TIM2_CH2 |  G   |
+|  PB10  | TIM2_CH3 |  B   |
+|  PB0   | TIM3_CH3 | 舵机 |
 
 ## 3. **程序功能介绍**
 
