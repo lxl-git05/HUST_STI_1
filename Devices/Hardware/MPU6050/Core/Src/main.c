@@ -389,7 +389,6 @@ int main(void)
   while (1)
   {
     MPU6050_Data_Update();
-    MPUData_t sensor_data = process_MPUdata();
     //获取参数
 		uint32_t current_time = HAL_GetTick();
 		float dt = (current_time - current_angle.last_time) / 1000.0f; 

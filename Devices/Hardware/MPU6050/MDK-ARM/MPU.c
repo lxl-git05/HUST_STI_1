@@ -183,7 +183,7 @@ void MPU6050_Read_Temp(void) {
     }
 }
 
-void MPU6050_Data_Update(void){
+MPUData_t MPU6050_Data_Update(void){
     MPU6050_Read_Accel();
     MPU6050_Read_Gyro();
     MPU6050_Read_Temp();
@@ -201,6 +201,8 @@ void MPU6050_Data_Update(void){
     
     Temperature = Temp_RAW / 340.0f + 36.53f;
     MPU_flag = 1;
+	  MPUData_t sensor_data = process_MPUdata();
+	  return sensor_data;
 }
 
 void init_adaptive_compensation(void) {
