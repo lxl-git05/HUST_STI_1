@@ -61,18 +61,18 @@ def generate_template(char, size=50, thickness=3):
 
 
 # 使用本地文件作为模板
-image_path_L = '/home/pi/rasp_projects/l1.png'
-image_path_R = '/home/pi/rasp_projects/r1.png'
+image_path_L = '/home/pi/rasp_projects/l2.png'
+image_path_R = '/home/pi/rasp_projects/r2.png'
 
 # 以灰度模式读取模板图像
 template_L = cv2.imread(image_path_L, cv2.IMREAD_GRAYSCALE)
 template_R = cv2.imread(image_path_R, cv2.IMREAD_GRAYSCALE)
 
 # 确保模板是二值的（如果原始图像已经是二值的，这步可以优化阈值）
-if template_L is not None:
-    _, template_L = cv2.threshold(template_L, 127, 255, cv2.THRESH_BINARY)
-if template_R is not None:
-    _, template_R = cv2.threshold(template_R, 127, 255, cv2.THRESH_BINARY)
+# if template_L is not None:
+#     _, template_L = cv2.threshold(template_L, 127, 255, cv2.THRESH_BINARY)
+# if template_R is not None:
+#     _, template_R = cv2.threshold(template_R, 127, 255, cv2.THRESH_BINARY)
 
 
 
@@ -82,10 +82,10 @@ def recognize_text_opencv(gray):
     tmpl_L = template_L.copy()
     tmpl_R = template_R.copy()
 
-    if len(tmpl_L.shape) > 2:
-        tmpl_L = cv2.cvtColor(tmpl_L, cv2.COLOR_BGR2GRAY)
-    if len(tmpl_R.shape) > 2:
-        tmpl_R = cv2.cvtColor(tmpl_R, cv2.COLOR_BGR2GRAY)
+    # if len(tmpl_L.shape) > 2:
+    #     tmpl_L = cv2.cvtColor(tmpl_L, cv2.COLOR_BGR2GRAY)
+    # if len(tmpl_R.shape) > 2:
+    #     tmpl_R = cv2.cvtColor(tmpl_R, cv2.COLOR_BGR2GRAY)
 
     # 归一化亮度（关键）
     gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
@@ -118,7 +118,7 @@ def recognize_text_opencv(gray):
         _, val, _, _ = cv2.minMaxLoc(res)
         best_R = max(best_R, val)
 
-    print(f"L匹配度: {best_L:.3f}, R匹配度: {best_R:.3f}")
+    # print(f"L匹配度: {best_L:.3f}, R匹配度: {best_R:.3f}")
 
     # 阈值大幅提高（灰度模板匹配的正常范围是 0.5 ~ 0.9）
     threshold = 0.5
@@ -316,6 +316,35 @@ def get_stop_dynamic(binary_img, total_roi_height=100, split_ratio=0.5):
     else:
         return 0
 
+def get_stop_dynamic_rev(binary_img, total_roi_height=100, split_ratio=0.5):
+    """
+    动态场景下识别单根/双根横线
+    :param binary_img: 二值图（H x W），OpenCV 输出
+    :param total_roi_height: 总ROI高度（建议取图像底部区域）
+    :param split_ratio: 分割比例，0.5 表示上下平分
+    :return: 0=无, 1=单根（下区）, 2=双根（上下都有）
+    """
+    h, w = binary_img.shape
+    start_y = max(0, h - total_roi_height)
+    roi = binary_img[start_y:start_y + total_roi_height]
+
+    split_idx = int(total_roi_height * split_ratio)
+    lower_roi = roi[:split_idx]      # 靠近图像底部（先看到）
+    upper_roi = roi[split_idx:]      # 靠近图像顶部（后看到）
+
+    has_lower = detect_horizontal_line_in_region(lower_roi)
+    if(has_lower):
+        has_upper = detect_horizontal_line_in_region(upper_roi)
+    else:
+        has_upper = False
+    # has_upper = detect_horizontal_line_in_region(upper_roi)
+
+    if has_lower and has_upper:
+        return 2  # 两根都看到
+    elif has_lower or has_upper:
+        return 1  # 只看到一根（优先认为是进入状态）
+    else:
+        return 0
 
 def get_center_point(img):
     img_output = img.copy()

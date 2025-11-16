@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
 from moment import SerialPacket, count_red_green_pixels_rgb
-import cv2
-import numpy as np
 from moment import recognize_text_opencv
 
 def process_image(img, threshold_value=51):
