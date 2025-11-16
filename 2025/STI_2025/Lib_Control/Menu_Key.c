@@ -11,6 +11,7 @@ DList Menu_list;						// 菜单系统头结点双向链表定义
 int Menu_Total_Num = 0 ;		// 菜单总数量
 // 交互界面参数
 int Menu_Confirm_index ;		// 菜单确认浮标
+static int Menu_Open_Mode = 0;
 
 // ******************外部变量声明******************
 
@@ -74,7 +75,6 @@ OLED_MenuItem* Menu_Get_Item(int MenuIndex)
 bool Menu_isOpen_Mode(void)
 {
 	// 菜单界面开关逻辑
-	static int Menu_Open_Mode = 0;
 	if (Key_Check(KEY_1 , KEY_LONG))
 	{
 		// 如果是关闭状态就打开
@@ -87,13 +87,13 @@ bool Menu_isOpen_Mode(void)
 		{
 			Menu_Open_Mode = 2 ;	// 预备关闭
 		}
-		// 预备关闭
-		if (Menu_Open_Mode == 2)
-		{
-			OLED_Clear()  ;
-			OLED_Update() ;
-			Menu_Open_Mode = 0 ;
-		}
+	}
+	// 预备关闭
+	if (Menu_Open_Mode == 2)
+	{
+		OLED_Clear()  ;
+		OLED_Update() ;
+		Menu_Open_Mode = 0 ;
 	}
 	return Menu_Open_Mode ;
 }
@@ -150,7 +150,7 @@ void Menu_Check_Callback(void)
 {
 	OLED_Printf(0 , 0 , OLED_6X8 , "=========Check=========") ;
 	
-	// 按键逻辑:单击进入下一个菜单
+	// 调参模式
 	Key_Param_Check() ;
 }
 
@@ -173,6 +173,7 @@ void Menu_Task1_Callback(void)
 		HAL_Delay(2000) ;
 		goalPointTwo = 80 ;
 		isBreak = false;
+		Menu_Open_Mode = 2 ;
 	}
 }
 

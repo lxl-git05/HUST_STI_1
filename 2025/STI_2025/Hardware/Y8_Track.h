@@ -8,10 +8,18 @@
 #include "MyPID.h"
 #include "Task.h"
 
+// 枚举
+typedef enum
+{
+	Y8_Init_Pos ,	// 小车在初始位置
+	Y8_LR_Pos   ,	// 小车在岔路口
+	Y8_Other_Pos 	// 小车在岔路口与初始位置外的其他位置
+}Y8_Position_Typedef ;
+
 // ************外部变量声明************
 
-extern uint8_t Y8_Line_Array[9] ;	// 8路传感器数据包
-extern bool is_Car_Init_Pos;			// 判断小车是否到达准备进入岔路口的起点线(也就是遇到了停止点位就更新为true)
+extern uint8_t Y8_Line_Array[9] ;				// 8路传感器数据包
+extern Y8_Position_Typedef Y8_Pos ;			// 小车方位参数
 
 // ************函数声明************
 
@@ -25,9 +33,11 @@ void Y8_LineSensor_Update(void) ;
 void Y8_Line_Control(void) ;
 
 // Y8巡线岔路口判断
-bool Y8_is_LR(bool *is_Car_Init_Position) ;
+bool Y8_is_LR(void) ;
+
+// 电工基地第1题
+void Y8_Task1(void) ;
 
 // Y8巡线停止标识判断
-bool Y8_is_Init(bool *is_Car_Init_Position) ;
-
+bool Y8_is_Init(void) ;
 #endif

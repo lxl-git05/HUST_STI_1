@@ -42,3 +42,14 @@ void taskDeinit(mytask* task)
     task->cycle = 0;           // 任务周期清零（可选）
     task->callback = NULL;     // 清空回调函数指针，防止误调用
 }
+
+// 本次任务停止并重置
+void taskStop(mytask* task)
+{
+    if (task == NULL) return;  // 防止空指针访问
+
+    task->Enable = 0;          // 停止任务
+    task->Flag = 0;            // 清除任务标志位
+    task->cnt = 0;             // 计数清零
+}
+

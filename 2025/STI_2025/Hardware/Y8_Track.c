@@ -10,6 +10,7 @@ uint8_t Y8_Line_Array[9] = {0};
 uint8_t Y8_Line_Num ;
 
 // ***************寻迹算法变量***************
+
 // 电机变量
 extern bool isBreak ;							// 刹车变量
 extern int goalPoint_A ;					// 电机目标转速
@@ -21,14 +22,20 @@ mytask Y8_Line_Status ;				// 任务2:寻迹
 bool Y8_Update_Flag = false ;	// 寻迹更新标志位
 Pid_Typedef Y8_Line_PID ;			// 寻迹PID
 float Y8_Line_Error ;					// 巡线误差
-float Y8_Line_C = 1.0f ;			// 倍增系数,增加PID的迟钝性or敏感性
 float Y8_JQ[9];
 
 // 小车位置标志位
-bool is_Car_Init_Pos = false;
+Y8_Position_Typedef Y8_Pos ;	// 初始为在初始位置
+extern bool is_Car_Turn_Left ;// 小车岔路方向判断
+bool Car_LR_Speed_Mode = false ;	// 小车的岔路专门处理函数
+extern int Y8_Cnt ;
 
 // ***************函数***************
-
+bool Y8_is_LR(void) ;
+// 八路巡线的异常情况判断并处理
+void Y8_Check(void) ;
+// 加权处理函数
+void Y8_JQ_Update(void) ;
 // 寻迹模块初始化,其实就是PID初始化
 void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax )
 {
@@ -111,7 +118,7 @@ float Y8_Get_Line_Error(void)
     if (blackCount == 0)  // 没检测到黑线,这里后续可以优化,变成根据历史找到线路
         return 999.0f;
 		
-		Y8_Line_Error = sum / blackCount * Y8_Line_C;
+		Y8_Line_Error = sum / blackCount;
 		
     return sum / blackCount;  // 平均偏移
 }
@@ -122,6 +129,32 @@ void Y8_Line_Control(void)
 	// 寻迹更新才进行控制
 	if (Y8_Update_Flag == true)
 	{
+		// 岔路口硬编码判断
+		if (Y8_is_LR() == true)
+		{
+			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+			if (is_Car_Turn_Left == true)
+			{
+				goalPoint_A = 120 ;
+				goalPoint_B = 40 ;
+				Car_LR_Speed_Mode = true ;
+				Y8_Cnt = 300 ;
+			}
+			else
+			{
+				goalPoint_A = 60  ;
+				goalPoint_B = 100 ;
+				Car_LR_Speed_Mode = true ;
+				Y8_Cnt = 100 ;
+			}
+		}
+		
+		// 岔路口cnt清零判断
+		if (Y8_Cnt == 0)
+		{
+			Car_LR_Speed_Mode = false ;
+		}
+
 		// 得到偏差量
     float offset = Y8_Get_Line_Error();
 		
@@ -130,15 +163,15 @@ void Y8_Line_Control(void)
     {
         return;
     }
-
-    // 特殊情况检测,暂时没写,*待优化*
 		
-		
+    // 特殊情况检测,已优化
+		Y8_Check() ;
 		
 		// PID计算
     PID_Update(&Y8_Line_PID , offset) ;
+		
     // 如果刹车未启用，则执行
-    if (!isBreak)
+    if (!isBreak && Car_LR_Speed_Mode == false)
     {
       goalPoint_A  = goalPointTwo + Y8_Line_PID.setPoint ;
 			goalPoint_B  = goalPointTwo - Y8_Line_PID.setPoint ;
@@ -158,10 +191,10 @@ bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 
 }
 
 // Y8巡线岔路口判断
-bool Y8_is_LR(bool *is_Car_Init_Position)
+bool Y8_is_LR()
 {
 	// 状态1:小车在初始化短直道,准备进入分叉路口
-	if (*is_Car_Init_Position == true)
+	if (Y8_Pos == Y8_Init_Pos)
 	{
 		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
 				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 1 , 0 , 0 , 0) || 
@@ -173,7 +206,7 @@ bool Y8_is_LR(bool *is_Car_Init_Position)
 				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 1 , 0) 
 			 )
 		{
-			*is_Car_Init_Position = false ;
+			Y8_Pos = Y8_LR_Pos ;	// 小车进入岔道
 			return true ;
 		}
 	}
@@ -181,36 +214,38 @@ bool Y8_is_LR(bool *is_Car_Init_Position)
 }
 
 // Y8巡线停止标识判断
-bool Y8_is_Init(bool *is_Car_Init_Position)
+bool Y8_is_Init()
 {
 	// 不在岔路口 *111 *111 * *1 *
-	if (*is_Car_Init_Position == false)
+	if (Y8_Pos == Y8_LR_Pos)	// 小车判断出发点的前提是小车判断成功过岔路(这里最好缩小判断范围,*待优化*)
 	{
 		if (Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 1) || 
 				Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0)
 			 )
 		{
-			*is_Car_Init_Position = true ;
+			Y8_Pos = Y8_Init_Pos ;	// 到达出发点
 			return true ;
 		}
 	}
 	return false ;
 }
 
+// 八路巡线的异常情况判断并处理
+void Y8_Check(void)
+{
+	if (Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 1 , 1))
+	{
+		return ;
+	}
+}
 
-
-//// Y8弯道进入直道逻辑判断
-//bool Turn_to_Cross(void)
-//{
-//	// 走弯道时,理论上不可能出现内轮大于外轮的情况,所以内<外,而进入直道,如果还是这个状态必然偏向,所以内轮与外轮必然产生交叉,所以逻辑如下
-//	// 当然,仅仅一个函数肯定不够,但是在状态机判断方位的逻辑下足够有把握
-//	if (goalPoint_A - goalPoint_B > -5 && goalPoint_A - goalPoint_B < 5)
-//	{
-//		return true ;
-//	}
-//	return false ;
-//}
-
-
-
+// 电工基地第1题
+void Y8_Task1(void)
+{
+	// 识别到岔路口
+	if (Y8_is_Init())
+	{
+		isBreak = 1 ;
+	}
+}
 

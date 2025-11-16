@@ -19,6 +19,7 @@ void taskInit(mytask* task,uint32_t cnt_init,uint32_t cycle_init ,void (*callbac
 void task_possess(mytask* task);
 // 任务注销函数(deinit)
 void taskDeinit(mytask* task);
-
+// 本次任务停止并重置
+void taskStop(mytask* task) ;
 #endif
 
