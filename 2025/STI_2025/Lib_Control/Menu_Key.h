@@ -5,6 +5,7 @@
 #include "OLED.h"
 #include "Key.h"
 #include "stdbool.h"
+#include "Key_Check.h"
 
 extern int Menu_Confirm_index ;		// 菜单确认浮标,根据这个判断上位机的命令
 

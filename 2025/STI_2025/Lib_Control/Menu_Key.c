@@ -146,12 +146,7 @@ void Menu_Check_Callback(void)
 	OLED_Printf(0 , 0 , OLED_6X8 , "=========Check=========") ;
 	
 	// 按键逻辑:单击进入下一个菜单
-	if (Key_Check(KEY_1 , KEY_SINGLE))
-	{
-		Menu_Confirm_index ++ ;
-		Menu_Confirm_index = Menu_Confirm_index % Menu_Total_Num ;
-	}
-	
+	Key_Param_Check() ;
 }
 
 void Menu_Task1_Callback(void)
