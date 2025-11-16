@@ -84,7 +84,7 @@ void Mymain(void)
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Y8) ;			// 8???????
 	#endif
 	
-//	Key_AddParam("JQ1" , &Y8_JQ[0] , 0.1f , PARAM_FLOAT ) ;
+	Key_AddParam("JQ1" , &Y8_JQ[0] , 0.1f , PARAM_FLOAT ) ;
 	
 	while (1)
 	{

@@ -139,6 +139,11 @@ void Menu_Main_Callback(void)
 		Menu_Confirm_index ++ ;
 		Menu_Confirm_index = Menu_Confirm_index % Menu_Total_Num ;
 	}
+	else if (Key_Check(KEY_1 , KEY_DOUBLE))
+	{
+		Menu_Confirm_index += 2 ;
+		Menu_Confirm_index = Menu_Confirm_index % Menu_Total_Num ;
+	}
 }
 
 void Menu_Check_Callback(void)
