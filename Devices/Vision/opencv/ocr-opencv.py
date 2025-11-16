@@ -11,8 +11,8 @@ def process_image(img, threshold_value=51):
     """
     # 灰度转换与二值化
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, threshold_value, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)# cv2.THRESH_BINARY_INV)
-    return binary
+    _, binary = cv2.threshold(gray, threshold_value, 255, cv2.THRESH_BINARY_INV)
+    return binary, gray
 
 # 初始化摄像头
 cap = cv2.VideoCapture(0)
@@ -25,7 +25,7 @@ if not cap.isOpened():
 
 # 创建窗口和滑块
 cv2.namedWindow("Binary_0")
-cv2.createTrackbar("Threshold", "Binary_0", 31, 255, lambda x: None)
+cv2.createTrackbar("Threshold", "Binary_0", 120, 255, lambda x: None)
 
 pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
 
@@ -44,14 +44,14 @@ try:
         # 计算红绿灯状态和字符识别结果
         red_count, green_count = count_red_green_pixels_rgb(roi)
         rgb_control = 1 if red_count > 3000 else (2 if green_count > 3000 else 0)
-        binary = process_image(roi, threshold_value)
-        text = recognize_text_opencv(binary)
+        binary, gray = process_image(roi, threshold_value)
+        text = recognize_text_opencv(gray)
         str_control = 1 if text == 'L' else (2 if text == 'R' else 0)
 
         print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
 
         # 显示处理后的灰度图
-        cv2.imshow("Binary_0", binary)
+        cv2.imshow("Binary_0", roi)
 
         # 发送数据包
         pack.insert_byte(0x04)

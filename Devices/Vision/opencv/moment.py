@@ -44,6 +44,92 @@ def recognize_text(binary):
 
     return most_confident_char
 
+# 生成模板 (可以根据实际字符样式调整字体、规模和厚度)
+def generate_template(char, size=50, thickness=3):
+    template = np.zeros((size + 20, size + 20), dtype=np.uint8)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1.5  # 调整以匹配预期字符大小
+    text_size = cv2.getTextSize(char, font, font_scale, thickness)[0]
+    text_x = (template.shape[1] - text_size[0]) // 2
+    text_y = (template.shape[0] + text_size[1]) // 2
+    cv2.putText(template, char, (text_x, text_y), font, font_scale, 255, thickness)
+    contours, _ = cv2.findContours(template, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        x, y, w, h = cv2.boundingRect(contours[0])
+        template = template[y:y+h, x:x+w]
+    return template
+
+
+# 使用本地文件作为模板
+image_path_L = '/home/pi/rasp_projects/l1.png'
+image_path_R = '/home/pi/rasp_projects/r1.png'
+
+# 以灰度模式读取模板图像
+template_L = cv2.imread(image_path_L, cv2.IMREAD_GRAYSCALE)
+template_R = cv2.imread(image_path_R, cv2.IMREAD_GRAYSCALE)
+
+# 确保模板是二值的（如果原始图像已经是二值的，这步可以优化阈值）
+if template_L is not None:
+    _, template_L = cv2.threshold(template_L, 127, 255, cv2.THRESH_BINARY)
+if template_R is not None:
+    _, template_R = cv2.threshold(template_R, 127, 255, cv2.THRESH_BINARY)
+
+
+
+def recognize_text_opencv(gray):
+
+
+    tmpl_L = template_L.copy()
+    tmpl_R = template_R.copy()
+
+    if len(tmpl_L.shape) > 2:
+        tmpl_L = cv2.cvtColor(tmpl_L, cv2.COLOR_BGR2GRAY)
+    if len(tmpl_R.shape) > 2:
+        tmpl_R = cv2.cvtColor(tmpl_R, cv2.COLOR_BGR2GRAY)
+
+    # 归一化亮度（关键）
+    gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
+    tmpl_L = cv2.normalize(tmpl_L, None, 0, 255, cv2.NORM_MINMAX)
+    tmpl_R = cv2.normalize(tmpl_R, None, 0, 255, cv2.NORM_MINMAX)
+
+    method = cv2.TM_CCOEFF_NORMED
+
+    scales = np.linspace(0.7, 1.3, 15)  # 只允许小范围缩放 → 效果更稳定
+
+    best_L = -1
+    best_R = -1
+
+    for scale in scales:
+        # Resize L
+        new_L = cv2.resize(tmpl_L, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        if new_L.shape[0] > gray.shape[0] or new_L.shape[1] > gray.shape[1]:
+            continue
+
+        res = cv2.matchTemplate(gray, new_L, method)
+        _, val, _, _ = cv2.minMaxLoc(res)
+        best_L = max(best_L, val)
+
+        # Resize R
+        new_R = cv2.resize(tmpl_R, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        if new_R.shape[0] > gray.shape[0] or new_R.shape[1] > gray.shape[1]:
+            continue
+
+        res = cv2.matchTemplate(gray, new_R, method)
+        _, val, _, _ = cv2.minMaxLoc(res)
+        best_R = max(best_R, val)
+
+    print(f"L匹配度: {best_L:.3f}, R匹配度: {best_R:.3f}")
+
+    # 阈值大幅提高（灰度模板匹配的正常范围是 0.5 ~ 0.9）
+    threshold = 0.5
+
+    if best_L > threshold and best_L > best_R:
+        return "L"
+    elif best_R > threshold and best_R > best_L:
+        return "R"
+    return ""
+
+
 def count_red_green_pixels_rgb(img):
     """
     使用RGB颜色空间计算红色和绿色像素数量（修正版）
@@ -59,11 +145,12 @@ def count_red_green_pixels_rgb(img):
 
     # 定义红色和绿色的阈值（RGB空间）
     # 红色: R值高，G和B值低
-    red_mask = (rgb[:, :, 0] > 140) & (rgb[:, :, 1] < 100) & (rgb[:, :, 2] < 100)
+    # red_mask = (rgb[:, :, 0] > 140) & (rgb[:, :, 1] < 100) & (rgb[:, :, 2] < 100)
 
-    # 绿色: G值高，R和B值低
-    green_mask = (rgb[:, :, 1] > 110) & (rgb[:, :, 0] < 110) & (rgb[:, :, 2] < 110)
-
+    # # 绿色: G值高，R和B值低
+    # green_mask = (rgb[:, :, 1] > 110) & (rgb[:, :, 0] < 110) & (rgb[:, :, 2] < 110)
+    red_mask = ((rgb[:,:,0]//rgb[:,:,1]+1 > 2) & (rgb[:,:,0]//rgb[:,:,2]+1 > 2))
+    green_mask = ((rgb[:,:,1]//rgb[:,:,0]+1 > 1.5) & (rgb[:,:,1]//rgb[:,:,2]+1 > 1.5))
     red_count = np.sum(red_mask)
     green_count = np.sum(green_mask)
     total_pixels = 320 * 240
@@ -77,87 +164,7 @@ def count_red_green_pixels_rgb(img):
     return red_count, green_count
 
 
-class TemplateMatcher:
-    def __init__(self):
-        self.L_templates = self.generate_L_templates()
-        self.R_templates = self.generate_R_templates()
-        self.match_threshold = 0.6
-    
-    def generate_L_templates(self):
-        """生成L字符的模板"""
-        templates = []
-        # 创建不同大小和风格的L模板
-        for size in [20, 25, 30]:
-            for thickness in [2, 3]:
-                template = np.zeros((size, size), dtype=np.uint8)
-                # 画L字符
-                cv2.line(template, (5, 5), (5, size-5), 255, thickness)
-                cv2.line(template, (5, size-5), (size-5, size-5), 255, thickness)
-                templates.append(template)
-        return templates
-    
-    def generate_R_templates(self):
-        """生成R字符的模板"""
-        templates = []
-        for size in [20, 25, 30]:
-            for thickness in [2, 3]:
-                template = np.zeros((size, size), dtype=np.uint8)
-                # 画R字符 - 竖线
-                cv2.line(template, (5, 5), (5, size-5), 255, thickness)
-                # 画R字符 - 顶部横线和弧形
-                cv2.line(template, (5, 5), (size-5, 5), 255, thickness)
-                cv2.line(template, (size-5, 5), (size-5, size//2), 255, thickness)
-                cv2.line(template, (5, size//2), (size-5, size//2), 255, thickness)
-                cv2.line(template, (5, size//2), (size-5, size-5), 255, thickness)
-                templates.append(template)
-        return templates
-    
-    def recognize_with_templates(self, binary):
-        """使用模板匹配识别字符"""
-        # 找到字符区域
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if not contours:
-            return ''
-        
-        largest_contour = max(contours, key=cv2.contourArea)
-        x, y, w, h = cv2.boundingRect(largest_contour)
-        
-        if w < 10 or h < 10:  # 太小无法识别
-            return ''
-        
-        # 提取字符ROI并调整大小
-        roi = binary[y:y+h, x:x+w]
-        roi_resized = cv2.resize(roi, (30, 30))
-        
-        # 模板匹配
-        L_scores = self.match_templates(roi_resized, self.L_templates)
-        R_scores = self.match_templates(roi_resized, self.R_templates)
-        
-        best_L = max(L_scores) if L_scores else 0
-        best_R = max(R_scores) if R_scores else 0
-        
-        if best_L > self.match_threshold and best_L > best_R:
-            return 'L'
-        elif best_R > self.match_threshold and best_R > best_L:
-            return 'R'
-        else:
-            return ''
-    
-    def match_templates(self, image, templates):
-        """匹配所有模板并返回最佳分数"""
-        scores = []
-        for template in templates:
-            # 调整模板大小以匹配图像
-            if template.shape != image.shape:
-                template_resized = cv2.resize(template, (image.shape[1], image.shape[0]))
-            else:
-                template_resized = template
-            
-            # 模板匹配
-            result = cv2.matchTemplate(image, template_resized, cv2.TM_CCOEFF_NORMED)
-            scores.append(np.max(result))
-        
-        return scores
+
 
 def ls(img):
 
