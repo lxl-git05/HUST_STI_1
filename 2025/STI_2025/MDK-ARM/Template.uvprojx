@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;..\System</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -833,6 +833,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>System</GroupName>
+          <Files>
+            <File>
+              <FileName>DList.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\DList.c</FilePath>
+            </File>
+            <File>
+              <FileName>DList.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\DList.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Hardware</GroupName>
           <Files>
             <File>
@@ -966,16 +981,6 @@
               <FilePath>..\Hardware\Timer_Counter.h</FilePath>
             </File>
             <File>
-              <FileName>OLED_Menu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\OLED_Menu.c</FilePath>
-            </File>
-            <File>
-              <FileName>OLED_Menu.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\OLED_Menu.h</FilePath>
-            </File>
-            <File>
               <FileName>Y8_Track.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\Y8_Track.c</FilePath>
@@ -1029,6 +1034,16 @@
               <FileName>Con_Car.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Lib_Control\Con_Car.h</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Lib_Control\Menu_Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Lib_Control\Menu_Key.h</FilePath>
             </File>
           </Files>
         </Group>

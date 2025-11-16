@@ -69,6 +69,7 @@ void Mymain(void)
 		Timer_Counter_Init() ;											// 计时器初始化,计算任务时间戳
 		PID_Init(&PID_Line , 0.3f , 0.0f , 0.0f , Pi_Speed_Max , -Pi_Speed_Max , 1000) ;	// 树莓派巡线初始化
 		Y8_Line_Init(15.0f , 0.0f , 0.0f , Y8_Speed_MAX , -Y8_Speed_MAX , 1000 ) ;															// 巡线模块初始化
+		Menu_Init() ;	// 菜单初始化
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();
 	}
@@ -99,36 +100,36 @@ void Mymain(void)
 		RasPi_Data_Update() ;
 		// 树莓派停止和驱动指令
 		RasPi_Func() ;
-		// 菜单执行功能
-		Menu_Func() ;
+		// OLED菜单交互控制界面
+//		Menu_Func() ;
 		// **********实验区域**********	
 		// OLED显示参数
-		{
-		if (isBreak == true)
-			OLED_MODE = 1 ;	// 打开OLED
-		else if (OLED_MODE == 1 && isBreak == false)
-			OLED_MODE = 2 ;	// 关闭OLED预留状态
-		
-		if (OLED_MODE == 1)
-		{
-			// 使用OLED
-			OLED_Clear() ;
-			
-			OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
-			OLED_Printf( 0 , 15 , OLED_6X8 , "%.1f %.1f %.1f %.1f", Y8_JQ[1] , Y8_JQ[2] , Y8_JQ[3] ,Y8_JQ[4]) ;
-			
-			OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
-			OLED_Printf( 0 , 45 , OLED_6X8 , " %.1f  %.1f  %.1f  %.1f", Y8_JQ[5] , Y8_JQ[6] , Y8_JQ[7] ,Y8_JQ[8]) ;
-			
-			OLED_Update() ;
-		}
-		else if (OLED_MODE == 2)
-		{
-			OLED_Clear() ;
-			OLED_Update() ;
-			OLED_MODE = 0 ;	// 正式关闭
-		}
-	}
+//		{
+//		if (isBreak == true)
+//			OLED_MODE = 1 ;	// 打开OLED
+//		else if (OLED_MODE == 1 && isBreak == false)
+//			OLED_MODE = 2 ;	// 关闭OLED预留状态
+//		
+//		if (OLED_MODE == 1)
+//		{
+//			// 使用OLED
+//			OLED_Clear() ;
+//			
+//			OLED_Printf( 0 , 0  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[1] , Y8_Line_Array[2] , Y8_Line_Array[3] ,Y8_Line_Array[4]) ;
+//			OLED_Printf( 0 , 15 , OLED_6X8 , "%.1f %.1f %.1f %.1f", Y8_JQ[1] , Y8_JQ[2] , Y8_JQ[3] ,Y8_JQ[4]) ;
+//			
+//			OLED_Printf( 0 , 30  , OLED_6X8 , "  %d    %d    %d    %d", Y8_Line_Array[5] , Y8_Line_Array[6] , Y8_Line_Array[7] ,Y8_Line_Array[8]) ;
+//			OLED_Printf( 0 , 45 , OLED_6X8 , " %.1f  %.1f  %.1f  %.1f", Y8_JQ[5] , Y8_JQ[6] , Y8_JQ[7] ,Y8_JQ[8]) ;
+//			
+//			OLED_Update() ;
+//		}
+//		else if (OLED_MODE == 2)
+//		{
+//			OLED_Clear() ;
+//			OLED_Update() ;
+//			OLED_MODE = 0 ;	// 正式关闭
+//		}
+//	}
 		
 		
 	
