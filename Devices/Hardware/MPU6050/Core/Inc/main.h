@@ -57,6 +57,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SCL_Pin GPIO_PIN_3
+#define SCL_GPIO_Port GPIOB
+#define SDA_Pin GPIO_PIN_4
+#define SDA_GPIO_Port GPIOB
+#define I2C_PORT GPIOB
+
+// Òý½Å²Ù×÷ºê
+#define SCL_HIGH()  HAL_GPIO_WritePin(I2C_PORT, SCL_PIN, GPIO_PIN_SET)
+#define SCL_LOW()   HAL_GPIO_WritePin(I2C_PORT, SCL_PIN, GPIO_PIN_RESET)
+#define SDA_HIGH()  HAL_GPIO_WritePin(I2C_PORT, SDA_PIN, GPIO_PIN_SET)
+#define SDA_LOW()   HAL_GPIO_WritePin(I2C_PORT, SDA_PIN, GPIO_PIN_RESET)
+#define SDA_READ()  HAL_GPIO_ReadPin(I2C_PORT, SDA_PIN)
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -1,5 +1,6 @@
 #include "MPU.h"
 #include "math.h"
+
 // 全局变量
 int MPU_flag = 0;
 float Ax, Ay, Az;
@@ -8,43 +9,33 @@ float Temperature;
 MPUData_t sensor_data;
 Angle_t current_angle;
 int turning_flag;
-int flag = 0;         //判断转向函数过程变量
-/* MPU6050 I2C设备地址定义 */
-#define MPU6050_ADDR    (0x68 << 1)  // 若AD0接地，7位地址0x68，左移1位得到8位地址0xD0
-#define WHO_AM_I_REG    0x75        // WHO_AM_I寄存器地址，默认值0x68
-#define PWR_MGMT_1_REG  0x6B        // 电源管理寄存器1
-#define SMPLRT_DIV_REG  0x19        // 采样率分频寄存器
-#define CONFIG_REG      0x1A        // 配置寄存器（含DLPF设置）
-#define GYRO_CONFIG_REG 0x1B        // 陀螺仪配置寄存器
-#define ACCEL_CONFIG_REG 0x1C       // 加速度计配置寄存器
+int flag = 0;
 
-// 添加I2C重试机制
-#define I2C_RETRY_COUNT 3
-#define I2C_TIMEOUT_MS  50
+/* MPU6050 寄存器定义 */
+#define WHO_AM_I_REG    0x75
+#define PWR_MGMT_1_REG  0x6B
+#define SMPLRT_DIV_REG  0x19
+#define CONFIG_REG      0x1A
+#define GYRO_CONFIG_REG 0x1B
+#define ACCEL_CONFIG_REG 0x1C
 
 int16_t Accel_X_RAW, Accel_Y_RAW, Accel_Z_RAW;
 int16_t Gyro_X_RAW, Gyro_Y_RAW, Gyro_Z_RAW;
 int16_t Temp_RAW;
+
 typedef struct {
-    // 温度补偿参数
     float accel_temp_coeff[3];
     float gyro_temp_coeff[3];
     float accel_offset[3];
     float gyro_offset[3];
-    
-    // 自适应学习参数
     float learning_rate_temp;
     float learning_rate_offset;
     uint32_t calibration_count;
     uint8_t is_calibrating;
-    
-    // 温度历史
     float temp_history[10];
     float accel_history[3][10];
     float gyro_history[3][10];
     uint8_t history_index;
-    
-    // 参考温度
     float ref_temp;
 } AdaptiveCompensation_t;
 
@@ -53,7 +44,7 @@ AdaptiveCompensation_t adaptive_comp;
 // 数据滤波变量
 float Ax_filtered = 0, Ay_filtered = 0, Az_filtered = 0;
 float Gx_filtered = 0, Gy_filtered = 0, Gz_filtered = 0;
-const float FILTER_ALPHA = 0.2f; // 低通滤波系数
+const float FILTER_ALPHA = 0.2f;
 
 // 数据有效性检查
 uint8_t data_valid = 0;
@@ -62,26 +53,242 @@ float prev_Gx = 0, prev_Gy = 0, prev_Gz = 0;
 
 // 静止检测
 uint32_t stationary_count = 0;
-const uint32_t STATIONARY_THRESHOLD = 100; // 需要连续100个采样点静止
+const uint32_t STATIONARY_THRESHOLD = 100;
 
+/* USER CODE BEGIN 0 */
+#ifndef USE_HARDWARE_I2C
+// 软件I2C基础函数实现（静态函数，只在当前文件可见）
+static void I2C_Start(void)
+{
+    SDA_HIGH();
+    SCL_HIGH();
+    I2C_DELAY();
+    SDA_LOW();
+    I2C_DELAY();
+    SCL_LOW();
+}
 
-// 改进的I2C读取函数，带重试机制
-HAL_StatusTypeDef MPU6050_I2C_Read(uint16_t MemAddress, uint8_t *pData, uint16_t Size) {
+static void I2C_Stop(void)
+{
+    SDA_LOW();
+    SCL_HIGH();
+    I2C_DELAY();
+    SDA_HIGH();
+    I2C_DELAY();
+}
+
+static uint8_t I2C_Wait_Ack(void)
+{
+    uint8_t ack;
+    
+    SDA_HIGH();
+    SCL_HIGH();
+    I2C_DELAY();
+    
+    ack = SDA_READ();
+    
+    SCL_LOW();
+    I2C_DELAY();
+    
+    return (ack == 0);
+}
+
+static void I2C_Ack(void)
+{
+    SDA_LOW();
+    SCL_HIGH();
+    I2C_DELAY();
+    SCL_LOW();
+    I2C_DELAY();
+    SDA_HIGH();
+}
+
+static void I2C_NAck(void)
+{
+    SDA_HIGH();
+    SCL_HIGH();
+    I2C_DELAY();
+    SCL_LOW();
+    I2C_DELAY();
+}
+
+static uint8_t I2C_SendByte(uint8_t data)
+{
+    uint8_t i;
+    
+    for(i = 0; i < 8; i++)
+    {
+        if(data & 0x80)
+            SDA_HIGH();
+        else
+            SDA_LOW();
+        
+        SCL_HIGH();
+        I2C_DELAY();
+        SCL_LOW();
+        I2C_DELAY();
+        
+        data <<= 1;
+    }
+    
+    return I2C_Wait_Ack();
+}
+
+static uint8_t I2C_ReadByte(uint8_t ack)
+{
+    uint8_t i, data = 0;
+    
+    SDA_HIGH();
+    
+    for(i = 0; i < 8; i++)
+    {
+        data <<= 1;
+        SCL_HIGH();
+        I2C_DELAY();
+        
+        if(SDA_READ())
+            data |= 0x01;
+            
+        SCL_LOW();
+        I2C_DELAY();
+    }
+    
+    if(ack)
+        I2C_Ack();
+    else
+        I2C_NAck();
+    
+    return data;
+}
+
+// 软件I2C初始化
+void Software_I2C_Init(void)
+{
+    // 引脚已在CubeMX中配置为开漏输出
+    SCL_HIGH();
+    SDA_HIGH();
+}
+
+// 软件I2C读取函数（带重试机制）
+HAL_StatusTypeDef MPU6050_I2C_Read(uint16_t MemAddress, uint8_t *pData, uint16_t Size)
+{
+    uint8_t retry_count = 0;
+    uint8_t i;
+    
+    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++)
+    {
+        // 发送起始条件
+        I2C_Start();
+        
+        // 发送设备地址(写模式) + 等待应答
+        if(!I2C_SendByte(MPU6050_ADDR << 1))
+        {
+            I2C_Stop();
+            continue;  // 无应答，重试
+        }
+        
+        // 发送寄存器地址 + 等待应答
+        if(!I2C_SendByte((uint8_t)MemAddress))
+        {
+            I2C_Stop();
+            continue;  // 无应答，重试
+        }
+        
+        // 重新启动以开始读取
+        I2C_Start();
+        
+        // 发送设备地址(读模式) + 等待应答
+        if(!I2C_SendByte((MPU6050_ADDR << 1) | 0x01))
+        {
+            I2C_Stop();
+            continue;  // 无应答，重试
+        }
+        
+        // 读取数据
+        for(i = 0; i < Size; i++)
+        {
+            if(i == Size - 1)
+                pData[i] = I2C_ReadByte(0);  // 最后一个字节发送NACK
+            else
+                pData[i] = I2C_ReadByte(1);  // 发送ACK
+        }
+        
+        // 发送停止条件
+        I2C_Stop();
+        
+        return HAL_OK;  // 读取成功
+    }
+    
+    return HAL_ERROR;  // 所有重试都失败
+}
+
+// 软件I2C写入函数（带重试机制）
+HAL_StatusTypeDef MPU6050_I2C_Write(uint16_t MemAddress, uint8_t *pData, uint16_t Size)
+{
+    uint8_t retry_count = 0;
+    uint8_t i;
+    
+    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++)
+    {
+        // 发送起始条件
+        I2C_Start();
+        
+        // 发送设备地址(写模式) + 等待应答
+        if(!I2C_SendByte(MPU6050_ADDR << 1))
+        {
+            I2C_Stop();
+            HAL_Delay(1);
+            continue;  // 无应答，重试
+        }
+        
+        // 发送寄存器地址 + 等待应答
+        if(!I2C_SendByte((uint8_t)MemAddress))
+        {
+            I2C_Stop();
+            HAL_Delay(1);
+            continue;  // 无应答，重试
+        }
+        
+        // 发送数据
+        for(i = 0; i < Size; i++)
+        {
+            if(!I2C_SendByte(pData[i]))
+            {
+                I2C_Stop();
+                HAL_Delay(1);
+                break;  // 发送失败，跳出循环重试
+            }
+        }
+        
+        // 如果所有数据都发送成功
+        if(i == Size)
+        {
+            I2C_Stop();
+            return HAL_OK;  // 写入成功
+        }
+    }
+    
+    return HAL_ERROR;  // 所有重试都失败
+}
+
+#else
+// 硬件I2C函数实现
+HAL_StatusTypeDef MPU6050_I2C_Read(uint16_t MemAddress, uint8_t *pData, uint16_t Size)
+{
     HAL_StatusTypeDef status;
     uint8_t retry_count = 0;
     
-    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++) {
-        status = HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, MemAddress, 
+    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++)
+    {
+        status = HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR << 1, MemAddress, 
                                 I2C_MEMADD_SIZE_8BIT, pData, Size, I2C_TIMEOUT_MS);
         
         if(status == HAL_OK) {
             return HAL_OK;
         }
         
-        // 重试前短暂延时并重置I2C
         HAL_Delay(1);
         if(retry_count == 1) {
-            // 第二次重试时尝试重置I2C
             HAL_I2C_DeInit(&hi2c1);
             HAL_I2C_Init(&hi2c1);
         }
@@ -90,13 +297,14 @@ HAL_StatusTypeDef MPU6050_I2C_Read(uint16_t MemAddress, uint8_t *pData, uint16_t
     return HAL_ERROR;
 }
 
-// 改进的I2C写入函数，带重试机制
-HAL_StatusTypeDef MPU6050_I2C_Write(uint16_t MemAddress, uint8_t *pData, uint16_t Size) {
+HAL_StatusTypeDef MPU6050_I2C_Write(uint16_t MemAddress, uint8_t *pData, uint16_t Size)
+{
     HAL_StatusTypeDef status;
     uint8_t retry_count = 0;
     
-    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++) {
-        status = HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, MemAddress, 
+    for(retry_count = 0; retry_count < I2C_RETRY_COUNT; retry_count++)
+    {
+        status = HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR << 1, MemAddress, 
                                  I2C_MEMADD_SIZE_8BIT, pData, Size, I2C_TIMEOUT_MS);
         
         if(status == HAL_OK) {
@@ -112,6 +320,8 @@ HAL_StatusTypeDef MPU6050_I2C_Write(uint16_t MemAddress, uint8_t *pData, uint16_
     
     return HAL_ERROR;
 }
+#endif
+/* USER CODE END 0 */
 
 /* 初始化 MPU6050 */
 HAL_StatusTypeDef MPU6050_Init(void) {
@@ -153,7 +363,6 @@ HAL_StatusTypeDef MPU6050_Init(void) {
 void MPU6050_Read_Accel(void) {
     uint8_t buf[6];
     if(MPU6050_I2C_Read(0x3B, buf, 6) == HAL_OK) {
-        // 拼接高低字节为 16 位有符号值
         Accel_X_RAW = (int16_t)(buf[0] << 8 | buf[1]);
         Accel_Y_RAW = (int16_t)(buf[2] << 8 | buf[3]);
         Accel_Z_RAW = (int16_t)(buf[4] << 8 | buf[5]);
@@ -340,7 +549,6 @@ uint8_t is_data_valid(float ax, float ay, float az, float gx, float gy, float gz
     
     return 1;
 }
-
 
 // 改进的数据处理函数
 MPUData_t process_MPUdata(void) {

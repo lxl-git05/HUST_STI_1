@@ -21,35 +21,27 @@
 ## 3. 核心函数
 
 ```c
-//模块各参数的固定配置函数
-#define MPU6050_ADDR    (0x68 << 1)  // 若AD0接地，7位地址0x68，左移1位得到8位地址0xD0
-#define WHO_AM_I_REG    0x75        // WHO_AM_I寄存器地址，默认值0x68
-#define PWR_MGMT_1_REG  0x6B        // 电源管理寄存器1
-#define SMPLRT_DIV_REG  0x19        // 采样率分频寄存器
-#define CONFIG_REG      0x1A        // 配置寄存器（含DLPF设置）
-#define GYRO_CONFIG_REG 0x1B        // 陀螺仪配置寄存器
-#define ACCEL_CONFIG_REG 0x1C       // 加速度计配置寄存器
+// 主要功能函数
 HAL_StatusTypeDef MPU6050_Init(void);
+MPUData_t MPU6050_Data_Update(void);
+void turning_state_judge(MPUData_t *data);
+void calculate_angle_from_gyro(float gx, float gy, float gz, float dt);
 
-//加速度与角速度的获取函数
+// I2C读写函数
+HAL_StatusTypeDef MPU6050_I2C_Read(uint16_t MemAddress, uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef MPU6050_I2C_Write(uint16_t MemAddress, uint8_t *pData, uint16_t Size);
+
+#ifndef USE_HARDWARE_I2C
+// 软件I2C专用函数
+void Software_I2C_Init(void);
+#endif
+
+// 辅助函数
 void MPU6050_Read_Accel(void);
 void MPU6050_Read_Gyro(void);
-
-//数据更新函数，选择什么时候更新数据，在示例工程中没用，在实际可根据需求编辑
-void MPU6050_Data_Update(void);
-
-//数据处理函数
-MPUData_t process_MPUdata(void)
-    
-//角度计算函数，注意输入参数一定是数据处理后的参数
-//调用前加上  uint32_t current_time = HAL_GetTick();
-//			float dt = (current_time - current_angle.last_time) / 1000.0f; 
-//  		current_angle.last_time = current_time;
-void calculate_angle_from_gyro(float gx, float gy, float gz, float dt)	
-    
-//初始化温度补偿系数，需要微调补偿可以直接从这改
-void init_adaptive_compensation(void)
-//其余还有一些自适应补偿函数是ai写的，我也没全看懂，从结果上说是有效的，如果发现有可以改善或删减的地方也可以根据需要自行尝试
+void MPU6050_Read_Temp(void);
+void init_adaptive_compensation(void);
+MPUData_t process_MPUdata(void);
 ```
 
 ## 4. 基础必备代码
@@ -60,9 +52,11 @@ void init_adaptive_compensation(void)
 #include "main.h"
 #include "i2c.h"
 #include "gpio.h"
-#include "MPU.h"
-#include "globals.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include <math.h>
+#include "MPU.h"
 ```
 
 
@@ -70,14 +64,23 @@ void init_adaptive_compensation(void)
 ### 4-2 全局变量(域)
 
 ```c
-extern int MPU_flag;
-extern float Ax;
-extern float Ay;
-extern float Az;
-extern float Gx;
-extern float Gy;
-extern float Gz;
-extern float Temperature;
+typedef struct {
+    float Ax_, Ay_, Az_;
+    float Gx_, Gy_, Gz_;
+    float Temperature_;
+} MPUData_t;
+
+typedef struct {
+    float pitch;  // 俯仰角
+    float roll;   // 横滚角  
+    float yaw;    // 偏航角
+    uint32_t last_time;
+} Angle_t;
+
+// 全局声明
+extern MPUData_t sensor_data;
+extern Angle_t current_angle;
+extern int turning_flag;
 ```
 
 
@@ -85,12 +88,29 @@ extern float Temperature;
 ### 4-3 setup
 
 ```c
-HAL_Init();
-SystemClock_Config();
-MX_GPIO_Init();
-MX_I2C1_Init();
-MPU6050_Init();
-init_adaptive_compensation(); // 初始化自适应补偿
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_I2C1_Init();
+  /* USER CODE BEGIN 2 */
+#ifndef USE_HARDWARE_I2C
+  Software_I2C_Init();
+#endif
+  
+  MPU6050_Init();
+  init_adaptive_compensation();
 ```
 
 
@@ -98,13 +118,16 @@ init_adaptive_compensation(); // 初始化自适应补偿
 ### 4-4 while
 
 ```c
-MPU6050_Data_Update();
-MPUData_t sensor_data = process_MPUdata();
-uint32_t current_time = HAL_GetTick();
-float dt = (current_time - current_angle.last_time) / 1000.0f; // 转换为秒
-current_angle.last_time = current_time;
-calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_,dt);
-HAL_Delay(10); 
+sensor_data = MPU6050_Data_Update();
+    
+    uint32_t current_time = HAL_GetTick();
+    float dt = (current_time - current_angle.last_time) / 1000.0f; 
+    current_angle.last_time = current_time;
+    
+    calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_, dt);
+    turning_state_judge(&sensor_data);
+    
+    HAL_Delay(10);
 ```
 
 ## 5. Cube配置
@@ -118,7 +141,23 @@ HAL_Delay(10);
 |  PB6   | SCL  |
 |  PB7   | SDA  |
 
-MPU6050除了电源和接地接STM32对应引脚还有I2C通信的引脚外，注意AD0接地
+MPU6050除了电源和接地接STM32对应引脚还有I2C通信的引脚外，注意AD0接地，上述是硬件I2C的引脚，对软件I2C只需要注释下面这句就行
+
+```
+ #define USE_HARDWARE_I2C 
+```
+
+对于引脚在
+
+```
+#else
+    // 使用软件I2C - 定义软件I2C引脚
+    #define SCL_PIN    GPIO_PIN_3
+    #define SDA_PIN    GPIO_PIN_4
+    #define I2C_PORT   GPIOB
+```
+
+这里修改，记得cubemx里进行配置，两个引脚设置GPIO_OUTPUT，需要修改的是OUTPUT_OPEN_DRAIN和PULL_UP
 
 ## 7. 注意事项
 
