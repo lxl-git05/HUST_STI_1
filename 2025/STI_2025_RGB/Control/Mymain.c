@@ -37,7 +37,6 @@ void Mymain(void)
 		Menu_Display() ;						// OLED菜单显示
 		Menu_RGB_Servo_Manu_Update(RGB_Mode , Servo_Mode , &RGB_Manu_Num , &Servo_Manu_Num ) ;	// 菜单反馈,实现手动调控参数
 //		Menu_Func() ;
-		
 		OLED_Update() ;	// 必须存在:OLED更新
 	}
 }

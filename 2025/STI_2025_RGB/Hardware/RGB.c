@@ -33,15 +33,15 @@ void RGB_Init(void)
 	PWM_Init(&RGB_htim , RGB_G_Channel ) ;
 	PWM_Init(&RGB_htim , RGB_B_Channel ) ;
 	// 初始为不发光
-	PWM_SetCompare1(RGB_htim , RGB_R_Channel , 0 ) ;
-	PWM_SetCompare1(RGB_htim , RGB_G_Channel , 0 ) ;
-	PWM_SetCompare1(RGB_htim , RGB_B_Channel , 0 ) ;
+	PWM_SetCompare1(RGB_htim , RGB_R_Channel , 100 ) ;
+	PWM_SetCompare1(RGB_htim , RGB_G_Channel , 100 ) ;
+	PWM_SetCompare1(RGB_htim , RGB_B_Channel , 100 ) ;
 	// RGB自动档初始化
 	taskInit(&RGB_Auto_Task, 0 , 3000 , RGB_Auto_Task_Entry) ;
 	RGB_Auto_Task.Enable = 0 ;	// 先关掉
 }
 
-// RGB调色
+// RGB调色,由于是共阳极,所以100-x
 void RGB_Set_Color(int R_Color , int G_Color , int B_Color )
 {
 	// 限幅
@@ -59,9 +59,9 @@ void RGB_Set_Color(int R_Color , int G_Color , int B_Color )
 		B_Color = 0 ;
 	
 	// 调色
-	PWM_SetCompare1(RGB_htim , RGB_R_Channel , R_Color ) ;
-	PWM_SetCompare1(RGB_htim , RGB_G_Channel , G_Color ) ;
-	PWM_SetCompare1(RGB_htim , RGB_B_Channel , B_Color ) ;
+	PWM_SetCompare1(RGB_htim , RGB_R_Channel , 100-R_Color ) ;
+	PWM_SetCompare1(RGB_htim , RGB_G_Channel , 100-G_Color ) ;
+	PWM_SetCompare1(RGB_htim , RGB_B_Channel , 100-B_Color ) ;
 }
 
 // RGB闪烁任务,Mode为1代表自动挡,Mode为2代表手动挡
@@ -94,7 +94,7 @@ void RGB_Control(bool Mode)
 		}
 		else if (RGB_Manu_Num == RGB_Y)		  	// 黄色
 		{
-			RGB_Set_Color( 100 , 10 , 0 ) ;
+			RGB_Set_Color( 75 , 100 , 0 ) ;
 		}
 	}
 }
@@ -112,7 +112,7 @@ void RGB_Auto_Task_Entry(void)
 	// 亮黄色
 	else if (RGB_Seq == RGB_Y)
 	{
-		RGB_Set_Color( 100 , 10 , 0 ) ;
+		RGB_Set_Color( 75 , 100 , 0 ) ;
 	}
 	// 亮绿色
 	else if (RGB_Seq == RGB_G)
