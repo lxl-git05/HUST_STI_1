@@ -29,6 +29,7 @@
 #include "Con_Motor.h"
 #include "Con_Car.h"
 #include "Menu_Key.h"
+#include "Key_Check.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

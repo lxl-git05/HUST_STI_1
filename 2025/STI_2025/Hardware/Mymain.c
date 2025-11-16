@@ -84,6 +84,8 @@ void Mymain(void)
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Y8) ;			// 8度寻迹巡线模式
 	#endif
 	
+//	Key_AddParam("JQ1" , &Y8_JQ[0] , 0.1f , PARAM_FLOAT ) ;
+	
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -103,6 +105,11 @@ void Mymain(void)
 		// OLED菜单交互控制界面
 //		Menu_Func() ;
 		// **********实验区域**********	
+		
+		
+//		Key_Param_Check() ;
+		
+		
 		// OLED显示参数
 //		{
 //		if (isBreak == true)
@@ -134,16 +141,16 @@ void Mymain(void)
 		
 	
 		// 巡线调试
-		if (Key_Check(KEY_1 , KEY_SINGLE))
-		{
-			HAL_Delay(2000) ;
-			goalPointTwo = 80 ;
-			isBreak = 0;
-		}
-		if (Key_Check(KEY_2 , KEY_SINGLE))
-		{
-			isBreak = 1 ;
-		}
+//		if (Key_Check(KEY_1 , KEY_SINGLE))
+//		{
+//			HAL_Delay(2000) ;
+//			goalPointTwo = 80 ;
+//			isBreak = 0;
+//		}
+//		if (Key_Check(KEY_2 , KEY_SINGLE))
+//		{
+//			isBreak = 1 ;
+//		}
 		
 		// 巡线相关工程调试,起始位置识别
 //		if (Y8_is_Init(&is_Car_Init_Pos))
