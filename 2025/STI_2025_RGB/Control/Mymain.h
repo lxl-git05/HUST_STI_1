@@ -24,6 +24,7 @@
 #include "RGB.h"
 #include "BLE.h"
 #include "Menu_OLED.h"
+#include "Menu_Key.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

@@ -10,7 +10,7 @@
       <TargetName>Template</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCCv506u7</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -743,6 +743,16 @@
               <FileType>5</FileType>
               <FilePath>..\System\Encoder.h</FilePath>
             </File>
+            <File>
+              <FileName>DList.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\DList.c</FilePath>
+            </File>
+            <File>
+              <FileName>DList.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\DList.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -877,6 +887,16 @@
               <FileName>Menu_OLED.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Menu_OLED.h</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Menu_Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Menu_Key.h</FilePath>
             </File>
           </Files>
         </Group>

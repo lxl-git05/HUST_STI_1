@@ -13,7 +13,6 @@
 	3. 蓝牙
 	实现控制切换这两个模式各自的手动挡和自动档
 */
-
 void Mymain(void)
 {
 	// ******************* setup *******************
@@ -24,6 +23,7 @@ void Mymain(void)
 		Servo_Init() ;
 		RGB_Init() ;
 		BLE_Init() ;
+		Menu_Init() ;
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();	
 	}
@@ -36,6 +36,7 @@ void Mymain(void)
 		Servo_Control(Servo_Mode) ;	// 舵机模式
 		Menu_Display() ;						// OLED菜单显示
 		Menu_RGB_Servo_Manu_Update(RGB_Mode , Servo_Mode , &RGB_Manu_Num , &Servo_Manu_Num ) ;	// 菜单反馈,实现手动调控参数
+//		Menu_Func() ;
 		
 		OLED_Update() ;	// 必须存在:OLED更新
 	}
@@ -44,9 +45,6 @@ void Mymain(void)
 // Systick定时中断,1ms周期
 void HAL_SYSTICK_Callback(void)
 {
-//	// 计时
-//	static int count_sys = 0 ;
-//	count_sys ++ ;
 	// 功能1: 按键
 	Key_Tick() ;
 	// 功能2:RGB自动档函数
