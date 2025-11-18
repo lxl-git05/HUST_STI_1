@@ -39,6 +39,9 @@ extern int Pi_x_Line_real ;	// 巡线x的真实值,已处理
 extern int Car_Wait_Flag  ;	// 小车等停标志位
 extern int Car_Wait_cnt ;
 
+// 实验
+extern int Turn_ALL	;
+
 // ***************函数***************
 
 // ====================== 底层代码 ======================
@@ -154,12 +157,16 @@ bool Y8_is_Init()
 }
 
 // 八路巡线的异常情况判断并处理
-void Y8_Check(void)
+bool Y8_Line_is_Error(void)
 {
-	if (Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 1 , 1))
+	// 大于等于3个点视为危险点
+	if (Y8_Line_Num >= 2 && Turn_ALL < 4)
 	{
-		return ;
+		// 其他的识别都算作错误点
+		return false;
 	}
+	// 安全点
+	return true ;
 }
 
 
@@ -233,7 +240,10 @@ void Y8_Line_Control(void)
     }
 		
     // 特殊情况检测,已优化
-		Y8_Check() ;
+		if (Y8_Line_is_Error() == false)
+		{
+			return ;
+		}
 		
 		// PID计算
     PID_Update(&Y8_Line_PID , offset) ;
@@ -258,7 +268,7 @@ void Y8_Line_Control(void)
 void Y8_Task1()
 {
 	// 识别到岔路口
-	if (Y8_is_Init())
+	if (Y8_is_Init() && Turn_ALL >= 4)
 	{
 		isBreak = 1 ;
 	}

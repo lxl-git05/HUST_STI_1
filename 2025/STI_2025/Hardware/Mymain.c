@@ -38,6 +38,11 @@ int check1 ;
 int check2 ;
 int check[50] ;
 extern bool Car_LR_Speed_Mode ;
+int Turn_Flag ;	// 转向标志位
+int Turn_cnt  ;	// 转向时间计时
+int Turn_cnt_n  ;	// 转向时间计时
+int Turn_Num	;	// 转向次数
+int Turn_ALL	; // 转过弯道的判断
 // *******************任务调度*******************
 // 调试状态:电机PID调试,ifndef则没用
 mytask Motor_Status ;	
@@ -74,6 +79,8 @@ void Mymain(void)
 	#endif
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
 	Key_AddParam("Task_Num" , &Car_Task_Num   , 1 , PARAM_INT ) ; // 
+	Key_AddParam("Turn_Num" , &Turn_Num       , 1 , PARAM_INT ) ;
+	Key_AddParam("Turn_ALL" , &Turn_ALL       , 1 , PARAM_INT ) ;
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -89,9 +96,34 @@ void Mymain(void)
 		Menu_Func() ;
 		// 巡线数据更新
 		Y8_LineSensor_Update() ;
-		// **********实验区域**********	
-		// 巡线调试
+		// 核心代码:OLED控制小车实现赛题
 		Car_Task(Car_Task_Num) ;
+		// **********实验区域**********	
+		// 与树莓派融合
+		
+		
+		// 实验:巡线判断转向:
+		
+		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now > -20 && Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now < 20)
+		{
+			Turn_Num = 0 ;
+		}
+		
+		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR > Motor_B.PID_s.realPoint_Now)
+		{
+			Turn_Flag = 1 ;
+		}
+		else
+		{
+			Turn_Flag = 0 ;
+			Turn_cnt  = 0 ;	// 重新计时
+		}
+		
+		if (Turn_Num >= 3)
+		{
+			Turn_ALL ++ ;
+			Turn_Num = 0 ;
+		}
 		
 	}
 }
@@ -118,6 +150,16 @@ void HAL_SYSTICK_Callback(void)
 		{
 			isBreak = 0 ;					// 继续跑
 			Car_Wait_Flag = 2 ;		// 等停标志位变为2,表明以后都不会再次识别了
+		}
+	}
+	// 实验:小车转向时间计数
+	if (Turn_Flag == 1)
+	{
+		Turn_cnt ++ ;
+		if (Turn_cnt >= 300)
+		{
+			Turn_Num ++ ;
+			Turn_cnt = 0 ;
 		}
 	}
 }

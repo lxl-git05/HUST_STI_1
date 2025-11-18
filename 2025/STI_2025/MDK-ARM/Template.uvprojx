@@ -1031,6 +1031,11 @@
               <FilePath>..\Lib_Control\Menu_Key.c</FilePath>
             </File>
             <File>
+              <FileName>Menu_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Lib_Control\Menu_Key.h</FilePath>
+            </File>
+            <File>
               <FileName>Con_Car.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Lib_Control\Con_Car.h</FilePath>
@@ -1039,11 +1044,6 @@
               <FileName>Con_Car.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Lib_Control\Con_Car.c</FilePath>
-            </File>
-            <File>
-              <FileName>Menu_Key.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Lib_Control\Menu_Key.h</FilePath>
             </File>
           </Files>
         </Group>
