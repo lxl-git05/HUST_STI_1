@@ -22,7 +22,7 @@ mytask Y8_Line_Status ;				// 任务2:寻迹
 bool Y8_Update_Flag = false ;	// 寻迹更新标志位
 Pid_Typedef Y8_Line_PID ;			// 寻迹PID
 float Y8_Line_Error ;					// 巡线误差
-float Y8_JQ[9];
+float Y8_JQ[9];								// 巡线加权
 
 // 小车位置标志位
 Y8_Position_Typedef Y8_Pos ;	// 初始为在初始位置
@@ -30,12 +30,19 @@ extern bool is_Car_Turn_Left ;// 小车岔路方向判断
 bool Car_LR_Speed_Mode = false ;	// 小车的岔路专门处理函数
 extern int Y8_Cnt ;
 
+// 树莓派变量
+extern int Pi_RGB_Status  ;	// RGB -> 0初始化 , 1红灯 , 2绿灯 , 3黄灯
+extern int Pi_LR_Status	  ;	// LR  -> 0初始化 , 1->L  , 2->R
+extern int Pi_Stop_Status ;	// wait & stop -> 0无 , 1停止 , 2等停
+extern int Pi_x_Line_real ;	// 巡线x的真实值,已处理
+
+extern int Car_Wait_Flag  ;	// 小车等停标志位
+extern int Car_Wait_cnt ;
+
 // ***************函数***************
-bool Y8_is_LR(void) ;
-// 八路巡线的异常情况判断并处理
-void Y8_Check(void) ;
-// 加权处理函数
-void Y8_JQ_Update(void) ;
+
+// ====================== 底层代码 ======================
+
 // 寻迹模块初始化,其实就是PID初始化
 void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax )
 {
@@ -96,7 +103,67 @@ void Y8_LineSensor_Update(void)
 	Y8_Update_Flag = true ;	// 寻迹更新
 }
 
-// ***************巡线算法编写***************
+
+// ====================== 寻迹特殊情况处理代码 ======================
+
+// Y8巡线对照函数
+bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 , int EX7 , int EX8 )
+{
+	return Y8_Line_Array[1] == EX1 && Y8_Line_Array[2] == EX2 && Y8_Line_Array[3] == EX3 && Y8_Line_Array[4] == EX4 &&
+		Y8_Line_Array[5] == EX5 && Y8_Line_Array[6] == EX6 && Y8_Line_Array[7] == EX7 && Y8_Line_Array[8] == EX8 ;
+}
+
+// Y8巡线岔路口判断
+bool Y8_is_LR()
+{
+	// 状态1:小车在初始化短直道,准备进入分叉路口
+	if (Y8_Pos == Y8_Init_Pos)
+	{
+		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
+				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 1 , 0 , 0 , 0) || 
+		
+				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1) || 
+				Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 0 , 0 , 1 , 0 , 0 , 0 , 1) || 
+		
+				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 1 , 0 , 0) || 
+				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 1 , 0) 
+			 )
+		{
+			Y8_Pos = Y8_LR_Pos ;	// 小车进入岔道
+			return true ;
+		}
+	}
+	return false ;
+}
+
+// Y8巡线停止标识判断
+bool Y8_is_Init()
+{
+	// 不在岔路口 *111 *111 * *1 *
+	if (Y8_Pos == Y8_LR_Pos)	// 小车判断出发点的前提是小车判断成功过岔路(这里最好缩小判断范围,*待优化*)
+	{
+		if (Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 1) || 
+				Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0)
+			 )
+		{
+			Y8_Pos = Y8_Init_Pos ;	// 到达出发点
+			return true ;
+		}
+	}
+	return false ;
+}
+
+// 八路巡线的异常情况判断并处理
+void Y8_Check(void)
+{
+	if (Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 1 , 1))
+	{
+		return ;
+	}
+}
+
+
+// ====================== 寻迹核心代码 ======================
 
 // 计算偏移量函数
 float Y8_Get_Line_Error(void)
@@ -123,7 +190,8 @@ float Y8_Get_Line_Error(void)
     return sum / blackCount;  // 平均偏移
 }
 
-// 巡线核心控制函数,控制速度
+
+// *巡线核心控制函数*,控制速度
 void Y8_Line_Control(void)
 {
 	// 寻迹更新才进行控制
@@ -182,62 +250,9 @@ void Y8_Line_Control(void)
 }
 
 
-// **********************Y8算法逻辑**********************
-// Y8巡线对照函数
-bool Y8_Line_Contrast(int EX1 , int EX2 , int EX3 , int EX4 , int EX5 , int EX6 , int EX7 , int EX8 )
-{
-	return Y8_Line_Array[1] == EX1 && Y8_Line_Array[2] == EX2 && Y8_Line_Array[3] == EX3 && Y8_Line_Array[4] == EX4 &&
-		Y8_Line_Array[5] == EX5 && Y8_Line_Array[6] == EX6 && Y8_Line_Array[7] == EX7 && Y8_Line_Array[8] == EX8 ;
-}
 
-// Y8巡线岔路口判断
-bool Y8_is_LR()
-{
-	// 状态1:小车在初始化短直道,准备进入分叉路口
-	if (Y8_Pos == Y8_Init_Pos)
-	{
-		if (Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 1 , 0) || 
-				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 0 , 0 , 0 , 1 , 0 , 0 , 0) || 
-		
-				Y8_Line_Contrast(1 , 0 , 0 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 0 , 1) || 
-				Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 0 , 1) || Y8_Line_Contrast(0 , 0 , 0 , 1 , 0 , 0 , 0 , 1) || 
-		
-				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 1 , 0 , 0) || 
-				Y8_Line_Contrast(0 , 1 , 0 , 0 , 0 , 0 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 0 , 0 , 0 , 1 , 0) 
-			 )
-		{
-			Y8_Pos = Y8_LR_Pos ;	// 小车进入岔道
-			return true ;
-		}
-	}
-	return false ;
-}
 
-// Y8巡线停止标识判断
-bool Y8_is_Init()
-{
-	// 不在岔路口 *111 *111 * *1 *
-	if (Y8_Pos == Y8_LR_Pos)	// 小车判断出发点的前提是小车判断成功过岔路(这里最好缩小判断范围,*待优化*)
-	{
-		if (Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 0) || Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 1) || 
-				Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0)
-			 )
-		{
-			Y8_Pos = Y8_Init_Pos ;	// 到达出发点
-			return true ;
-		}
-	}
-	return false ;
-}
-
-// 八路巡线的异常情况判断并处理
-void Y8_Check(void)
-{
-	if (Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 1 , 1))
-	{
-		return ;
-	}
-}
+// ====================== 电工基地题目处理 ======================
 
 // 电工基地第1题
 void Y8_Task1(void)
@@ -248,4 +263,23 @@ void Y8_Task1(void)
 		isBreak = 1 ;
 	}
 }
+
+// 电工基地第2题
+void Y8_Task2(void)
+{
+	// 等停处理
+	if (Pi_Stop_Status == 2 && Car_Wait_Flag == 0)
+	{
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		Car_Wait_Flag = 1 ;
+		Car_Wait_cnt  = 5000 ;
+		isBreak = 1 ;
+	}
+	// 识别到岔路口
+	if (Y8_is_Init())
+	{
+		isBreak = 1 ;
+	}
+}
+
 

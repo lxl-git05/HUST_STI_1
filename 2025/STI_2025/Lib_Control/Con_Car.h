@@ -1,10 +1,13 @@
 #ifndef __CON_CAR_H
 #define __CON_CAR_H
 
-#include "Y8_Track.h"
 #include "main.h"
 #include "stdbool.h"
+#include "Timer_Counter.h"
+#include "RasPi.h"
+#include "Y8_Track.h"
 
+// 小车方位枚举结构体
 typedef enum
 {
 	
@@ -33,12 +36,7 @@ typedef enum
 	
 }Car_Position_Typedef ;
 
-typedef enum
-{
-	wait
-	
-	
-}Car_Status_Typedef;				// 小车状态判断
+// 小车核心处理逻辑
 
 
 
