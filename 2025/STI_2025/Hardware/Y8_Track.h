@@ -38,10 +38,7 @@ bool Y8_is_LR(void) ;
 // Y8巡线停止标识判断
 bool Y8_is_Init(void) ;
 
-// 电工基地第1题
-void Y8_Task1(void) ;
-
-// 电工基地第2题
-void Y8_Task2(void) ;
+// 电工基地试题
+void Car_Task(int Car_Task_Seq) ;
 
 #endif

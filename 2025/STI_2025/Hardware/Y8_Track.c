@@ -255,7 +255,7 @@ void Y8_Line_Control(void)
 // ====================== 电工基地题目处理 ======================
 
 // 电工基地第1题
-void Y8_Task1(void)
+void Y8_Task1()
 {
 	// 识别到岔路口
 	if (Y8_is_Init())
@@ -265,7 +265,7 @@ void Y8_Task1(void)
 }
 
 // 电工基地第2题
-void Y8_Task2(void)
+void Y8_Task2()
 {
 	// 等停处理
 	if (Pi_Stop_Status == 2 && Car_Wait_Flag == 0)
@@ -280,6 +280,15 @@ void Y8_Task2(void)
 	{
 		isBreak = 1 ;
 	}
+}
+
+// 电工基地试题
+void Car_Task(int Car_Task_Seq)
+{
+	if (Car_Task_Seq == 1)
+		Y8_Task1() ;
+	else if (Car_Task_Seq == 2)
+		Y8_Task2() ;
 }
 
 

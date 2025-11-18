@@ -30,6 +30,9 @@ extern Car_Position_Typedef Car_Y8_Pos ;
 int Y8_Speed_MAX = 40;
 bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向***
 
+// 菜单调控任务执行
+int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
+
 // *******************实验区域*******************
 int check1 ;
 int check2 ;
@@ -69,7 +72,8 @@ void Mymain(void)
 	#ifdef Y8_LineMode// 8度寻迹巡线模式
 	taskInit(&Motor_Status , 0 , Encoder_PID_Gap_Time , Motor_Update_Entray_Y8) ;			// 8度寻迹巡线模式
 	#endif
-	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;
+	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
+	Key_AddParam("Task_Num" , &Car_Task_Num   , 1 , PARAM_INT ) ; // 
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -87,7 +91,7 @@ void Mymain(void)
 		Y8_LineSensor_Update() ;
 		// **********实验区域**********	
 		// 巡线调试
-		Y8_Task2() ;	
+		Car_Task(Car_Task_Num) ;
 		
 	}
 }
