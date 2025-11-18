@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;..\System</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;../System</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -999,6 +999,16 @@
               <FileName>MyI2C.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Hardware\MyI2C.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\MPU.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\MPU.h</FilePath>
             </File>
           </Files>
         </Group>

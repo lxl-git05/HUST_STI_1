@@ -32,6 +32,8 @@
 #include "Key_Check.h"
 #include "Control.h"
 
+#include "MPU.h"
+
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;
 
