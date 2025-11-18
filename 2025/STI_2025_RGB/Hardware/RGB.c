@@ -20,7 +20,7 @@ typedef enum
 // **************RGB参数**************
 
 mytask RGB_Auto_Task ;	// RGB自动档任务
-int RGB_Manu_Num = 0 ;	// RGB手动挡颜色码
+int RGB_Manu_Num = 0 ;	// RGB手动挡颜色码,核心参数
 
 // RGB自动档任务处理函数
 void RGB_Auto_Task_Entry(void) ;
