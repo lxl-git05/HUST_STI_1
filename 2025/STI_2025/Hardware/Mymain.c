@@ -28,7 +28,7 @@ extern mytask Y8_Line_Status ;
 extern Pid_Typedef Y8_Line_PID ;
 extern Car_Position_Typedef Car_Y8_Pos ;	
 int Y8_Speed_MAX = 40;
-bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向***
+bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
 
 // 菜单调控任务执行
 int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
@@ -43,6 +43,8 @@ int Turn_cnt  ;	// 转向时间计时
 int Turn_cnt_n  ;	// 转向时间计时
 int Turn_Num	;	// 转向次数
 int Turn_ALL	; // 转过弯道的判断
+int Turn_Num_MPU ;
+int turning_Flag_Bef ;
 // *******************任务调度*******************
 // 调试状态:电机PID调试,ifndef则没用
 mytask Motor_Status ;	
@@ -87,6 +89,7 @@ void Mymain(void)
 	Key_AddParam("Task_Num" , &Car_Task_Num   , 1 , PARAM_INT ) ; // 
 	Key_AddParam("Turn_Num" , &Turn_Num       , 1 , PARAM_INT ) ;
 	Key_AddParam("Turn_ALL" , &Turn_ALL       , 1 , PARAM_INT ) ;
+	Key_AddParam("Tuen_MPU" , &check[0]       , 1 , PARAM_INT ) ;
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -107,11 +110,35 @@ void Mymain(void)
 		// **********实验区域**********	
 		// 与树莓派融合
 		
-		//MPU6050
+		//MPU6050模块功能函数
 		sensor_data = MPU6050_Data_Update();
-		turning_state_judge(&sensor_data);
-		// 实验:巡线判断转向:
+		uint32_t current_time = HAL_GetTick();
 		
+    float dt = (current_time - current_angle.last_time) / 1000.0f; 
+    current_angle.last_time = current_time;
+		
+		calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_, dt);
+		turning_state_judge(&sensor_data);
+		
+		// MPU配合巡线检查
+		if (turning_flag == 1)
+		{
+			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
+		}
+		else
+		{
+			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
+		}
+		
+		if (turning_Flag_Bef == 1 && turning_flag == 0)
+		{
+			Turn_Num_MPU ++ ;
+		}
+		
+		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
+    
+		// 实验:巡线判断转向:
+		/*
 		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now > -20 && Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now < 20)
 		{
 			Turn_Num = 0 ;
@@ -132,6 +159,7 @@ void Mymain(void)
 			Turn_ALL ++ ;
 			Turn_Num = 0 ;
 		}
+		*/
 	}
 }
 
@@ -157,6 +185,7 @@ void HAL_SYSTICK_Callback(void)
 		{
 			isBreak = 0 ;					// 继续跑
 			Car_Wait_Flag = 2 ;		// 等停标志位变为2,表明以后都不会再次识别了
+			Y8_Line_Array[4] = 1 ;
 		}
 	}
 	// 实验:小车转向时间计数

@@ -41,6 +41,7 @@ extern int Car_Wait_cnt ;
 
 // 实验
 extern int Turn_ALL	;
+extern int Turn_Num_MPU ;
 
 // ***************函数***************
 
@@ -160,7 +161,7 @@ bool Y8_is_Init()
 bool Y8_Line_is_Error(void)
 {
 	// 大于等于3个点视为危险点
-	if (Y8_Line_Num >= 2 && Turn_ALL < 4)
+	if (Y8_Line_Num >= 3 && Turn_Num_MPU < 4)
 	{
 		// 其他的识别都算作错误点
 		return false;
@@ -234,7 +235,7 @@ void Y8_Line_Control(void)
     float offset = Y8_Get_Line_Error();
 		
 		// 丢线,数据不能传输给PID,否则会有极大值
-    if (offset - 999.0f > -0.1f && offset - 999.0f < 0.1f)
+    if ( offset - 999.0f > -0.1f && offset - 999.0f < 0.1f  )
     {
         return;
     }
@@ -265,17 +266,34 @@ void Y8_Line_Control(void)
 // ====================== 电工基地题目处理 ======================
 
 // 电工基地第1题
-void Y8_Task1()
+void Y8_Task1(void)
 {
-	// 识别到岔路口
-	if (Y8_is_Init() && Turn_ALL >= 4)
+	// 识别停止
+	if (Y8_is_Init() && Turn_Num_MPU >= 4)
 	{
 		isBreak = 1 ;
+	}
+	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
+	{
+		isBreak = 1 ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
 	}
 }
 
 // 电工基地第2题
-void Y8_Task2()
+void Y8_Task2(void)
 {
 	// 等停处理
 	if (Pi_Stop_Status == 2 && Car_Wait_Flag == 0)
@@ -285,10 +303,106 @@ void Y8_Task2()
 		Car_Wait_cnt  = 5000 ;
 		isBreak = 1 ;
 	}
-	// 识别到岔路口
-	if (Y8_is_Init())
+	// 识别停止
+	if (Y8_is_Init() && Turn_Num_MPU >= 4)
 	{
 		isBreak = 1 ;
+	}
+	if (Pi_Stop_Status == 1 && Turn_Num_MPU >= 4 )
+	{
+		isBreak = 1 ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+	}
+}
+
+// 电工基地第4题
+void Y8_Task4(void)
+{
+	// 识别停止,跑12个1/4圈
+	if (Y8_is_Init() && Turn_Num_MPU >= 12)
+	{
+		isBreak = 1 ;
+	}
+	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 12 )
+	{
+		isBreak = 1 ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+	}
+	// LR转换 is_Car_Turn_Left Pi_LR_Status
+	if (Pi_LR_Status != 0)
+	{
+		is_Car_Turn_Left = Pi_LR_Status - 1 ;
+	}
+}
+
+// 电工基地第5题
+void Y8_Task5(void)
+{
+	// 识别停止,跑16个1/4圈
+	if (Y8_is_Init() && Turn_Num_MPU >= 16)
+	{
+		isBreak = 1 ;
+	}
+	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 16 )
+	{
+		isBreak = 1 ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+		HAL_Delay(500) ;
+	}
+	// RGB检测命令执行 RGB -> 0初始化 , 1红灯 , 2绿灯 , 3黄灯
+	if (Pi_RGB_Status != 0)
+	{
+		if (Pi_RGB_Status == 1)
+		{
+			isBreak = 1 ;
+		}
+		else if (Pi_RGB_Status == 2)
+		{
+			isBreak = 0 ;
+		}
+		else if (Pi_RGB_Status == 3)
+		{
+			// 树莓派识别到停止位置,说明小车没有超过停止线,那么就停车
+			if (Pi_Stop_Status != 0)
+			{
+				isBreak = 1 ;
+			}
+		}
 	}
 }
 
@@ -299,6 +413,8 @@ void Car_Task(int Car_Task_Seq)
 		Y8_Task1() ;
 	else if (Car_Task_Seq == 2)
 		Y8_Task2() ;
+	else if (Car_Task_Seq == 4)
+		Y8_Task4() ;
 }
 
 
