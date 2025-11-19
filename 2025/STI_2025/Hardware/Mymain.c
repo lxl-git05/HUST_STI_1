@@ -68,9 +68,7 @@ void Mymain(void)
 		Y8_Line_Init(15.0f , 0.0f , 0.0f , Y8_Speed_MAX , -Y8_Speed_MAX , 1000 ) ;   // 巡线模块初始化
 		Menu_Init() ;																																 // 菜单初始化
 		// 全部初始化完毕后再开启Systick中断
-		
 		__enable_irq();
-		MPU6050_Init() ;
 	}
 	// ***********任务调度清单***********
 	#ifdef PID_Check		// 调试电机PID模式
@@ -126,10 +124,6 @@ void Mymain(void)
 			Turn_ALL ++ ;
 			Turn_Num = 0 ;
 		}
-		
-		// 实验:MPU6050
-		MPU6050_Data_Update() ;
-		turning_state_judge(&sensor_data) ;
 	}
 }
 

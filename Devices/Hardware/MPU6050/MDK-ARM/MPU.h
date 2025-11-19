@@ -5,7 +5,7 @@
 #include "main.h"
 
 // 配置选项：注释/取消注释来选择使用硬件I2C还是软件I2C
- #define USE_HARDWARE_I2C    // 取消注释使用硬件I2C(PB6,PB7)，注释使用软件I2C(PB3,PB4)
+// #define USE_HARDWARE_I2C    // 取消注释使用硬件I2C(PB6,PB7)，注释使用软件I2C(PB3,PB4)
 
 typedef struct {
     float Ax_, Ay_, Az_;

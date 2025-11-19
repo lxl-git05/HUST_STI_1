@@ -1,9 +1,9 @@
 #ifndef __RGB_H
 #define __RGB_H
 // Òý½Å:
-//R:A0 ,TIM2_CH1  
-//G:A1 ,TIM2_CH2  
-//B:A2 ,TIM2_CH3
+//R:A0  ,TIM2_CH1  
+//G:A1  ,TIM2_CH2  
+//B:P10 ,TIM2_CH3
 
 #include "PWM.h"
 #include "stdbool.h"	// bool
