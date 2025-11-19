@@ -29,6 +29,7 @@ extern Pid_Typedef Y8_Line_PID ;
 extern Car_Position_Typedef Car_Y8_Pos ;	
 int Y8_Speed_MAX = 40;
 bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
+extern bool Y8_Lose_Line_isOK ;	// 巡线丢线包容度,true为允许丢线,并使4号识别到线
 
 // 菜单调控任务执行
 int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
@@ -38,11 +39,6 @@ int check1 ;
 int check2 ;
 int check[50] ;
 extern bool Car_LR_Speed_Mode ;
-int Turn_Flag ;	// 转向标志位
-int Turn_cnt  ;	// 转向时间计时
-int Turn_cnt_n  ;	// 转向时间计时
-int Turn_Num	;	// 转向次数
-int Turn_ALL	; // 转过弯道的判断
 int Turn_Num_MPU ;
 int turning_Flag_Bef ;
 // *******************任务调度*******************
@@ -87,8 +83,6 @@ void Mymain(void)
 	#endif
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
 	Key_AddParam("Task_Num" , &Car_Task_Num   , 1 , PARAM_INT ) ; // 
-	Key_AddParam("Turn_Num" , &Turn_Num       , 1 , PARAM_INT ) ;
-	Key_AddParam("Turn_ALL" , &Turn_ALL       , 1 , PARAM_INT ) ;
 	Key_AddParam("Tuen_MPU" , &check[0]       , 1 , PARAM_INT ) ;
 	while (1)
 	{
@@ -121,45 +115,12 @@ void Mymain(void)
 		turning_state_judge(&sensor_data);
 		
 		// MPU配合巡线检查
-		if (turning_flag == 1)
-		{
-			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_RESET) ;
-		}
-		else
-		{
-			HAL_GPIO_WritePin(LED0_GPIO_Port , LED0_Pin , GPIO_PIN_SET) ;
-		}
-		
 		if (turning_Flag_Bef == 1 && turning_flag == 0)
 		{
 			Turn_Num_MPU ++ ;
 		}
-		
 		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
     
-		// 实验:巡线判断转向:
-		/*
-		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now > -20 && Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now < 20)
-		{
-			Turn_Num = 0 ;
-		}
-		
-		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR > Motor_B.PID_s.realPoint_Now)
-		{
-			Turn_Flag = 1 ;
-		}
-		else
-		{
-			Turn_Flag = 0 ;
-			Turn_cnt  = 0 ;	// 重新计时
-		}
-		
-		if (Turn_Num >= 3)
-		{
-			Turn_ALL ++ ;
-			Turn_Num = 0 ;
-		}
-		*/
 	}
 }
 
@@ -185,17 +146,7 @@ void HAL_SYSTICK_Callback(void)
 		{
 			isBreak = 0 ;					// 继续跑
 			Car_Wait_Flag = 2 ;		// 等停标志位变为2,表明以后都不会再次识别了
-			Y8_Line_Array[4] = 1 ;
-		}
-	}
-	// 实验:小车转向时间计数
-	if (Turn_Flag == 1)
-	{
-		Turn_cnt ++ ;
-		if (Turn_cnt >= 300)
-		{
-			Turn_Num ++ ;
-			Turn_cnt = 0 ;
+			Y8_Lose_Line_isOK = true ;
 		}
 	}
 }

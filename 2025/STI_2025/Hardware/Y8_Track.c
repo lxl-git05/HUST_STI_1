@@ -23,6 +23,7 @@ bool Y8_Update_Flag = false ;	// 寻迹更新标志位
 Pid_Typedef Y8_Line_PID ;			// 寻迹PID
 float Y8_Line_Error ;					// 巡线误差
 float Y8_JQ[9];								// 巡线加权
+bool Y8_Lose_Line_isOK = false ;	// 巡线丢线包容度,true为允许丢线,并使4号识别到线
 
 // 小车位置标志位
 Y8_Position_Typedef Y8_Pos ;	// 初始为在初始位置
@@ -40,7 +41,6 @@ extern int Car_Wait_Flag  ;	// 小车等停标志位
 extern int Car_Wait_cnt ;
 
 // 实验
-extern int Turn_ALL	;
 extern int Turn_Num_MPU ;
 
 // ***************函数***************
@@ -161,9 +161,10 @@ bool Y8_is_Init()
 bool Y8_Line_is_Error(void)
 {
 	// 大于等于3个点视为危险点
-	if (Y8_Line_Num >= 3 && Turn_Num_MPU < 4)
+	if (Y8_Line_Num >= 3)
 	{
 		// 其他的识别都算作错误点
+		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
 		return false;
 	}
 	// 安全点
@@ -205,7 +206,7 @@ void Y8_Line_Control(void)
 	// 寻迹更新才进行控制
 	if (Y8_Update_Flag == true)
 	{
-		// 岔路口硬编码判断
+		// 1. 岔路口硬编码判断
 		if (Y8_is_LR() == true)
 		{
 			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
@@ -231,22 +232,31 @@ void Y8_Line_Control(void)
 			Car_LR_Speed_Mode = false ;
 		}
 
-		// 得到偏差量
+		// 2. 得到偏差量
     float offset = Y8_Get_Line_Error();
 		
-		// 丢线,数据不能传输给PID,否则会有极大值
+		// 3. 丢线,数据不能传输给PID,否则会有极大值
     if ( offset - 999.0f > -0.1f && offset - 999.0f < 0.1f  )
     {
-        return;
+			// 包容丢线
+			if (Y8_Lose_Line_isOK == true)
+			{
+				offset = 0.5f ;
+				Y8_Lose_Line_isOK = false ;
+			}
+			else
+			{
+				return;
+			}
     }
 		
-    // 特殊情况检测,已优化
+    // 4. 超过3个点视为错误点
 		if (Y8_Line_is_Error() == false)
 		{
 			return ;
 		}
 		
-		// PID计算
+		// 5. PID计算
     PID_Update(&Y8_Line_PID , offset) ;
 		
     // 如果刹车未启用，则执行
@@ -394,10 +404,11 @@ void Y8_Task5(void)
 		else if (Pi_RGB_Status == 2)
 		{
 			isBreak = 0 ;
+			Y8_Lose_Line_isOK = true ;
 		}
 		else if (Pi_RGB_Status == 3)
 		{
-			// 树莓派识别到停止位置,说明小车没有超过停止线,那么就停车
+			// 树莓派识别到停止位置,说明小车没有超过停止线,那么就停车,否则继续跑
 			if (Pi_Stop_Status != 0)
 			{
 				isBreak = 1 ;

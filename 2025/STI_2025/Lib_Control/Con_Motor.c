@@ -11,6 +11,7 @@ extern Pid_Typedef PID_Line ;							// 树莓派巡线PID
 extern int Pi_xLine_goal ;					// x 的目标值
 extern int Pi_xLine_real ;					// x 的真实值,数据量 x_real + 100
 extern int Pi_Speed_Max  ;
+extern int Pi_LR_Status	  ;	// LR  -> 0初始化 , 1->L  , 2->R
 // Y8巡线变量
 extern int Y8_Speed_MAX ;
 extern Pid_Typedef Y8_Line_PID ;
@@ -24,6 +25,7 @@ extern int Turn_Num_MPU ;
 // MPU6050
 extern int turning_flag;
 extern Angle_t current_angle;
+
 
 // 内部变量
 int Con_NULL ;
@@ -147,7 +149,7 @@ void Motor_VOFA_Set_Y8(void)
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	printf("%d,%d,%d,%d,%f\n", Turn_Num_MPU ,-Motor_A.RealSpeed , Motor_B.RealSpeed , turning_flag*100 , current_angle.yaw) ;
+	printf("%d,%d,%d,%d,%f,%d\n", Turn_Num_MPU ,-Motor_A.RealSpeed , Motor_B.RealSpeed , turning_flag*100 , current_angle.yaw , Pi_LR_Status * 100) ;
 //	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -Motor_A.RealSpeed , Motor_B.RealSpeed) ;
 //	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.iout , Y8_Line_PID.dout ) ;
 }
