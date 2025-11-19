@@ -130,40 +130,71 @@ def recognize_text_opencv(gray):
     return ""
 
 
+# def count_red_green_pixels_rgb(img):
+#     """
+#     使用RGB颜色空间计算红色和绿色像素数量（修正版）
+#     """
+
+#     if img is None:
+#         print("无法加载图像，请检查")
+#         return 0, 0
+
+
+#     # 将BGR转换为RGB
+#     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+#     # 定义红色和绿色的阈值（RGB空间）
+#     # 红色: R值高，G和B值低
+#     # red_mask = (rgb[:, :, 0] > 140) & (rgb[:, :, 1] < 100) & (rgb[:, :, 2] < 100)
+
+#     # # 绿色: G值高，R和B值低
+#     # green_mask = (rgb[:, :, 1] > 110) & (rgb[:, :, 0] < 110) & (rgb[:, :, 2] < 110)
+#     red_mask = ((rgb[:,:,0]//rgb[:,:,1]+1 > 2) & (rgb[:,:,0]//rgb[:,:,2]+1 > 2))
+#     green_mask = ((rgb[:,:,1]//rgb[:,:,0]+1 > 1.5) & (rgb[:,:,1]//rgb[:,:,2]+1 > 1.5))
+#     red_count = np.sum(red_mask)
+#     green_count = np.sum(green_mask)
+#     total_pixels = 320 * 240
+
+#     # print(f"红色像素数量: {red_count}")
+#     # print(f"绿色像素数量: {green_count}")
+#     # print(f"总像素数量: {total_pixels}")
+#     # print(f"红色占比: {red_count / total_pixels * 100:.2f}%")
+#     # print(f"绿色占比: {green_count / total_pixels * 100:.2f}%")  # 修正了这一行
+
+#     return red_count, green_count
+
 def count_red_green_pixels_rgb(img):
-    """
-    使用RGB颜色空间计算红色和绿色像素数量（修正版）
-    """
-
     if img is None:
-        print("无法加载图像，请检查")
         return 0, 0
-
-
-    # 将BGR转换为RGB
+    
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    # 定义红色和绿色的阈值（RGB空间）
-    # 红色: R值高，G和B值低
-    # red_mask = (rgb[:, :, 0] > 140) & (rgb[:, :, 1] < 100) & (rgb[:, :, 2] < 100)
-
-    # # 绿色: G值高，R和B值低
-    # green_mask = (rgb[:, :, 1] > 110) & (rgb[:, :, 0] < 110) & (rgb[:, :, 2] < 110)
-    red_mask = ((rgb[:,:,0]//rgb[:,:,1]+1 > 2) & (rgb[:,:,0]//rgb[:,:,2]+1 > 2))
-    green_mask = ((rgb[:,:,1]//rgb[:,:,0]+1 > 1.5) & (rgb[:,:,1]//rgb[:,:,2]+1 > 1.5))
+    
+    # 分离通道
+    R = rgb[:,:,0].astype(float)
+    G = rgb[:,:,1].astype(float)  
+    B = rgb[:,:,2].astype(float)
+    
+    # 计算相对比例，避免绝对阈值
+    total = R + G + B + 1e-5  # 避免除0
+    
+    r_ratio = R / total
+    g_ratio = G / total
+    b_ratio = B / total
+    
+    # 红色检测：R占主导，且不是白色（排除过曝）
+    red_mask = (r_ratio > 0.4) & (r_ratio > g_ratio + 0.2) & (r_ratio > b_ratio + 0.2) & (total < 700)  # 排除接近白色的
+    
+    # 绿色检测：G占主导，且不是白色
+    green_mask = (g_ratio > 0.4) & (g_ratio > r_ratio + 0.1) & (g_ratio > b_ratio + 0.1) & (total < 700)
+    
+    # 黄色检测：R、G占比接近，B较少
+    # yellow_mask = ((r_ratio + 1e-5)/(g_ratio + 1e-5)) > 0.8 & ((r_ratio + 1e-5)/(g_ratio + 1e-5)) < 1.2 & (r_ratio > b_ratio) & (g_ratio > b_ratio)
+    yellow_mask = total > 700# (g_ratio > 0.4) & (r_ratio > 0.4) & (total < 700)
     red_count = np.sum(red_mask)
     green_count = np.sum(green_mask)
-    total_pixels = 320 * 240
-
-    # print(f"红色像素数量: {red_count}")
-    # print(f"绿色像素数量: {green_count}")
-    # print(f"总像素数量: {total_pixels}")
-    # print(f"红色占比: {red_count / total_pixels * 100:.2f}%")
-    # print(f"绿色占比: {green_count / total_pixels * 100:.2f}%")  # 修正了这一行
-
-    return red_count, green_count
-
-
+    yellow_count = np.sum(yellow_mask)
+    
+    return red_count, green_count, yellow_count
 
 
 def ls(img):

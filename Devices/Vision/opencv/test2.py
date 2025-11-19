@@ -128,12 +128,17 @@ try:
         #     print(f"中心点: x={cx}, y={cy}, 阈值={threshold_value}")
         
         # 发送数据包
-        pack.insert_byte(0x0A)
-        pack.insert_two_bytes(pack.num_to_bytes(cx+100))
-        pack.insert_two_bytes(pack.num_to_bytes(is_stop))
-        pack.insert_two_bytes(pack.num_to_bytes(0+100))
+        # pack.insert_byte(0x0A)
+        # pack.insert_two_bytes(pack.num_to_bytes(cx+100))
+        # pack.insert_two_bytes(pack.num_to_bytes(is_stop))
+        # pack.insert_two_bytes(pack.num_to_bytes(0+100))
         # pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
         # pack.insert_two_bytes(pack.num_to_bytes(str_control))
+        pack.insert_byte(0x08)
+        pack.insert_two_bytes(pack.num_to_bytes(0))
+        pack.insert_two_bytes(pack.num_to_bytes(0))
+        pack.insert_two_bytes(pack.num_to_bytes(is_stop))
+        pack.insert_two_bytes(pack.num_to_bytes(cx + 100))
         # pack.send_packet()
         # time.sleep(1)
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出

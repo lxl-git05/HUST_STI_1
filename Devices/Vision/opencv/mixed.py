@@ -162,17 +162,17 @@ def main():
     
     # 等待摄像头初始化
     time.sleep(2)
-    
+    pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
     # 创建显示窗口
     cv2.namedWindow("Camera1 - ROI")
     cv2.namedWindow("Camera2 - ROI")
     # cv2.namedWindow("Camera1 - Original")
     # cv2.namedWindow("Camera2 - Original")
     
-    cv2.createTrackbar("Threshold1", "Camera1 - ROI", 120, 255, lambda x: None)
-    cv2.createTrackbar("Threshold2", "Camera2 - ROI", 120, 255, lambda x: None)
+    cv2.createTrackbar("Threshold1", "Camera1 - ROI", 100, 255, lambda x: None)
+    cv2.createTrackbar("Threshold2", "Camera2 - ROI", 100, 255, lambda x: None)
     
-    # pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
+    pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
     
     frame_count = 0
     last_status_time = time.time()
@@ -210,8 +210,8 @@ def main():
             # 图像处理
             try:
                 # 摄像头1处理（红绿灯和字符识别）
-                red_count, green_count = count_red_green_pixels_rgb(roi1)
-                rgb_control = 1 if red_count > 3000 else (2 if green_count > 3000 else 0)
+                red_count, green_count, yellow_count= count_red_green_pixels_rgb(roi1)
+                rgb_control = 1 if red_count > 2000 else (2 if green_count > 1000 else(3 if yellow_count > 3000 else 0) )
                 
                 binary1, gray = process_image(roi1, threshold_value1)
                 text = recognize_text_opencv(gray)
@@ -222,6 +222,7 @@ def main():
                 roi_height, roi_width = roi2.shape[:2]
                 is_stop = get_stop_dynamic(binary2, roi_height)
                 print(f"红绿灯：{rgb_control}, 字符:{str_control}, 停止:{is_stop}, 路口:{is_junction}")
+                # print(cx)
                 # 定期打印状态
                 # current_time = time.time()
                 # if current_time - last_status_time > 2.0:  # 每2秒打印一次
@@ -237,13 +238,15 @@ def main():
             # 显示结果
             # cv2.imshow("Camera1 - Original", frame1)
             # cv2.imshow("Camera2 - Original", frame2)
-            cv2.imshow("Camera1 - ROI", gray)
+            cv2.imshow("Camera1 - ROI", roi1)
             cv2.imshow("Camera2 - ROI", binary2)
             
             # 发送数据包（如果需要）
-            # pack.insert_byte(0x04)
-            # pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
-            # pack.insert_two_bytes(pack.num_to_bytes(str_control))
+            pack.insert_byte(0x08)
+            pack.insert_two_bytes(pack.num_to_bytes(rgb_control))
+            pack.insert_two_bytes(pack.num_to_bytes(str_control))
+            pack.insert_two_bytes(pack.num_to_bytes(is_stop))
+            pack.insert_two_bytes(pack.num_to_bytes(cx + 100))
             # pack.send_packet()
             
             # frame_count += 1

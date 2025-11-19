@@ -40,7 +40,7 @@ try:
         threshold_value = cv2.getTrackbarPos("Threshold", "Binary_0")
 
         # 计算红绿灯状态和字符识别结果
-        red_count, green_count = count_red_green_pixels_rgb(roi)
+        red_count, green_count, yellow_count = count_red_green_pixels_rgb(roi)
         rgb_control = 1 if red_count > 3000 else (2 if green_count > 3000 else 0)
         binary, gray = process_image(roi, threshold_value)
         text = recognize_text_opencv(gray)
