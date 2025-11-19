@@ -69,6 +69,12 @@ void Mymain(void)
 		Menu_Init() ;																																 // 菜单初始化
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();
+		#ifndef USE_HARDWARE_I2C
+		Software_I2C_Init();
+		#endif
+  
+		MPU6050_Init();
+		init_adaptive_compensation();
 	}
 	// ***********任务调度清单***********
 	#ifdef PID_Check		// 调试电机PID模式
@@ -101,7 +107,9 @@ void Mymain(void)
 		// **********实验区域**********	
 		// 与树莓派融合
 		
-		
+		//MPU6050
+		sensor_data = MPU6050_Data_Update();
+		turning_state_judge(&sensor_data);
 		// 实验:巡线判断转向:
 		
 		if (Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now > -20 && Motor_A.PID_s.realPoint_Now * Motor_A.DIR - Motor_B.PID_s.realPoint_Now < 20)

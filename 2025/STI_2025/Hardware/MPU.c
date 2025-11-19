@@ -628,6 +628,9 @@ void turning_state_judge(MPUData_t *data){
 		turning_flag = 0;
 	}
 	else if(data->Gz_>1&&flag == 1){
-		if(current_angle.yaw > 20) turning_flag = 1;
+		if(current_angle.yaw > 20) {
+			turning_flag = 1;
+			HAL_GPIO_TogglePin(LED0_GPIO_Port,LED0_Pin);	
+		}
 	}
 }
