@@ -255,10 +255,15 @@ int Encoder_Get_CNT(TIM_HandleTypeDef *htimx) ;
 
 * 蓝牙发送信息:
   * RGB自动档:FFAA040001000255FE(解析:FFAA为帧头 , 04为高低位总数据数 , 0001为RGB自动档 , 0002为Servo保持原样 , 55FE为帧尾)
-  * RGB  手动档:FFAA040000000255FE
+  * RGB  手动档:FFAA040000000255FE,手动档下才能调节RGB的颜色
+    * 红灯 : FFAA02000155FE
+    * 黄灯 : FFAA02000255FE
+    * 绿灯 : FFAA02000355FE
   * Servo自动档:FFAA040002000155FE
   * Servo手动档:FFAA040002000055FE
-
+    * L : FFAA02000455FE
+    * R : FFAA02000555FE
+  
 * 对蓝牙发送的信息进行了帧头帧尾帧长的判断,对发送的内容只进行了长度审核,没有进行内容审核,不过已经足够面对当前场景
 
 ### 3-2 RGB
