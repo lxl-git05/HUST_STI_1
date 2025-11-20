@@ -25,6 +25,7 @@
 #include "BLE.h"
 #include "Menu_OLED.h"
 #include "Menu_Key.h"
+#include "MyTask.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

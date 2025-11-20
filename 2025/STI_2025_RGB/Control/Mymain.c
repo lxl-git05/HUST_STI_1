@@ -13,6 +13,27 @@
 	3. 蓝牙
 	蓝牙一旦进行相关参数控制就将相关外设变为手动挡
 */
+//int LED_Status ;
+//int LED2_Status ;
+
+//void LED_Flash_1s(void)
+//{
+////	Timer_Counter_Func() ;
+//	if (LED_Status)
+//		LED_Status = 0 ;
+//	else
+//		LED_Status = 1 ;
+//}
+
+//void LED2_Flash_1s(void)
+//{
+//	if (LED2_Status)
+//		LED2_Status = 0 ;
+//	else
+//		LED2_Status = 1 ;
+//}
+
+
 void Mymain(void)
 {
 	// ******************* setup *******************
@@ -24,6 +45,8 @@ void Mymain(void)
 		RGB_Init() ;
 		BLE_Init() ;
 		Menu_Init() ;
+//		MyTask_Cycle_Add_New_Task( 0 , 1000 ,  LED_Flash_1s , 1 , NULL ) ;
+//		MyTask_Cycle_Add_New_Task( 0 , 1000 , LED2_Flash_1s , 0 , NULL ) ;
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();	
 	}
@@ -38,6 +61,11 @@ void Mymain(void)
 		Menu_RGB_Servo_Manu_Update(RGB_Mode , Servo_Mode , &RGB_Manu_Num , &Servo_Manu_Num ) ;	// 菜单反馈,实现手动调控参数
 		
 		OLED_Update() ;	// 必须存在:OLED更新
+		
+//		if (Key_Check(KEY_1 , KEY_SINGLE))
+//		{
+//			MyTask_Cycle_Start_Task(1) ;
+//		}
 	}
 }
 

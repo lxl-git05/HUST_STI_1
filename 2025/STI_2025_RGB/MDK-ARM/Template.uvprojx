@@ -898,6 +898,16 @@
               <FileType>5</FileType>
               <FilePath>..\Control\Menu_Key.h</FilePath>
             </File>
+            <File>
+              <FileName>MyTask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\MyTask.c</FilePath>
+            </File>
+            <File>
+              <FileName>MyTask.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\MyTask.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
