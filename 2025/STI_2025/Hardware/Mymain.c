@@ -41,6 +41,9 @@ int check[50] ;
 extern bool Car_LR_Speed_Mode ;
 int Turn_Num_MPU ;
 int turning_Flag_Bef ;
+
+int Speed_Mode ;
+
 // *******************任务调度*******************
 // 调试状态:电机PID调试,ifndef则没用
 mytask Motor_Status ;	
@@ -63,7 +66,7 @@ void Mymain(void)
 		Motor_A_Init();																															 // 电机A初始化
 		Motor_B_Init();																															 // 电机B初始化
 		Timer_Counter_Init() ;																											 // 计时器初始化,计算任务时间戳
-		Y8_Line_Init(15.0f , 0.0f , 0.0f , Y8_Speed_MAX , -Y8_Speed_MAX , 1000 ) ;   // 巡线模块初始化
+		Y8_Line_Init(15.0f , 0.0f , 20.0f , Y8_Speed_MAX , -Y8_Speed_MAX , 1000 ) ;   // 巡线模块初始化
 		Menu_Init() ;																																 // 菜单初始化
 		// 全部初始化完毕后再开启Systick中断
 		__enable_irq();
@@ -84,6 +87,7 @@ void Mymain(void)
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
 	Key_AddParam("Task_Num" , &Car_Task_Num   , 1 , PARAM_INT ) ; // 
 	Key_AddParam("Tuen_MPU" , &check[0]       , 1 , PARAM_INT ) ;
+	Key_AddParam("Y8_Speed_MAX" , &Y8_Speed_MAX       , 1 , PARAM_INT ) ;
 	while (1)
 	{
 		#ifdef PID_Check			// 调试电机PID模式
@@ -121,6 +125,28 @@ void Mymain(void)
 		}
 		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
     
+		if (current_angle.yaw >= 15)
+		{
+			Y8_Speed_MAX = 50 ;
+		}
+		else
+		{
+			Y8_Speed_MAX = 40 ;
+		}
+//			if (Speed_Mode == 1)
+//			{
+//				Y8_Speed_MAX = 80 ;
+//			}
+//			else
+//			{
+//				Y8_Speed_MAX = 60 ;
+//			}
+			Y8_Line_PID.OutMax = Y8_Speed_MAX ;
+			Y8_Line_PID.OutMin = -Y8_Speed_MAX ;
+			
+			
+			
+			
 	}
 }
 

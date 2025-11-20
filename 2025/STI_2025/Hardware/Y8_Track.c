@@ -1,4 +1,5 @@
 #include "Y8_Track.h"
+#include "MPU.h"
 
 // 寻迹的IIC模式
 //#define Y8_IIC_Soft
@@ -193,7 +194,10 @@ float Y8_Get_Line_Error(void)
 		// 没检测到黑线,这里后续可以优化,变成根据历史找到线路
 		// (其实已经是根据历史寻迹了,因为没有返回值,所以PID没有更新,所以goal值始终是上次寻迹的值)
     if (blackCount == 0)  
-        return 999.0f;
+		{
+				return 999.0f;
+		}
+        
 		
 		Y8_Line_Error = sum / blackCount;
 		

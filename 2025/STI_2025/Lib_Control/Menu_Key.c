@@ -168,7 +168,7 @@ void Menu_Task1_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 80 ;
+		goalPointTwo = 130 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 1 ;			// 小车任务1
@@ -192,7 +192,7 @@ void Menu_Task2_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 80 ;
+		goalPointTwo = 140 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 2 ;			// 小车任务2
@@ -217,7 +217,7 @@ void Menu_Task3_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 80 ;
+		goalPointTwo = 150 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 0 ;			// 小车自己跑

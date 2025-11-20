@@ -21,6 +21,7 @@ extern int Turn_cnt  ;	// 转向时间计时
 extern int Turn_Num	;	// 转向次数
 extern int Turn_ALL	;
 extern int Turn_Num_MPU ;
+extern int Speed_Mode ;
 
 // MPU6050
 extern int turning_flag;
@@ -134,7 +135,7 @@ void Motor_VOFA_Set_Y8(void)
 		Serial_SetFloatData("KiC" , "KiC=%f" , &Y8_Line_PID.Ki) ;
 		Serial_SetFloatData("KdC" , "KdC=%f" , &Y8_Line_PID.Kd) ;
 		
-		// 刹车与重启
+		// 刹车与重启 
 		if ( Serial_SetIntData("break" , "break=%d" , &Con_NULL) )						
 		{
 			if (isBreak == false)
@@ -146,12 +147,23 @@ void Motor_VOFA_Set_Y8(void)
 				isBreak = false ;
 			}
 		}
+		if ( Serial_SetIntData("Speed_Mode" , "Speed_Mode=%d" , &Con_NULL) )						
+		{
+			if (Speed_Mode == false)
+			{
+				Speed_Mode = true ;
+			}
+			else
+			{
+				Speed_Mode = false ;
+			}
+		}
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
-	printf("%d,%d,%d,%d,%f,%d\n", Turn_Num_MPU ,-Motor_A.RealSpeed , Motor_B.RealSpeed , turning_flag*100 , current_angle.yaw , Pi_LR_Status * 100) ;
+//	printf("%d,%d,%f,%f,%d\n",-Motor_A.RealSpeed , Motor_B.RealSpeed , current_angle.yaw , Y8_Line_PID.setPoint,Y8_Speed_MAX) ;
 //	printf("%f,%f,%f,%d,%d\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -Motor_A.RealSpeed , Motor_B.RealSpeed) ;
-//	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.iout , Y8_Line_PID.dout ) ;
+	printf("%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now * 10 , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.dout ) ;
 }
 
 
