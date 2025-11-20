@@ -190,8 +190,9 @@ float Y8_Get_Line_Error(void)
     }
 		
 		Y8_Line_Num = blackCount ;	// Y8本次巡到的黑线数
-		
-    if (blackCount == 0)  // 没检测到黑线,这里后续可以优化,变成根据历史找到线路
+		// 没检测到黑线,这里后续可以优化,变成根据历史找到线路
+		// (其实已经是根据历史寻迹了,因为没有返回值,所以PID没有更新,所以goal值始终是上次寻迹的值)
+    if (blackCount == 0)  
         return 999.0f;
 		
 		Y8_Line_Error = sum / blackCount;
@@ -241,7 +242,7 @@ void Y8_Line_Control(void)
 			// 包容丢线
 			if (Y8_Lose_Line_isOK == true)
 			{
-				offset = 0.5f ;
+				offset = 0 ;
 				Y8_Lose_Line_isOK = false ;
 			}
 			else
@@ -274,6 +275,22 @@ void Y8_Line_Control(void)
 
 
 // ====================== 电工基地题目处理 ======================
+void LED_Flash(void)
+{
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+	HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+	HAL_Delay(1000) ;
+}
 
 // 电工基地第1题
 void Y8_Task1(void)
@@ -286,54 +303,32 @@ void Y8_Task1(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
 	{
 		isBreak = 1 ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
+		LED_Flash() ;
 	}
 }
 
 // 电工基地第2题
 void Y8_Task2(void)
 {
+	// 记录等停时圈数,与接下来停止圈数进行对比
+	static int Wait_Position ;
 	// 等停处理
 	if (Pi_Stop_Status == 2 && Car_Wait_Flag == 0)
 	{
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
 		Car_Wait_Flag = 1 ;
 		Car_Wait_cnt  = 5000 ;
 		isBreak = 1 ;
+		Wait_Position = Turn_Num_MPU ;	// 记录等停识别的圈数
 	}
 	// 识别停止
 	if (Y8_is_Init() && Turn_Num_MPU >= 4)
 	{
 		isBreak = 1 ;
 	}
-	if (Pi_Stop_Status == 1 && Turn_Num_MPU >= 4 )
+	if (Pi_Stop_Status == 1 && Turn_Num_MPU >= 4 && Wait_Position != Turn_Num_MPU)	// 视觉识别停止和等停如果在同一圈就视为误识别,Y8全权操作
 	{
 		isBreak = 1 ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
+		LED_Flash() ;
 	}
 }
 
@@ -348,19 +343,7 @@ void Y8_Task4(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 12 )
 	{
 		isBreak = 1 ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
+		LED_Flash() ;
 	}
 	// LR转换 is_Car_Turn_Left Pi_LR_Status
 	if (Pi_LR_Status != 0)
@@ -380,19 +363,7 @@ void Y8_Task5(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 16 )
 	{
 		isBreak = 1 ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
-		HAL_Delay(500) ;
+		LED_Flash() ;
 	}
 	// RGB检测命令执行 RGB -> 0初始化 , 1红灯 , 2绿灯 , 3黄灯
 	if (Pi_RGB_Status != 0)
@@ -421,11 +392,19 @@ void Y8_Task5(void)
 void Car_Task(int Car_Task_Seq)
 {
 	if (Car_Task_Seq == 1)
+	{
 		Y8_Task1() ;
+	}
 	else if (Car_Task_Seq == 2)
+	{
 		Y8_Task2() ;
+	}
 	else if (Car_Task_Seq == 4)
+	{
 		Y8_Task4() ;
+	}
+	else if (Car_Task_Seq == 5)
+	{
+		Y8_Task5() ;
+	}
 }
-
-
