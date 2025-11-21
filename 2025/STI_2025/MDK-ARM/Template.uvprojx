@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;../System</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;../System;..\Software;..\Control</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -845,6 +845,71 @@
               <FileType>5</FileType>
               <FilePath>..\System\DList.h</FilePath>
             </File>
+            <File>
+              <FileName>Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\Encoder.h</FilePath>
+            </File>
+            <File>
+              <FileName>MyI2C.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\MyI2C.c</FilePath>
+            </File>
+            <File>
+              <FileName>MyI2C.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\MyI2C.h</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\PWM.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Software</GroupName>
+          <Files>
+            <File>
+              <FileName>MyPID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\MyPID.c</FilePath>
+            </File>
+            <File>
+              <FileName>MyPID.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\MyPID.h</FilePath>
+            </File>
+            <File>
+              <FileName>Serial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\Serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>Serial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\Serial.h</FilePath>
+            </File>
+            <File>
+              <FileName>Serial3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\Serial3.c</FilePath>
+            </File>
+            <File>
+              <FileName>Serial3.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\Serial3.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -881,16 +946,6 @@
               <FilePath>..\Hardware\Key.h</FilePath>
             </File>
             <File>
-              <FileName>Serial.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Serial.c</FilePath>
-            </File>
-            <File>
-              <FileName>Serial.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Serial.h</FilePath>
-            </File>
-            <File>
               <FileName>Motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\Motor.c</FilePath>
@@ -899,86 +954,6 @@
               <FileName>Motor.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Hardware\Motor.h</FilePath>
-            </File>
-            <File>
-              <FileName>Encoder.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Encoder.h</FilePath>
-            </File>
-            <File>
-              <FileName>Encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>PWM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\PWM.c</FilePath>
-            </File>
-            <File>
-              <FileName>PWM.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\PWM.h</FilePath>
-            </File>
-            <File>
-              <FileName>MyPID.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\MyPID.c</FilePath>
-            </File>
-            <File>
-              <FileName>MyPID.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\MyPID.h</FilePath>
-            </File>
-            <File>
-              <FileName>Serial3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Serial3.c</FilePath>
-            </File>
-            <File>
-              <FileName>Serial3.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Serial3.h</FilePath>
-            </File>
-            <File>
-              <FileName>Mymain.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Mymain.c</FilePath>
-            </File>
-            <File>
-              <FileName>Mymain.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Mymain.h</FilePath>
-            </File>
-            <File>
-              <FileName>Task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Task.c</FilePath>
-            </File>
-            <File>
-              <FileName>Task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Task.h</FilePath>
-            </File>
-            <File>
-              <FileName>RasPi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\RasPi.c</FilePath>
-            </File>
-            <File>
-              <FileName>RasPi.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\RasPi.h</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_Counter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Timer_Counter.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_Counter.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Timer_Counter.h</FilePath>
             </File>
             <File>
               <FileName>Y8_Track.c</FileName>
@@ -991,16 +966,6 @@
               <FilePath>..\Hardware\Y8_Track.h</FilePath>
             </File>
             <File>
-              <FileName>MyI2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\MyI2C.c</FilePath>
-            </File>
-            <File>
-              <FileName>MyI2C.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\MyI2C.h</FilePath>
-            </File>
-            <File>
               <FileName>MPU.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\MPU.c</FilePath>
@@ -1010,50 +975,100 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\MPU.h</FilePath>
             </File>
+            <File>
+              <FileName>RasPi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\RasPi.c</FilePath>
+            </File>
+            <File>
+              <FileName>RasPi.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\RasPi.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Lib_Control</GroupName>
+          <GroupName>Control</GroupName>
           <Files>
             <File>
-              <FileName>Con_Motor.c</FileName>
+              <FileName>Task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Lib_Control\Con_Motor.c</FilePath>
+              <FilePath>..\Control\Task.c</FilePath>
             </File>
             <File>
-              <FileName>Con_Motor.h</FileName>
+              <FileName>Task.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Lib_Control\Con_Motor.h</FilePath>
+              <FilePath>..\Control\Task.h</FilePath>
             </File>
             <File>
-              <FileName>Key_Check.c</FileName>
+              <FileName>Timer_Counter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Lib_Control\Key_Check.c</FilePath>
+              <FilePath>..\Control\Timer_Counter.c</FilePath>
             </File>
             <File>
-              <FileName>Key_Check.h</FileName>
+              <FileName>Timer_Counter.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Lib_Control\Key_Check.h</FilePath>
+              <FilePath>..\Control\Timer_Counter.h</FilePath>
             </File>
             <File>
               <FileName>Menu_Key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Lib_Control\Menu_Key.c</FilePath>
+              <FilePath>..\Control\Menu_Key.c</FilePath>
             </File>
             <File>
               <FileName>Menu_Key.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Lib_Control\Menu_Key.h</FilePath>
+              <FilePath>..\Control\Menu_Key.h</FilePath>
             </File>
             <File>
-              <FileName>Con_Car.h</FileName>
+              <FileName>Key_Check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Key_Check.c</FilePath>
+            </File>
+            <File>
+              <FileName>Key_Check.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Lib_Control\Con_Car.h</FilePath>
+              <FilePath>..\Control\Key_Check.h</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Con_Motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Motor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Con_Motor.h</FilePath>
             </File>
             <File>
               <FileName>Con_Car.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Lib_Control\Con_Car.c</FilePath>
+              <FilePath>..\Control\Con_Car.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Car.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Con_Car.h</FilePath>
+            </File>
+            <File>
+              <FileName>Control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Control.c</FilePath>
+            </File>
+            <File>
+              <FileName>Control.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Control.h</FilePath>
+            </File>
+            <File>
+              <FileName>Mymain.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Mymain.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mymain.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Mymain.h</FilePath>
             </File>
           </Files>
         </Group>
