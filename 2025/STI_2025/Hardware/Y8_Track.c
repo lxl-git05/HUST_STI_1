@@ -162,7 +162,7 @@ bool Y8_is_Init()
 bool Y8_Line_is_Error(void)
 {
 	// 大于等于3个点视为危险点
-	if (Y8_Line_Num >= 3)
+	if (Y8_Line_Num >= 2)
 	{
 		// 其他的识别都算作错误点
 		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
