@@ -20,7 +20,6 @@
 #include "Serial3.h"
 #include "Task.h"
 
-#include "Encoder_Motor.h"
 #include "Encoder.h"
 #include "Motor.h"
 #include "RasPi.h"
