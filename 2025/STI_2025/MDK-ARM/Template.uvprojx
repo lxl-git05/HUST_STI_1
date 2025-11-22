@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;../System;..\Software;..\Control</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;../Lib_Control;../System;..\Software;..\Control;..\Tools</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -846,16 +846,6 @@
               <FilePath>..\System\DList.h</FilePath>
             </File>
             <File>
-              <FileName>Encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\System\Encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>Encoder.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\System\Encoder.h</FilePath>
-            </File>
-            <File>
               <FileName>MyI2C.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\System\MyI2C.c</FilePath>
@@ -864,6 +854,16 @@
               <FileName>MyI2C.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\System\MyI2C.h</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\Encoder.h</FilePath>
             </File>
             <File>
               <FileName>PWM.c</FileName>
@@ -956,16 +956,6 @@
               <FilePath>..\Hardware\Motor.h</FilePath>
             </File>
             <File>
-              <FileName>Y8_Track.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Y8_Track.c</FilePath>
-            </File>
-            <File>
-              <FileName>Y8_Track.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Y8_Track.h</FilePath>
-            </File>
-            <File>
               <FileName>MPU.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\MPU.c</FilePath>
@@ -985,6 +975,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\RasPi.h</FilePath>
             </File>
+            <File>
+              <FileName>Y8_Track.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Y8_Track.c</FilePath>
+            </File>
+            <File>
+              <FileName>Y8_Track.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Y8_Track.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -999,36 +999,6 @@
               <FileName>Task.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Task.h</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_Counter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Timer_Counter.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_Counter.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Timer_Counter.h</FilePath>
-            </File>
-            <File>
-              <FileName>Menu_Key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Menu_Key.c</FilePath>
-            </File>
-            <File>
-              <FileName>Menu_Key.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Menu_Key.h</FilePath>
-            </File>
-            <File>
-              <FileName>Key_Check.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Key_Check.c</FilePath>
-            </File>
-            <File>
-              <FileName>Key_Check.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Key_Check.h</FilePath>
             </File>
             <File>
               <FileName>Con_Motor.c</FileName>
@@ -1069,6 +1039,41 @@
               <FileName>Mymain.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Mymain.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Tools</GroupName>
+          <Files>
+            <File>
+              <FileName>Key_Check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\Key_Check.c</FilePath>
+            </File>
+            <File>
+              <FileName>Key_Check.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\Key_Check.h</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\Menu_Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\Menu_Key.h</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\Timer_Counter.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\Timer_Counter.h</FilePath>
             </File>
           </Files>
         </Group>
