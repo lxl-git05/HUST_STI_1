@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;..\Software;..\Control;..\System</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;..\Software;..\Control;..\System;..\Tools</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -665,6 +665,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>System</GroupName>
+          <Files>
+            <File>
+              <FileName>PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\PWM.h</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\System\Encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\System\Encoder.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Hardware</GroupName>
           <Files>
             <File>
@@ -725,6 +750,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Tools</GroupName>
+          <Files>
+            <File>
+              <FileName>Timer_Counter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\Timer_Counter.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer_Counter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\Timer_Counter.h</FilePath>
+            </File>
+            <File>
+              <FileName>Key_Check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\Key_Check.c</FilePath>
+            </File>
+            <File>
+              <FileName>Key_Check.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\Key_Check.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>Control</GroupName>
           <Files>
             <File>
@@ -738,16 +788,6 @@
               <FilePath>..\Control\Mymain.h</FilePath>
             </File>
             <File>
-              <FileName>Timer_Counter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Timer_Counter.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timer_Counter.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Timer_Counter.h</FilePath>
-            </File>
-            <File>
               <FileName>Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Control\Task.c</FilePath>
@@ -756,31 +796,6 @@
               <FileName>Task.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Task.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>System</GroupName>
-          <Files>
-            <File>
-              <FileName>PWM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\System\PWM.c</FilePath>
-            </File>
-            <File>
-              <FileName>PWM.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\System\PWM.h</FilePath>
-            </File>
-            <File>
-              <FileName>Encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\System\Encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>Encoder.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\System\Encoder.h</FilePath>
             </File>
           </Files>
         </Group>
