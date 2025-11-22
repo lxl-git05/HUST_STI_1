@@ -14,7 +14,6 @@ int Car_Wait_Flag  ;			// 小车等停标志位,初始值为0,也就是不停止
 int Car_Wait_cnt ;				// 小车等停计时器
 
 // 计时器
-extern float time_us ;			// 计时参数,计算时间戳
 int Y8_Cnt = 0 ;
 
 // Y8巡线
