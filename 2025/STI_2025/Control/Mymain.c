@@ -13,12 +13,6 @@ bool isBreak = true;			// *********重要参数:刹车判断*********
 int Car_Wait_Flag  ;			// 小车等停标志位,初始值为0,也就是不停止
 int Car_Wait_cnt ;				// 小车等停计时器
 
-// 树莓派视觉传感器
-extern int Pi_RGB_Status  ;	// RGB -> 0初始化 , 1红灯 , 2绿灯 , 3黄灯
-extern int Pi_LR_Status	  ;	// LR  -> 0初始化 , 1->L  , 2->R
-extern int Pi_Stop_Status ;	// wait & stop -> 0无 , 1停止 , 2等停
-extern int Pi_x_Line_real ;	// 巡线x的真实值,已处理
-
 // 计时器
 extern float time_us ;			// 计时参数,计算时间戳
 int Y8_Cnt = 0 ;
