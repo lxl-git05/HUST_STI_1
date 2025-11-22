@@ -20,7 +20,11 @@ typedef enum
 
 extern uint8_t Y8_Line_Array[9] ;				// 8路传感器数据包
 extern Y8_Position_Typedef Y8_Pos ;			// 小车方位参数
-
+extern mytask Y8_Line_Status ;
+extern Pid_Typedef Y8_Line_PID ;
+extern bool Y8_Lose_Line_isOK;					// 巡线丢线包容度,true为允许丢线,并使4号识别到线
+extern float Y8_JQ[9];
+extern bool Car_LR_Speed_Mode ;	// 小车的岔路专门处理函数
 // ************函数声明************
 
 // 寻迹模块初始化,其实就是PID初始化

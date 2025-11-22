@@ -12,31 +12,25 @@ int goalPointTwo;					// 共同速度
 bool isBreak = true;			// *********重要参数:刹车判断*********
 int Car_Wait_Flag  ;			// 小车等停标志位,初始值为0,也就是不停止
 int Car_Wait_cnt ;				// 小车等停计时器
+bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
 
 // 计时器
 int Y8_Cnt = 0 ;
 
 // Y8巡线
-extern mytask Y8_Line_Status ;
-extern Pid_Typedef Y8_Line_PID ;
-extern Car_Position_Typedef Car_Y8_Pos ;	
 int Y8_Speed_MAX = 40;
-bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
-extern bool Y8_Lose_Line_isOK ;	// 巡线丢线包容度,true为允许丢线,并使4号识别到线
-extern float Y8_JQ[9];		
 
 // 菜单调控任务执行
 int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
+
+// MPU6050参数
+int Turn_Num_MPU ;
+int turning_Flag_Bef ;
 
 // *******************实验区域*******************
 int check1 ;
 int check2 ;
 int check[50] ;
-extern bool Car_LR_Speed_Mode ;
-int Turn_Num_MPU ;
-int turning_Flag_Bef ;
-
-int Speed_Mode ;
 
 // *******************任务调度*******************
 // 调试状态:电机PID调试,ifndef则没用
@@ -80,7 +74,6 @@ void Mymain(void)
 	#endif
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
 	Key_AddParam("Y8_Speed_MAX" , &Y8_Speed_MAX       , 1 , PARAM_INT ) ;
-	
 	Key_AddParam("Kp" , &Y8_Line_PID.Kp , 2 , PARAM_FLOAT ) ;
 	Key_AddParam("Ki" , &Y8_Line_PID.Ki , 2 , PARAM_FLOAT ) ;
 	Key_AddParam("Kd" , &Y8_Line_PID.Kd , 2 , PARAM_FLOAT ) ;
@@ -136,15 +129,6 @@ void Mymain(void)
 		Y8_Line_PID.OutMax = Y8_Speed_MAX ;
 		Y8_Line_PID.OutMin = -Y8_Speed_MAX ;
 		
-		
-//		if (current_angle.yaw >= 15 && Turn_Num_MPU == 3)
-//		{
-//			Car_LR_Speed_Mode = true ;
-//			goalPoint_A = 120 ;
-//			goalPoint_B = 40 ;
-//			Y8_Cnt = 100 ;
-//			Turn_Num_MPU = 4 ;
-//		}
 	}
 }
 

@@ -147,17 +147,6 @@ void Motor_VOFA_Set_Y8(void)
 				isBreak = false ;
 			}
 		}
-		if ( Serial_SetIntData("Speed_Mode" , "Speed_Mode=%d" , &Con_NULL) )						
-		{
-			if (Speed_Mode == false)
-			{
-				Speed_Mode = true ;
-			}
-			else
-			{
-				Speed_Mode = false ;
-			}
-		}
 	}
 	// *VOFA展示电机状态*
 	Set_Current_USART(USART2_IDX); /* 想要指定不同串口必须在printf前加上此函数 */
