@@ -5,7 +5,9 @@
 #include "stdbool.h"
 #include "Timer_Counter.h"
 #include "RasPi.h"
-#include "Y8_Track.h"
+#include "Motor.h"
+#include "Con_Motor.h"
+#include "Con_Track.h"
 
 // 小车方位枚举结构体
 typedef enum
@@ -38,6 +40,7 @@ typedef enum
 
 // 小车核心处理逻辑
 
-
+// 电工基地试题
+void Car_Task(int Car_Task_Seq) ;
 
 #endif

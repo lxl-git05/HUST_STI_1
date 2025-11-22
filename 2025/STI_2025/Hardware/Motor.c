@@ -30,11 +30,11 @@ void Motor_A_Init(void)
 	// 编码器初始化
 	Encoder_Init(&Motor_A_Encoder_htim) ;
 	
-	// PID初始化
-	PID_Init(&Motor_A.PID_s , 0.42f , 0.064f , 0.0f , 100 , -100 , 10000 ) ;
+	// PID初始化 PID_Init(&Motor_A.PID_s , 0.42f , 0.064f , 0.0f , 100 , -100 , 10000 , 20) ;
+	PID_Init(&Motor_A.PID_s , 1.25f , 0.06f , 0.0f , 100 , -100 , 1000 , Encoder_PID_Gap_Time ) ;
 	
 	// 额外功能
-//	Motor_A.PID_s.deadspace = 5.0f ;	// 输出死区
+//	Motor_A.PID_s.deadspace = 3.0f ;	// 输出死区
 	
 }
 
@@ -83,14 +83,14 @@ void Motor_B_Init(void)
 	// 编码器初始化
 	Encoder_Init(&Motor_B_Encoder_htim) ;
 	
-	// 新增调试
-	Motor_B.PID_s.d_style = 1.0 ;	// 微分先行
+//	// 新增调试
+//	Motor_B.PID_s.d_style = 1.0 ;	// 微分先行
+//	
+//	// 针对性函数
+//	Motor_B.PID_s.PID_Func = Motor_B_PID_Func;
 	
-	// 针对性函数
-	Motor_B.PID_s.PID_Func = Motor_B_PID_Func;
-	
-	// PID初始化
-	PID_Init(&Motor_B.PID_s , 0.70f , 0.044f , 0.0f , 100 , -100 , 10000 ) ;
+	// PID初始化PID_Init(&Motor_B.PID_s , 0.70f , 0.044f , 0.0f , 100 , -100 , 10000 , 20) ;
+	PID_Init(&Motor_B.PID_s  , 1.67f , 0.098f , 0.0f , 100 , -100 , 1000 , Encoder_PID_Gap_Time ) ;
 }
 
 
@@ -143,7 +143,7 @@ void Motor_Speed_Update(Motor_Typedef *Motor)
 	// 得到总脉冲数
 	int Motor_CNT = Encoder_Get_CNT(&Motor->Motor_Encoder_htim) * Motor->Encoder_Dir;
 	
-	// 转速n = 总脉冲数/4倍频/单圈脉冲数(13)/减速比(28)/采样时间
+	// 转速n = 总脉冲数/4倍频/单圈脉冲数(13)/减速比(28)/采样时间 , Encoder_PID_Gap_Time暂时为10ms
 	// Motor->Motor_RealSpeed = (float)Motor_CNT / 4 / 13 / 28 / Encoder_Gap_Time * 1000 ; ,直接算出来:4*13*28/1000=1.456
 	Motor->RealSpeed = (float)Motor_CNT * 60 * 1000 / (4.0f * Motor->PPR * Motor->ReductionRatio) / Encoder_PID_Gap_Time  ;
 }

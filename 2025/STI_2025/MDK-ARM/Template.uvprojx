@@ -1021,16 +1021,6 @@
               <FilePath>..\Control\Con_Car.h</FilePath>
             </File>
             <File>
-              <FileName>Control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Control.c</FilePath>
-            </File>
-            <File>
-              <FileName>Control.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Control.h</FilePath>
-            </File>
-            <File>
               <FileName>Mymain.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Control\Mymain.c</FilePath>
@@ -1039,6 +1029,16 @@
               <FileName>Mymain.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Mymain.h</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Track.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Control\Con_Track.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Track.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Control\Con_Track.h</FilePath>
             </File>
           </Files>
         </Group>
