@@ -19,7 +19,7 @@ int Y8_Speed_MAX = 40;
 int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
 
 // MPU6050参数
-int Turn_Num_MPU = 1;
+int Turn_Num_MPU = 0;
 int turning_Flag_Bef ;
 
 // *******************实验区域*******************
@@ -61,15 +61,11 @@ void Mymain(void)
 	// ***********调参清单***********
 	{
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
-	Key_AddParam("Y8_Speed_MAX" , &Y8_Speed_MAX       , 1 , PARAM_INT ) ;
-	Key_AddParam("Kp" , &Y8_Line_PID.Kp , 2 , PARAM_FLOAT ) ;
-	Key_AddParam("Ki" , &Y8_Line_PID.Ki , 2 , PARAM_FLOAT ) ;
-	Key_AddParam("Kd" , &Y8_Line_PID.Kd , 2 , PARAM_FLOAT ) ;
-	Key_AddParam("Y8_C" , &Y8_C       , 1 , PARAM_INT ) ;
-	Key_AddParam("dsty" , &Y8_Line_PID.d_style , 0.5 , PARAM_FLOAT ) ;
+	Key_AddParam("Turn_Num_MPU" , &Turn_Num_MPU , 0.5 , PARAM_INT ) ;
 	}
 	while (1)
 	{
+		
 		#ifdef PID_Check			// 调试电机PID模式
 		Motor_PID_Check() ;		
 		#endif
@@ -98,17 +94,13 @@ void Mymain(void)
 		
 		calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_, dt);
 		turning_state_judge(&sensor_data);
-		// MPU配合巡线检查,得到巡线转数
-		if (turning_Flag_Bef == 1 && turning_flag == 0)
-		{
-			Turn_Num_MPU ++ ;
-		}
+		
 //		if (current_angle.yaw >= 120)
 //		{
 //			current_angle.yaw = 0;
 //			Turn_Num_MPU ++ ;
 //		}		
-		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
+		
     
 		// 动态调节Y8限幅
 		if (current_angle.yaw >= 15)
@@ -169,5 +161,4 @@ void HAL_SYSTICK_Callback(void)
 	}
 	// 任务5:
 	Y8_Error_Update() ;
-	
 }

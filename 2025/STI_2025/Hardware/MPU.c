@@ -619,7 +619,7 @@ void calculate_angle_from_gyro(float gx, float gy, float gz, float dt) {
 }
 
 void turning_state_judge(MPUData_t *data){
-	if((data->Gz_<1 && flag == 0)){
+	if((data->Gz_>1 && flag == 0)){
 		current_angle.yaw = 0;
 		flag = 1;
 	}

@@ -38,7 +38,7 @@ void Y8_Task1(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
 	{
 		isBreak = 1 ;
-		LED_Flash() ;
+//		LED_Flash() ;
 	}
 }
 
@@ -63,7 +63,7 @@ void Y8_Task2(void)
 	if (Pi_Stop_Status == 1 && Turn_Num_MPU >= 4 && Wait_Position != Turn_Num_MPU)	// 视觉识别停止和等停如果在同一圈就视为误识别,Y8全权操作
 	{
 		isBreak = 1 ;
-		LED_Flash() ;
+//		LED_Flash() ;
 	}
 }
 
@@ -78,7 +78,7 @@ void Y8_Task4(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 12 )
 	{
 		isBreak = 1 ;
-		LED_Flash() ;
+//		LED_Flash() ;
 	}
 	// LR转换 is_Car_Turn_Left Pi_LR_Status
 	if (Pi_LR_Status != 0)
@@ -90,18 +90,20 @@ void Y8_Task4(void)
 // 电工基地第5题
 void Y8_Task5(void)
 {
+	static bool is_RGB_Open = true ;
 	// 识别停止,跑16个1/4圈
 	if (Y8_is_Init() && Turn_Num_MPU >= 16)
 	{
 		isBreak = 1 ;
+		is_RGB_Open = false ;
 	}
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 16 )
 	{
 		isBreak = 1 ;
-		LED_Flash() ;
+//		LED_Flash() ;
 	}
 	// RGB检测命令执行 RGB -> 0初始化 , 1红灯 , 2绿灯 , 3黄灯
-	if (Pi_RGB_Status != 0)
+	if (Pi_RGB_Status != 0 && is_RGB_Open == true)
 	{
 		if (Pi_RGB_Status == 1)
 		{
@@ -112,10 +114,10 @@ void Y8_Task5(void)
 			isBreak = 0 ;
 			Y8_Lose_Line_isOK = true ;
 		}
-		else if (Pi_RGB_Status == 3)
+		else if (Pi_RGB_Status == 3 && Turn_Num_MPU % 4 == 0)
 		{
 			// 树莓派识别到停止位置,说明小车没有超过停止线,那么就停车,否则继续跑
-			if (Pi_Stop_Status != 0)
+			if (Pi_Stop_Status != 0 || Y8_Pos != Y8_Init_Pos)
 			{
 				isBreak = 1 ;
 			}

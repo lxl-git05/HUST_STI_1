@@ -1,4 +1,6 @@
 #include "Con_Track.h"
+#include "MPU.h"
+extern int turning_Flag_Bef ;
 // 寻迹相关参数
 mytask Y8_Line_Status ;						// 任务:寻迹控制任务
 Pid_Typedef Y8_Line_PID ;					// 寻迹PID
@@ -94,7 +96,7 @@ bool Y8_Line_is_Error(void)
 	if (Y8_Line_Num >= 2)
 	{
 		// 其他的识别都算作错误点
-		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
+//		HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin ) ;
 		return false;
 	}
 	// 安全点
@@ -167,7 +169,30 @@ void Y8_Error_Update(void)
 		{
 			Y8_LR_Speed_Mode() ;	// 岔路口速度特殊处理
 		}
+		
+		
 		Car_Task(Car_Task_Num) ;
+		
+		// MPU配合巡线检查,得到巡线转数
+		
+		static int Turn_Add_Update_Flag = 0 ;
+		
+		if (current_angle.yaw >= 60 && current_angle.yaw <= 130 && Turn_Add_Update_Flag == 0)
+		{
+			Turn_Num_MPU += 1 ;
+			Turn_Add_Update_Flag = 1 ;	// 更新过一次了,除非连更新
+		}
+		else if (current_angle.yaw >= 140 && Turn_Add_Update_Flag == 1)
+		{
+			Turn_Num_MPU += 1 ;
+			Turn_Add_Update_Flag = 2 ;	// 更新过一次了
+		}
+		else if (current_angle.yaw <= 10)
+		{
+			Turn_Add_Update_Flag = 0 ;	// 可以再次更新
+		}
+		
+		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
 		
 		// 2. 计划加入终点判断,防止过快采样丢失终点判断
 		

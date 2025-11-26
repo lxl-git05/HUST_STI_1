@@ -53,6 +53,7 @@ void Menu_Init(void)
 	Menu_New_Init(Menu_Task2_Callback) ;
 	Menu_New_Init(Menu_Task3_Callback) ;
 	Menu_New_Init(Menu_Task4_Callback) ;
+	Menu_New_Init(Menu_Task5_Callback) ;
 	Menu_New_Init(Menu_Check_Callback) ;
 }
 
@@ -265,7 +266,7 @@ void Menu_Task5_Callback(void)
 		Menu_Confirm_index ++ ;
 		Menu_Confirm_index = Menu_Confirm_index % Menu_Total_Num ;
 	}
-	// KEY2单击:小车启动任务2
+	// KEY2单击:小车启动任务5
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
