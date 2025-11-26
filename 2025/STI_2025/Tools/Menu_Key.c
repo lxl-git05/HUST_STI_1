@@ -243,7 +243,7 @@ void Menu_Task4_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 180 ;
+		goalPointTwo = 160 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 4 ;			// 小车自己跑
@@ -254,6 +254,10 @@ void Menu_Task4_Callback(void)
 void Menu_Task5_Callback(void)
 {
 	OLED_Printf(0 , 0 , OLED_6X8 , "=========Task5=========") ;
+	
+	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Go");
 		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))
@@ -261,5 +265,13 @@ void Menu_Task5_Callback(void)
 		Menu_Confirm_index ++ ;
 		Menu_Confirm_index = Menu_Confirm_index % Menu_Total_Num ;
 	}
-	
+	// KEY2单击:小车启动任务2
+	if (Key_Check(KEY_2 , KEY_SINGLE))
+	{
+		HAL_Delay(2000) ;
+		goalPointTwo = 160 ;
+		isBreak = false;
+		Menu_Open_Mode = 2 ;
+		Car_Task_Num = 5 ;			// 小车自己跑
+	}
 }

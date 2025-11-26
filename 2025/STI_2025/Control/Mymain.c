@@ -7,7 +7,7 @@
 // 电机
 int Car_Wait_Flag  ;							// 小车等停标志位,初始值为0,也就是不停止
 int Car_Wait_cnt ;								// 小车等停计时器
-bool is_Car_Turn_Left = true	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
+bool is_Car_Turn_Left = false	 ;	// ***重要参数:小车偏转方向*** , 1左 , 0右
 
 // 计时器
 int Y8_Cnt = 0 ;
@@ -19,7 +19,7 @@ int Y8_Speed_MAX = 40;
 int Car_Task_Num = 0 ;	// 初始为0,也就是没有任务
 
 // MPU6050参数
-int Turn_Num_MPU ;
+int Turn_Num_MPU = 1;
 int turning_Flag_Bef ;
 
 // *******************实验区域*******************
@@ -84,7 +84,7 @@ void Mymain(void)
 		// 巡线数据更新,以后放在中断中
 //		Y8_LineSensor_Update() ;
 		// 核心代码:OLED控制小车实现赛题
-		Car_Task(Car_Task_Num) ;
+//		Car_Task(Car_Task_Num) ;
 		// **********实验区域**********	
 		// 与树莓派融合
 		
@@ -103,6 +103,11 @@ void Mymain(void)
 		{
 			Turn_Num_MPU ++ ;
 		}
+//		if (current_angle.yaw >= 120)
+//		{
+//			current_angle.yaw = 0;
+//			Turn_Num_MPU ++ ;
+//		}		
 		turning_Flag_Bef = turning_flag ;		// 更新上次转向flag
     
 		// 动态调节Y8限幅

@@ -36,6 +36,8 @@ void Y8_Line_Init(float kp, float ki, float kd , float OutMax , float OutMin , f
 	taskInit(&Y8_Line_Status , 5 , 10 , Y8_Line_Control) ;	// 巡线任务初始化
 }
 
+extern int Car_Task_Num ;
+
 // ====================== 寻迹特殊情况处理代码 ======================
 
 // Y8巡线对照函数
@@ -129,7 +131,7 @@ void Y8_Error_Update(void)
 	if (Y8_Update_Flag == true)
 	{
 		Y8_Update_Flag = false ;
-			// 上次值
+		// 上次值
 		static float last_Error  = 0.0f;
 		
 		float sum = 0 ;
@@ -165,6 +167,10 @@ void Y8_Error_Update(void)
 		{
 			Y8_LR_Speed_Mode() ;	// 岔路口速度特殊处理
 		}
+		Car_Task(Car_Task_Num) ;
+		
+		// 2. 计划加入终点判断,防止过快采样丢失终点判断
+		
 	}
 }
 

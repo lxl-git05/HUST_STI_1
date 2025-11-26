@@ -24,6 +24,7 @@ typedef struct {
 extern MPUData_t sensor_data;
 extern Angle_t current_angle;
 extern int turning_flag;
+extern int flag ;
 
 /* USER CODE BEGIN Private defines */
 #define MPU6050_ADDR        0x68        // 7Œªµÿ÷∑
