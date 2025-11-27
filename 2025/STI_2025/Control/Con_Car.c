@@ -59,7 +59,7 @@ void Y8_Task2(void)
 		Wait_Pos_Num = 3 ;
 	}
 	// µ»Õ£¥¶¿Ì 
-	if ((Pi_Stop_Status == 2 && Car_Wait_Flag == 0)|| (Y8_is_Wait() && Car_Wait_Flag == 0 && Wait_Pos_Num == Turn_Num_MPU ) )
+	if ((Pi_Stop_Status == 2 && Car_Wait_Flag == 0)|| (Y8_is_Wait() && Car_Wait_Flag == 0 && 2 == Turn_Num_MPU ) )
 	{
 		Car_Wait_Flag = 1 ;
 		Car_Wait_cnt  = 5000 ;

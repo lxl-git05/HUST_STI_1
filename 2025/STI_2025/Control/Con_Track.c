@@ -102,7 +102,7 @@ bool Y8_is_Wait(void)
 //		return true ;
 //	}
 //	return false ;
-	if ( Y8_Line_Num >= 3)
+	if ( Y8_Line_Num >= 4)
 	{
 		return true ;
 	}

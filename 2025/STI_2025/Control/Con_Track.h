@@ -16,7 +16,7 @@
 extern mytask Y8_Line_Status ;				// 任务:寻迹
 extern Pid_Typedef Y8_Line_PID ;
 extern float Y8_JQ[9] ;
-extern uint8_t Y8_Line_Num ;
+extern uint8_t Y8_Line_Num ; 
 
 // 丢线包容标志位
 extern bool Y8_Lose_Line_isOK ;
