@@ -76,6 +76,8 @@ void Motor_SetPWM(Motor_Typedef *Motor , int PWM) ;							// ÉèÖÃPWM,Ä»ºóÖ´ĞĞµÄË
 
 void Motor_Set_Speed(int Motor_A_Speed  , int Motor_B_Speed);		// ÉèÖÃÁ½¸öÂÖ×ÓµÄËÙ¶È
 
+void Motor_Stop_Force(void) ;																		// Ğ¡³µµç»úÇ¿ÖÆÖÆ¶¯
+
 // µç»úPID¼ÆËãÓë¸üĞÂ,!¼ÇµÃÅäÖÃ¼ÆÊ±Æ÷!
 void Motor_PID_Update(Motor_Typedef *Motor) ;
 

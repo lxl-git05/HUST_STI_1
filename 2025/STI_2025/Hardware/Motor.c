@@ -168,3 +168,10 @@ void Motor_Set_Speed(int Motor_A_Goal_Speed  , int Motor_B_Goal_Speed)
 	Motor_A.GoalSpeed = Motor_A_Goal_Speed ;
 	Motor_B.GoalSpeed = Motor_B_Goal_Speed ;
 }
+
+// 小车电机强制制动
+void Motor_Stop_Force(void)
+{
+	Motor_SetPWM(&Motor_A , 0 ) ;
+	Motor_SetPWM(&Motor_B , 0 ) ;
+}

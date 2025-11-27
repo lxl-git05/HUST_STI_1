@@ -50,4 +50,7 @@ bool Y8_is_Init(void) ;
 // Y8巡线采样,放入中断1ms计次
 void Y8_Error_Update(void) ;
 
+// Y8巡线等停标识判断
+bool Y8_is_Wait(void) ;
+
 #endif

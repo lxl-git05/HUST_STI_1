@@ -1,4 +1,5 @@
 #include "Con_Car.h"
+extern int Wait_Pos ;
 // 小车控制核心库
 
 // **********************变量**********************
@@ -34,6 +35,7 @@ void Y8_Task1(void)
 	if (Y8_is_Init() && Turn_Num_MPU >= 4)
 	{
 		isBreak = 1 ;
+		Motor_Stop_Force() ;
 	}
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
 	{
@@ -47,8 +49,17 @@ void Y8_Task2(void)
 {
 	// 记录等停时圈数,与接下来停止圈数进行对比
 	static int Wait_Position ;
-	// 等停处理
-	if (Pi_Stop_Status == 2 && Car_Wait_Flag == 0)
+	static int Wait_Pos_Num ;	// 识别等停的区间
+	if (Wait_Pos == 1)
+	{
+		Wait_Pos_Num = 1 ;
+	}
+	else
+	{
+		Wait_Pos_Num = 3 ;
+	}
+	// 等停处理 
+	if ((Pi_Stop_Status == 2 && Car_Wait_Flag == 0)|| (Y8_is_Wait() && Car_Wait_Flag == 0 && Wait_Pos_Num == Turn_Num_MPU ) )
 	{
 		Car_Wait_Flag = 1 ;
 		Car_Wait_cnt  = 5000 ;
@@ -59,6 +70,7 @@ void Y8_Task2(void)
 	if (Y8_is_Init() && Turn_Num_MPU >= 4)
 	{
 		isBreak = 1 ;
+		Motor_Stop_Force() ;
 	}
 	if (Pi_Stop_Status == 1 && Turn_Num_MPU >= 4 && Wait_Position != Turn_Num_MPU)	// 视觉识别停止和等停如果在同一圈就视为误识别,Y8全权操作
 	{
@@ -88,6 +100,10 @@ void Y8_Task4(void)
 	if (Y8_is_Init() && Turn_Num_MPU >= 12)
 	{
 		isBreak = 1 ;
+	}
+	if (Turn_Num_MPU % 4 == 1)
+	{
+		is_Car_Turn_Left = 0 ;	// 默认右转
 	}
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 12 )
 	{

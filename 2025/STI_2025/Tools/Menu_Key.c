@@ -11,7 +11,7 @@ DList Menu_list;						// 菜单系统头结点双向链表定义
 int Menu_Total_Num = 0 ;		// 菜单总数量
 // 交互界面参数
 int Menu_Confirm_index ;		// 菜单确认浮标
-static int Menu_Open_Mode = 0;
+static int Menu_Open_Mode = 1;
 extern int Car_Task_Num ;
 // ******************外部变量声明******************
 
@@ -49,11 +49,11 @@ void Menu_Init(void)
 	// OLED的主菜单(ID:0)
 	Menu_New_Init(Menu_Main_Callback)  ;
 	// 后续新建界面,顺序很重要:
-	Menu_New_Init(Menu_Task1_Callback) ;
 	Menu_New_Init(Menu_Task2_Callback) ;
-	Menu_New_Init(Menu_Task3_Callback) ;
 	Menu_New_Init(Menu_Task4_Callback) ;
 	Menu_New_Init(Menu_Task5_Callback) ;
+	Menu_New_Init(Menu_Task3_Callback) ;
+	Menu_New_Init(Menu_Task1_Callback) ;
 	Menu_New_Init(Menu_Check_Callback) ;
 }
 
@@ -154,11 +154,11 @@ void Menu_Check_Callback(void)
 
 void Menu_Task1_Callback(void)
 {
-	OLED_Printf(0 , 0  , OLED_6X8 , "=========Task1=========") ;
-	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
-	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
-	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Task1_GO");
-		
+	OLED_Printf(0 , 0  , OLED_8X16 , "=========Task1=========") ;
+//	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+//	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+//	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Task1_GO");
+//		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))
 	{
@@ -178,10 +178,10 @@ void Menu_Task1_Callback(void)
 
 void Menu_Task2_Callback(void)
 {
-	OLED_Printf(0 , 0 , OLED_6X8 , "=========Task2=========") ;
-	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
-	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
-	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Task2_GO!");
+	OLED_Printf(0 , 0 , OLED_8X16 , "=========Task2=========") ;
+//	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+//	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+//	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Task2_GO!");
 		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))
@@ -203,10 +203,10 @@ void Menu_Task2_Callback(void)
 
 void Menu_Task3_Callback(void)
 {
-	OLED_Printf(0 , 0 , OLED_6X8 , "=========Task3=========") ;
-	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
-	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
-	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Just_Go");
+	OLED_Printf(0 , 0 , OLED_8X16 , "=========Task3=========") ;
+//	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+//	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+//	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Just_Go");
 		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))
@@ -228,11 +228,11 @@ void Menu_Task3_Callback(void)
 
 void Menu_Task4_Callback(void)
 {
-	OLED_Printf(0 , 0 , OLED_6X8 , "=========Task4=========") ;
+	OLED_Printf(0 , 0 , OLED_8X16 , "=========Task4=========") ;
 	
-	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
-	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
-	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Go");
+//	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+//	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+//	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Go");
 		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))
@@ -254,11 +254,11 @@ void Menu_Task4_Callback(void)
 
 void Menu_Task5_Callback(void)
 {
-	OLED_Printf(0 , 0 , OLED_6X8 , "=========Task5=========") ;
+	OLED_Printf(0 , 0 , OLED_8X16 , "=========Task5=========") ;
 	
-	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
-	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
-	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Go");
+//	OLED_Printf(0 , 15 , OLED_6X8 , "KEY1_L -> Close Menu");
+//	OLED_Printf(0 , 30 , OLED_6X8 , "KEY2_L -> Back Main");
+//	OLED_Printf(0 , 45 , OLED_6X8 , "KEY2_S -> Car_Go");
 		
 	// 按键逻辑:单击进入下一个菜单
 	if (Key_Check(KEY_1 , KEY_SINGLE))

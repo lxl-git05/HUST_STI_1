@@ -29,6 +29,8 @@ int check[50] ;
 int Y8_C = 1 ;
 bool go ;
 extern int Menu_Open_Mode ;
+// 等停识别
+int Wait_Pos = 1 ;
 
 // *******************任务调度*******************
 mytask Motor_Status ;	
@@ -60,8 +62,10 @@ void Mymain(void)
 	}
 	// ***********调参清单***********
 	{
+	Key_AddParam("Wait_Pos" , &Wait_Pos , 1 , PARAM_INT ) ;	
 	Key_AddParam("isLeft" , &is_Car_Turn_Left , 1 , PARAM_INT ) ;	// int Car_Task_Num
-	Key_AddParam("Turn_Num_MPU" , &Turn_Num_MPU , 0.5 , PARAM_INT ) ;
+	Key_AddParam("Turn_Num_MPU" , &Turn_Num_MPU , 0.5 , PARAM_INT ) ;	
+	
 	}
 	while (1)
 	{

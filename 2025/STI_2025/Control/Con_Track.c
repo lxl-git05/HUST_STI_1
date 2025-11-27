@@ -89,6 +89,26 @@ bool Y8_is_Init(void)
 	return false ;
 }
 
+// Y8巡线等停标识判断
+bool Y8_is_Wait(void)
+{
+//	if (Y8_Line_Contrast(0 , 0 , 0 , 0 , 1 , 1 , 1 , 1) || Y8_Line_Contrast(0 , 0 , 0 , 0 , 0 , 1 , 1 , 1) || 
+//			Y8_Line_Contrast(1 , 1 , 1 , 0 , 0 , 0 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 0 , 0 , 0 , 0) || 
+//			Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0)	|| Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 0) || 
+//			Y8_Line_Contrast(0 , 0 , 1 , 1 , 1 , 1 , 1 , 1) || Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 1 , 0) ||
+//			Y8_Line_Contrast(0 , 1 , 1 , 1 , 1 , 1 , 0 , 0) || Y8_Line_Contrast(1 , 1 , 1 , 1 , 1 , 1 , 0 , 0) 
+//		 )
+//	{
+//		return true ;
+//	}
+//	return false ;
+	if ( Y8_Line_Num >= 3)
+	{
+		return true ;
+	}
+	return false ;
+}
+
 // 八路巡线的异常情况判断并处理
 bool Y8_Line_is_Error(void)
 {
@@ -148,6 +168,9 @@ void Y8_Error_Update(void)
 				blackCount++;
 			}
 		}
+		
+		Y8_Line_Num = blackCount ;
+		
 		// 采样一次
 		if (blackCount == 0)
 		{
