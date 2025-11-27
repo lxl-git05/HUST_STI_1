@@ -9,6 +9,7 @@
 
 extern int Menu_Confirm_index ;		// 菜单确认浮标,根据这个判断上位机的命令
 
+
 // 菜单系统初始化
 void Menu_Init(void);
 

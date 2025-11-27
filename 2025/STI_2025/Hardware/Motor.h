@@ -19,7 +19,7 @@
 #define Motor_A_Encoder_htim htim2	// Encoder定时器位置
 #define Motor_B_Encoder_htim htim3	// Encoder定时器位置
 
-#define Encoder_PID_Gap_Time 20			// 编码器测速和PID更新,采样时间均为20ms/次
+#define Encoder_PID_Gap_Time 10			// 编码器测速和PID更新,采样时间均为20ms/次
 
 // 电机速度
 #define Motor_MAX_Speed 370					// 最大转速(goal的最大值)
@@ -49,9 +49,9 @@ typedef struct
 	int8_t DIR;                         // 正方向
 	int8_t Encoder_Dir ;								// 编码器修正方向
 	
-	int GoalSpeed	;											// 电机目标速度
-	int RealSpeed	;											// 电机实际速度
-	int SetSpeed	;											// 电机设定速度
+	float GoalSpeed	;										// 电机目标速度
+	float RealSpeed	;										// 电机实际速度
+	float SetSpeed	;										// 电机设定速度
 	
 	Pid_Typedef PID_s ;									// PID参数
 	
@@ -75,6 +75,8 @@ void Motor_Speed_Update(Motor_Typedef *Motor) ;									// 测速,使用M法公式,得到
 void Motor_SetPWM(Motor_Typedef *Motor , int PWM) ;							// 设置PWM,幕后执行的速度逻辑(setPoint)
 
 void Motor_Set_Speed(int Motor_A_Speed  , int Motor_B_Speed);		// 设置两个轮子的速度
+
+void Motor_Stop_Force(void) ;																		// 小车电机强制制动
 
 // 电机PID计算与更新,!记得配置计时器!
 void Motor_PID_Update(Motor_Typedef *Motor) ;

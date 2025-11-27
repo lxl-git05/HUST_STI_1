@@ -28,7 +28,7 @@ void RasPi_Data_Update(void)
 		Pi_RGB_Status  = Serial3_Hex_Data.Serial3_New_Package[1] 			 ;	
 		Pi_LR_Status   = Serial3_Hex_Data.Serial3_New_Package[2] 			 ;	
 		Pi_Stop_Status = Serial3_Hex_Data.Serial3_New_Package[3] 			 ;
-		Pi_x_Line_real = Serial3_Hex_Data.Serial3_New_Package[4] - 100 ;
+//		Pi_x_Line_real = Serial3_Hex_Data.Serial3_New_Package[4] - 100 ;
 	}
 }
 

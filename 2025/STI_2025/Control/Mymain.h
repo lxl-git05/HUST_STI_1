@@ -20,7 +20,6 @@
 #include "Serial3.h"
 #include "Task.h"
 
-#include "Encoder_Motor.h"
 #include "Encoder.h"
 #include "Motor.h"
 #include "RasPi.h"
@@ -31,7 +30,7 @@
 #include "Menu_Key.h"
 #include "Key_Check.h"
 #include "Control.h"
-
+#include "Con_Track.h"
 #include "MPU.h"
 
 // ½ØºúÖ÷º¯Êý
