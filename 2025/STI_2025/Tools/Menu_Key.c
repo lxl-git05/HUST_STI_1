@@ -218,10 +218,10 @@ void Menu_Task3_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 140 ;
+		goalPointTwo = 120 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
-		Car_Task_Num = 0 ;			// 小车自己跑
+		Car_Task_Num = 3 ;			// 小车自己跑
 	}
 	
 }

@@ -3,6 +3,8 @@
 #include "Con_Track.h"
 #include "Timer_Counter.h"
 #include "Con_Track.h"
+#include "Con_Car.h"
+
 // 电机变量
 int goalPoint_A ;					// 电机目标转速
 int goalPoint_B ;					// 电机目标转速
@@ -16,7 +18,7 @@ int Con_NULL ;
 extern int Y8_Speed_MAX ;
 extern bool go ;
 extern int Turn_Num_MPU ;
-
+extern bool is_Car_Turn_Left;	// ***重要参数:小车偏转方向*** , 1左 , 0右
 // *************函数*************
 // 电机速度更新函数,放在任务调度
 void Motor_Speed_Update_Entray(void)	// 电机速度更新函数
@@ -91,8 +93,8 @@ void Motor_PID_Check(void)						// 调试任务:电机PID检查
 // Y8寻迹下VOFA调参函数,放在while
 void Motor_VOFA_Set_Y8(void)
 {
-	// *文本包调试程序*
-	if (Serial_GetNewPackageFlag_ABC() == 1)
+	// *文本包调试程序*  
+	if (Serial_GetNewPackageFlag_ABC() == 1) 
 	{
 		// 基础速度设置
 		if (Serial_SetIntData("goalSpeed" , "goalSpeed=%d" , &goalPointTwo)){ ; }
@@ -138,11 +140,13 @@ void Motor_VOFA_Set_Y8(void)
 //	printf("%f,%f,%f,%d,%d\n",-Motor_A.RealSpeed , Motor_B.RealSpeed , current_angle.yaw , Y8_Pos * 100 ,Turn_Num_MPU * 100 ) ;
 //	printf("%f,%f,%f,%f,%f\n", Y8_Line_PID.goalPoint , Y8_Line_PID.realPoint_Now , Y8_Line_PID.setPoint , -Motor_A.RealSpeed , Motor_B.RealSpeed) ;
 //	printf("%f,%f,%f,%f\n", Y8_Line_PID.realPoint_Now * 10 , Y8_Line_PID.setPoint , Y8_Line_PID.pout , Y8_Line_PID.dout ) ;
-//	printf("%d,%f,%d,%d\n",Pi_LR_Status * 100 , current_angle.yaw , Y8_Pos * 100 ,Turn_Num_MPU * 100 ) ;
-	printf("%d,%f,%d,%d\n",Pi_RGB_Status * 100 , current_angle.yaw , Y8_Pos * 100 ,Turn_Num_MPU * 100 ) ;
+	
+	printf("%d,%f,%d,%d\n",Pi_Stop_Status * 100 , current_angle.yaw , Y8_Pos * 10 ,Turn_Num_MPU * 100 ) ;
+//	printf("%d,%f,%d,%d\n",is_Car_Turn_Left * 100 , current_angle.yaw , Y8_Pos * 10 ,Turn_Num_MPU * 100 ) ;
+//	printf("%d,%f,%d,%d\n",Pi_RGB_Status * 100 , current_angle.yaw , Y8_Pos * 10 ,Turn_Num_MPU * 100 ) ;
 } // LR  -> 0初始化 , 1->R  , 2->L Pi_RGB_Status
 // 0初始化 , 1红灯 , 2绿灯 , 3黄灯
-
+// wait & stop -> 0无 , 1停止 , 2等停
 
 /* 
 注释:

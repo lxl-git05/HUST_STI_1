@@ -94,39 +94,19 @@ void Mymain(void)
 		
 		calculate_angle_from_gyro(sensor_data.Gx_, sensor_data.Gy_, sensor_data.Gz_, dt);
 		turning_state_judge(&sensor_data);
-		
-//		if (current_angle.yaw >= 120)
-//		{
-//			current_angle.yaw = 0;
-//			Turn_Num_MPU ++ ;
-//		}		
-		
     
 		// 动态调节Y8限幅
 		if (current_angle.yaw >= 15)
 		{
-			Y8_Speed_MAX = 50 ;
+			Y8_Speed_MAX = 70 ;
 		}
 		else
 		{
 			Y8_Speed_MAX = 40 ;
 		}
-		// 动态更新Y8的限幅最大值
+		// 动态更新Y8的限幅最大值,很重要
 		Y8_Line_PID.OutMax = Y8_Speed_MAX ;
 		Y8_Line_PID.OutMin = -Y8_Speed_MAX ;
-		
-		// 实验
-		for (int i = 0 ; i < 9 ; i ++)
-		{
-			Y8_JQ[i] = Y8_C * Y8_JQ[i] ;
-		}
-		if (go == true)
-		{
-			goalPointTwo = 160 ;
-			isBreak = false;
-			Car_Task_Num = 1 ;			// 小车任务1
-			go = false ;
-		}
 	}
 }
 

@@ -67,6 +67,20 @@ void Y8_Task2(void)
 	}
 }
 
+// 电工基地第3题
+void Y8_Task3(void)
+{
+	// 识别停止
+	if (Y8_is_Init() && Turn_Num_MPU >= 4)
+	{
+		isBreak = 1 ;
+	}
+	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
+	{
+		isBreak = 1 ;
+	}
+}
+
 // 电工基地第4题
 void Y8_Task4(void)
 {
@@ -135,6 +149,10 @@ void Car_Task(int Car_Task_Seq)
 	else if (Car_Task_Seq == 2)
 	{
 		Y8_Task2() ;
+	}
+	else if (Car_Task_Seq == 3)
+	{
+		Y8_Task3() ;
 	}
 	else if (Car_Task_Seq == 4)
 	{
