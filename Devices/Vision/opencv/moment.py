@@ -61,7 +61,7 @@ def generate_template(char, size=50, thickness=3):
 
 
 # 使用本地文件作为模板
-image_path_L = '/home/pi/rasp_projects/l2.png'
+image_path_L = '/home/pi/rasp_projects/l114.png'
 image_path_R = '/home/pi/rasp_projects/r2.png'
 
 # 以灰度模式读取模板图像
@@ -299,7 +299,7 @@ def get_stop(binary_img, roi_height):
         return 2
 
 
-def detect_horizontal_line_in_region(binary_img, min_white=80, min_length=5):
+def detect_horizontal_line_in_region(binary_img, min_white=80, max_white = 5, min_length=5):
     """
     检测一个区域中是否存在有效横线（连续 >= min_length 行，每行白像素 >= min_white）
     """
@@ -308,13 +308,14 @@ def detect_horizontal_line_in_region(binary_img, min_white=80, min_length=5):
 
     white_pixels = (binary_img > 0).sum(axis=1)
     is_white_line = white_pixels >= min_white
-
+    is_black = white_pixels < max_white
     # 找连续段
     padded = np.concatenate(([0], is_white_line.astype(int), [0]))
     diff = np.diff(padded)
     starts = np.where(diff == 1)[0]
     ends = np.where(diff == -1)[0]
     lengths = ends - starts
+    
     return np.any(lengths >= min_length)
 
 def get_stop_dynamic(binary_img, total_roi_height=100, split_ratio=0.5):

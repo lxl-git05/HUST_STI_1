@@ -24,27 +24,27 @@ def get_center_point(img, min_area_threshold = 40, threshold_value=51):
     # _, img_binary_0 = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY)
 
     # 3. 查找轮廓
-    # cnts = cv2.findContours(img_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    cnts = cv2.findContours(img_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     cx, cy = -1, -1
 
-    # is_junction = 0
+    is_junction = 0
 
-    # if len(cnts) > 0:
-    #     # 找最大轮廓
-    #     largest_cnt = max(cnts, key=cv2.contourArea)
-    #     m = cv2.moments(largest_cnt)
-    #     if m['m00'] > 0:
-    #         cx = int(m['m10'] / m['m00'])
-    #         cy = int(m['m01'] / m['m00'])
-    #         # 绘制中心点
-    #         cv2.circle(img_output, (cx, cy), 5, (0, 255, 0), -1)
-    #         # 绘制纵向中心线
-    #         cv2.line(img_output, (cx, 0), (cx, img_output.shape[0]), (255, 0, 0), 2)
-    #     # 筛选有效轮廓
-    #     cnts_sorted = sorted(cnts, key=cv2.contourArea, reverse=True)
-    #     main_contours = [cnt for cnt in cnts_sorted if cv2.contourArea(cnt) > min_area_threshold]
-    #     is_junction = 1 if len(main_contours) > 2 else 0
+    if len(cnts) > 0:
+        # 找最大轮廓
+        largest_cnt = max(cnts, key=cv2.contourArea)
+        m = cv2.moments(largest_cnt)
+        if m['m00'] > 0:
+            cx = int(m['m10'] / m['m00'])
+            cy = int(m['m01'] / m['m00'])
+            # 绘制中心点
+            cv2.circle(img_output, (cx, cy), 5, (0, 255, 0), -1)
+            # 绘制纵向中心线
+            cv2.line(img_output, (cx, 0), (cx, img_output.shape[0]), (255, 0, 0), 2)
+        # 筛选有效轮廓
+        cnts_sorted = sorted(cnts, key=cv2.contourArea, reverse=True)
+        main_contours = [cnt for cnt in cnts_sorted if cv2.contourArea(cnt) > min_area_threshold]
+        is_junction = 1 if len(main_contours) > 2 else 0
 
     return cx, cy, img_binary,img_gray, img_output# , is_junction
 
@@ -98,7 +98,8 @@ try:
         roi_height, roi_width = roi.shape[:2]
         is_stop = get_stop_dynamic(binary, roi_height)
         print(is_stop)
-        print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
+        print(cx)
+        # print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
 
         # 显示处理后的灰度图
         cv2.imshow("Binary_0", binary)
@@ -109,7 +110,7 @@ try:
         pack.insert_two_bytes(pack.num_to_bytes(str_control))
         pack.insert_two_bytes(pack.num_to_bytes(is_stop))
         pack.insert_two_bytes(pack.num_to_bytes(cx + 100))
-        # pack.send_packet()
+        pack.send_packet()
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
 

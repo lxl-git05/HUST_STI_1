@@ -1,11 +1,11 @@
 import cv2
-import numpy as np
+# import numpy as np
 from moment import SerialPacket
-from moment import get_stop
-from moment import count_red_green_pixels_rgb
-from moment import recognize_text
+# from moment import get_stop
+# from moment import count_red_green_pixels_rgb
+# from moment import recognize_text
 from moment import get_stop_dynamic
-import time
+# import time
 
 def get_center_point(img, min_area_threshold = 40, threshold_value=51):
     """
@@ -24,7 +24,7 @@ def get_center_point(img, min_area_threshold = 40, threshold_value=51):
 
     # 2. 反二值化，黑色道路变白
     _, img_binary = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY_INV)
-    _, img_binary_0 = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY)
+    # _, img_binary_0 = cv2.threshold(img_gray, threshold_value, 255, cv2.THRESH_BINARY)
 
     # 3. 查找轮廓
     cnts = cv2.findContours(img_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -58,7 +58,8 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 # 串口传输包
 # pack = SerialPacket(port="COM1", baudrate=115200, timeout=0.1)
 pack = SerialPacket(port="/dev/ttyUSB0", baudrate=115200, timeout=0.1)
-
+count = 0
+reset = False
 if not cap.isOpened():
     print("无法打开摄像头")
     exit()
@@ -114,13 +115,22 @@ try:
         #               (width//2 + 160, height//2 + 120), (0, 255, 0), 2)
 
         # 显示图像+
-        print(is_stop)
+        
+        if is_stop == 1 or is_stop == 2:
+            print(f"识别到：{is_stop}")
+            count += 1
+            print(count)
+            if is_stop == 0:
+                reset = True
+        else:
+            count = 0
+            reset = False
 
 
 
         # cv2.imshow("Frame", frame)
         # cv2.imshow("ROI + Center", output)
-        cv2.imshow("Binary", binary)
+        # cv2.imshow("ROI + Center", binary)
         # cv2.imshow("Binary_0", img_gray)
 
         # 显示中心点X坐标
@@ -139,7 +149,7 @@ try:
         pack.insert_two_bytes(pack.num_to_bytes(0))
         pack.insert_two_bytes(pack.num_to_bytes(is_stop))
         pack.insert_two_bytes(pack.num_to_bytes(cx + 100))
-        # pack.send_packet()
+        pack.send_packet()
         # time.sleep(1)
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
