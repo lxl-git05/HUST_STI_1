@@ -8,8 +8,7 @@ void Mymain(void)
 		HAL_SYSTICK_Config(SystemCoreClock / 1000);
 		OLED_Init() ;
 		Serial_Init(&Serial_huart) ;
-		// ***全部初始化完毕后再开启Systick中断***
-		__enable_irq();	
+		__enable_irq();	// ***全部初始化完毕后再开启Systick中断***
 	}
 	// *******************实验区域*******************
 //	// Debug调试参数

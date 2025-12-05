@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;..\Software;..\Control;..\System;..\Tools</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../Hardware;..\Software;..\Control;..\System;..\Tools;..\Top</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -778,16 +778,6 @@
           <GroupName>Control</GroupName>
           <Files>
             <File>
-              <FileName>Mymain.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Control\Mymain.c</FilePath>
-            </File>
-            <File>
-              <FileName>Mymain.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Control\Mymain.h</FilePath>
-            </File>
-            <File>
               <FileName>Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Control\Task.c</FilePath>
@@ -796,6 +786,21 @@
               <FileName>Task.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Control\Task.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Top</GroupName>
+          <Files>
+            <File>
+              <FileName>Mymain.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Top\Mymain.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mymain.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Top\Mymain.h</FilePath>
             </File>
           </Files>
         </Group>
