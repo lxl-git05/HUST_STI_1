@@ -22,6 +22,7 @@
 
 #include "Encoder.h"
 #include "Timer_Counter.h"
+#include "LED_Flash.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

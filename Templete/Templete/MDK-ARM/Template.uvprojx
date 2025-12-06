@@ -772,6 +772,16 @@
               <FileType>5</FileType>
               <FilePath>..\Tools\Key_Check.h</FilePath>
             </File>
+            <File>
+              <FileName>LED_Flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Tools\LED_Flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>LED_Flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Tools\LED_Flash.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -801,6 +811,16 @@
               <FileName>Mymain.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Top\Mymain.h</FilePath>
+            </File>
+            <File>
+              <FileName>Initial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Top\Initial.c</FilePath>
+            </File>
+            <File>
+              <FileName>Initial.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Top\Initial.h</FilePath>
             </File>
           </Files>
         </Group>
