@@ -11,7 +11,7 @@ void Mymain(void)
 		OLED_Init() ;
 		Serial_Init(&Serial_huart) ;
 		IC_Init() ;
-		PWM_Init(htim1 , TIM_CHANNEL_1) ;	// PWM输出
+		Func_Out_Init() ;
 		__enable_irq();	// ***全部初始化完毕后再开启Systick中断***
 	}
 	// *******************实验区域*******************
@@ -25,7 +25,7 @@ void Mymain(void)
 			HAL_GPIO_TogglePin(LED0_GPIO_Port , LED0_Pin) ;
 		}
 		// ******************* 实验区域 *******************
-		PWM_SetCompare1(htim1 , TIM_CHANNEL_1 , PWM_Output ) ;
+		Func_Out_Square( 1 , 50 ) ;
 		
 		IC_Capture_Update() ;
 		
