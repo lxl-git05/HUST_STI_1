@@ -15,4 +15,7 @@ void Initial_ALL(void)
 	// Tools
 	LED_Flash_Mode_Init() ;												// LED闪烁工具初始化
 	Timer_Counter_Init() ;												// 时间戳测定初始化
+	
+	// Top
+	Menu_Init() ;
 }

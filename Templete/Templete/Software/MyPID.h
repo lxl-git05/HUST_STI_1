@@ -1,5 +1,5 @@
-#ifndef __PID_H
-#define __PID_H
+#ifndef __MYPID_H
+#define __MYPID_H
 
 typedef struct PID
 {
@@ -14,6 +14,7 @@ typedef struct PID
 	float SumError;		// 累次积分值
 	
 	// 新增变量
+	float dt_ms						 ;	// PID运算间隔时间
 	float realPoint_Now 	 ;	// 当前真实值
 	float realPoint_Bef 	 ;	// 上次真实值
 	
@@ -34,9 +35,9 @@ typedef struct PID
 }Pid_Typedef;
 
 // 用来一般化初始化PID结构体
-void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax ) ;
+void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax , float dt_ms);
 
-// PID值更新,更新值直接写入PID的Output
+// PID值更新,更新值直接写入PID的Output , 调用间隔尽量固定并且等于init里面的dt(ms)
 void PID_Update(Pid_Typedef *pid, float ActualValue) ;
 
 #endif

@@ -1,10 +1,10 @@
 #include "stm32f1xx.h"                  // Device header
 #include "main.h"
 #include "math.h"
-#include "PID.h"
+#include "MyPID.h"
 
 // 用来一般化初始化PID结构体
-void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax )
+void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , float OutMin , float ioutMax , float dt_ms)
 {
 	pid->Kp = kp;
 	pid->Ki = ki;
@@ -13,6 +13,7 @@ void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , fl
 	pid->OutMax = OutMax 	 ;	// 输出限幅最大值
 	pid->OutMin = OutMin 	 ;	// 输出限幅最小值
 	pid->ioutMax = ioutMax ;	// 积分限幅
+	pid->dt_ms = dt_ms;
 }
 
 // PID值更新,更新值直接写入PID的Output
@@ -31,9 +32,11 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 		pid->PID_Func() ;
 	}
 	// 微分误差:*微分先行*(默认为0,也就是不先行)
-	float dError = (1.0f - pid->d_style)*(pid->PreError - pid->LastError) - pid->d_style * (pid->realPoint_Now - pid->realPoint_Bef);
+	float dError = ((1.0f - pid->d_style)*(pid->PreError - pid->LastError)
+              - pid->d_style * (pid->realPoint_Now - pid->realPoint_Bef)) / pid->dt_ms;
+
 	// 累次积分
-	pid->SumError += pid->PreError ;
+	pid->SumError += pid->PreError * pid->dt_ms ;
 	// *积分限幅*
 	if (pid->SumError > pid->ioutMax)
 	{

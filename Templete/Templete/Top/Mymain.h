@@ -23,6 +23,8 @@
 #include "Encoder.h"
 #include "Timer_Counter.h"
 #include "LED_Flash.h"
+#include "Key_Check.h"
+#include "Menu_Key.h"
 
 // ½ØºúÖ÷º¯Êý
 void Mymain(void) ;

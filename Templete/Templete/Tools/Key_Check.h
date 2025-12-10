@@ -9,8 +9,8 @@
 
 typedef enum 
 {
-    PARAM_FLOAT = 0,
-    PARAM_INT   = 1,
+    PARAM_FLOAT = 0u,
+    PARAM_INT   = 1u,
 } ParamType;
 
 // ================ 按键调参系统函数 ================
