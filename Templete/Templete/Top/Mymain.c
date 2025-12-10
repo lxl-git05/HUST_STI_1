@@ -11,9 +11,7 @@ void Mymain(void)
 	
 	while(1)
 	{
-		LED_Flash_Mode_Set_Mode(LED_Flash_Slow) ;
 		Menu_Func() ;
-		
 	}
 }
 
@@ -24,4 +22,6 @@ void HAL_SYSTICK_Callback(void)
 	Key_Tick() ;
 	// 功能2: LED闪烁指示灯
 	LED_Flash_Mode_Tick() ;
+	// 功能3: 单次任务处理序列
+	task_Once_Cnt_Tick() ;
 }
