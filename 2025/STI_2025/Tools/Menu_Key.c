@@ -15,6 +15,9 @@ static int Menu_Open_Mode = 1;
 extern int Car_Task_Num ;
 // ******************外部变量声明******************
 
+extern int Y8_Speed_MAX_MAX ;
+extern int Y8_Speed_MAX_Min ;
+
 extern int goalPointTwo ;
 extern bool isBreak ;
 	
@@ -174,6 +177,9 @@ void Menu_Task1_Callback(void)
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 1 ;			// 小车任务1
+		
+		Y8_Speed_MAX_MAX = 120 ;
+		
 	}
 }
 
@@ -194,7 +200,7 @@ void Menu_Task2_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 220 ;
+		goalPointTwo = 160 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 2 ;			// 小车任务2
@@ -219,7 +225,7 @@ void Menu_Task3_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 120 ;
+		goalPointTwo = 220 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 3 ;			// 小车自己跑
@@ -271,7 +277,7 @@ void Menu_Task5_Callback(void)
 	if (Key_Check(KEY_2 , KEY_SINGLE))
 	{
 		HAL_Delay(2000) ;
-		goalPointTwo = 160 ;
+		goalPointTwo = 120 ;
 		isBreak = false;
 		Menu_Open_Mode = 2 ;
 		Car_Task_Num = 5 ;			// 小车自己跑

@@ -10,6 +10,9 @@ extern int Car_Wait_cnt ;		// 小车等停计时
 extern int Turn_Num_MPU ;
 extern bool is_Car_Turn_Left ;
 
+//extern int Y8_Speed_MAX_Min ;
+//extern int Y8_Speed_MAX_MAX ;
+
 // ====================== 电工基地题目处理 ======================
 void LED_Flash(void)
 {
@@ -40,6 +43,8 @@ void Y8_Task1(void)
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 4 )
 	{
 		isBreak = 1 ;
+//		Y8_Speed_MAX_Min = 40 ;
+//		Y8_Speed_MAX_MAX = 70 ;
 //		LED_Flash() ;
 	}
 }
@@ -101,16 +106,16 @@ void Y8_Task4(void)
 	{
 		isBreak = 1 ;
 	}
-	if (Turn_Num_MPU % 4 == 1)
-	{
-		is_Car_Turn_Left = 0 ;	// 默认右转
-	}
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 12 )
 	{
 		isBreak = 1 ;
 //		LED_Flash() ;
 	}
 	// LR转换 is_Car_Turn_Left Pi_LR_Status
+	if (Turn_Num_MPU % 4 == 1)
+	{
+		is_Car_Turn_Left = 0 ;	// 默认右转
+	}
 	if (Pi_LR_Status != 0)
 	{
 		is_Car_Turn_Left = Pi_LR_Status - 1 ;
@@ -125,7 +130,7 @@ void Y8_Task5(void)
 	if (Y8_is_Init() && Turn_Num_MPU >= 16)
 	{
 		isBreak = 1 ;
-		is_RGB_Open = false ;
+		is_RGB_Open = false ;	// 防止停了继续跑
 	}
 	if (Pi_Stop_Status == 1  && Turn_Num_MPU >= 16 )
 	{
@@ -147,11 +152,21 @@ void Y8_Task5(void)
 		else if (Pi_RGB_Status == 3 && Turn_Num_MPU % 4 == 0)
 		{
 			// 树莓派识别到停止位置,说明小车没有超过停止线,那么就停车,否则继续跑
-			if (Pi_Stop_Status != 0 || Y8_Pos != Y8_Init_Pos)
+			if (Pi_Stop_Status != 0 || Y8_Pos != Y8_Init_Pos)                         
 			{
 				isBreak = 1 ;
 			}
 		}
+	}
+	// 左右转
+	// LR转换 is_Car_Turn_Left Pi_LR_Status
+	if (Turn_Num_MPU % 4 == 1)
+	{
+		is_Car_Turn_Left = 0 ;	// 默认右转
+	}
+	if (Pi_LR_Status != 0)
+	{
+		is_Car_Turn_Left = Pi_LR_Status - 1 ;
 	}
 }
 

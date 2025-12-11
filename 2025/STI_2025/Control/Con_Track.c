@@ -193,6 +193,7 @@ void Y8_Error_Update(void)
 			Y8_LR_Speed_Mode() ;	// 岔路口速度特殊处理
 		}
 		
+		// 小车任务执行
 		Car_Task(Car_Task_Num) ;
 		
 		// MPU配合巡线检查,得到巡线转数
