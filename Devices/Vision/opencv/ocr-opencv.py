@@ -44,6 +44,7 @@ try:
         height, width = frame.shape[:2]
         roi1 = frame[height//2 - 60: height//2 + 60, width//2 - 80: width//2 + 80].copy()
         roi2 = frame[height//2 - 60: height//2 + 60, width//2 - 160 : width//2 + 160].copy()
+        roi1 = cv2.resize(roi1, (80, 60), interpolation=cv2.INTER_LINEAR)
         # 获取阈值
         # threshold_value = cv2.getTrackbarPos("Threshold", "Binary_0")
         current_time = time.time()
@@ -53,16 +54,17 @@ try:
         # 计算红绿灯状态和字符识别结果
         red_count, green_count, yellow_count = count_red_green_pixels_rgb(roi2)
         # print(f"Red: {red_count}, Green: {green_count}, Yellow: {yellow_count}, FPS: {smooth_fps:.2f}")
-        rgb_control = 1 if red_count > 3000 else (2 if green_count > 1000 else(3 if yellow_count > 1800 else 0) )
+        rgb_control = 1 if red_count > 1500 else (2 if green_count > 1500 else(3 if yellow_count > 1000 else 0) )
         gray = process_image(roi1,120)#  threshold_value)
         text = recognize_text_opencv(gray)
         # 识别到R时返回1，识别到L时返回2，其他时候返回0
         str_control = 1 if text == 'R' else (2 if text == 'L' else 0)
         # print(f"Red: {red_count}, Green: {green_count}, Yellow: {yellow_count}, FPS: {smooth_fps:.2f},红绿灯判断：{rgb_control}, 字符识别:{str_control}")
         # print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
+        # print(f" FPS: {smooth_fps:.2f},红绿灯判断：{rgb_control}, 字符识别:{str_control}")
         if rgb_control != 0 or str_control != 0:
             # print(f"红绿灯判断：{rgb_control}, 字符识别:{str_control}")
-            print(f"Red: {red_count}, Green: {green_count}, Yellow: {yellow_count}, FPS: {smooth_fps:.2f},红绿灯判断：{rgb_control}, 字符识别:{str_control}")
+            print(f" FPS: {smooth_fps:.2f},红绿灯判断：{rgb_control}, 字符识别:{str_control}")
             count += 1
             print(count)
             if str_control == 0 or rgb_control == 0:
@@ -72,7 +74,7 @@ try:
             reset = False
 
         # 显示处理后的灰度图
-        cv2.putText(gray, f"FPS: {smooth_fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(gray, f"FPS: {smooth_fps:.2f}", (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
         cv2.imshow("Binary_0", gray)
         # cv2.imshow("ROI2", roi2)
         # 发送数据包

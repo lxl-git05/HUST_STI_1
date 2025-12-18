@@ -61,19 +61,15 @@ def generate_template(char, size=50, thickness=3):
 
 
 # 使用本地文件作为模板
-image_path_L = '/home/pi/rasp_projects/l114.png'
-image_path_R = '/home/pi/rasp_projects/r2.png'
+image_path_L = '/home/pi/rasp_projects/l3.png'
+image_path_R = '/home/pi/rasp_projects/r3.png'
 
 # 以灰度模式读取模板图像
 template_L = cv2.imread(image_path_L, cv2.IMREAD_GRAYSCALE)
 template_R = cv2.imread(image_path_R, cv2.IMREAD_GRAYSCALE)
 
-# 确保模板是二值的（如果原始图像已经是二值的，这步可以优化阈值）
-# if template_L is not None:
-#     _, template_L = cv2.threshold(template_L, 127, 255, cv2.THRESH_BINARY)
-# if template_R is not None:
-#     _, template_R = cv2.threshold(template_R, 127, 255, cv2.THRESH_BINARY)
-
+# template_L = cv2.resize(template_L, (80, 60), interpolation=cv2.INTER_LINEAR)
+# template_R = cv2.resize(template_R, (80, 60), interpolation=cv2.INTER_LINEAR)
 
 
 def recognize_text_opencv(gray):
@@ -182,17 +178,19 @@ def count_red_green_pixels_rgb(img):
     b_ratio = B / total
     
     # 红色检测：R占主导，且不是白色（排除过曝）
-    red_mask = (r_ratio > 0.4) & (r_ratio > g_ratio + 0.2) & (r_ratio > b_ratio + 0.2) & (total < 700)  # 排除接近白色的
+    red_mask = (r_ratio > 0.5) & (r_ratio > g_ratio + 0.2) & (r_ratio > b_ratio + 0.2) & (total < 700)  # 排除接近白色的
     
     # 绿色检测：G占主导，且不是白色
     green_mask = (g_ratio > 0.4) & (g_ratio > r_ratio + 0.1) & (g_ratio > b_ratio + 0.1) & (total < 700)
     
     # 黄色检测：R、G占比接近，B较少
     # yellow_mask = ((r_ratio + 1e-5)/(g_ratio + 1e-5)) > 0.8 & ((r_ratio + 1e-5)/(g_ratio + 1e-5)) < 1.2 & (r_ratio > b_ratio) & (g_ratio > b_ratio)
-    yellow_mask = total > 700# (g_ratio > 0.4) & (r_ratio > 0.4) & (total < 700)
+    # yellow_mask = total > 700# (g_ratio > 0.4) & (r_ratio > 0.4) & (total < 700)
+    yellow_mask = (R > 200) & (G > 200) & (B < 200)
     red_count = np.sum(red_mask)
     green_count = np.sum(green_mask)
     yellow_count = np.sum(yellow_mask)
+    # test_count = np.sum(test_mask)
     
     return red_count, green_count, yellow_count
 
@@ -299,7 +297,7 @@ def get_stop(binary_img, roi_height):
         return 2
 
 
-def detect_horizontal_line_in_region(binary_img, min_white=80, max_white = 5, min_length=5):
+def detect_horizontal_line_in_region(binary_img, min_white=160, max_white = 5, min_length=5):
     """
     检测一个区域中是否存在有效横线（连续 >= min_length 行，每行白像素 >= min_white）
     """
@@ -348,35 +346,6 @@ def get_stop_dynamic(binary_img, total_roi_height=100, split_ratio=0.5):
     else:
         return 0
 
-def get_stop_dynamic_rev(binary_img, total_roi_height=100, split_ratio=0.5):
-    """
-    动态场景下识别单根/双根横线
-    :param binary_img: 二值图（H x W），OpenCV 输出
-    :param total_roi_height: 总ROI高度（建议取图像底部区域）
-    :param split_ratio: 分割比例，0.5 表示上下平分
-    :return: 0=无, 1=单根（下区）, 2=双根（上下都有）
-    """
-    h, w = binary_img.shape
-    start_y = max(0, h - total_roi_height)
-    roi = binary_img[start_y:start_y + total_roi_height]
-
-    split_idx = int(total_roi_height * split_ratio)
-    lower_roi = roi[:split_idx]      # 靠近图像底部（先看到）
-    upper_roi = roi[split_idx:]      # 靠近图像顶部（后看到）
-
-    has_lower = detect_horizontal_line_in_region(lower_roi)
-    if(has_lower):
-        has_upper = detect_horizontal_line_in_region(upper_roi)
-    else:
-        has_upper = False
-    # has_upper = detect_horizontal_line_in_region(upper_roi)
-
-    if has_lower and has_upper:
-        return 2  # 两根都看到
-    elif has_lower or has_upper:
-        return 1  # 只看到一根（优先认为是进入状态）
-    else:
-        return 0
 
 def get_center_point(img):
     img_output = img.copy()
@@ -505,19 +474,3 @@ class SerialPacket:
         self.__clear_packet()
 
 
-
-# if __name__ == '__main__':
-#     # 读取图片
-#     img = cv2.imread("test1.jpg")
-#     # 取ROI
-#     height, width = img.shape[:2]
-#     roi_top = height // 2
-#     roi = img[roi_top:, :]
-#     # 计算中心点坐标
-#     roi = cv2.imread("roi.jpg")
-#     x, y, output = get_center_point(roi)
-#     # 显示图片
-#     cv2.imshow("img", output)
-#     cv2.imshow("cut", img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
