@@ -186,7 +186,7 @@ def count_red_green_pixels_rgb(img):
     # 黄色检测：R、G占比接近，B较少
     # yellow_mask = ((r_ratio + 1e-5)/(g_ratio + 1e-5)) > 0.8 & ((r_ratio + 1e-5)/(g_ratio + 1e-5)) < 1.2 & (r_ratio > b_ratio) & (g_ratio > b_ratio)
     # yellow_mask = total > 700# (g_ratio > 0.4) & (r_ratio > 0.4) & (total < 700)
-    yellow_mask = (R > 200) & (G > 200) & (B < 200)
+    yellow_mask = (R > 200) & (G > 160) & (B < 160)
     red_count = np.sum(red_mask)
     green_count = np.sum(green_mask)
     yellow_count = np.sum(yellow_mask)
