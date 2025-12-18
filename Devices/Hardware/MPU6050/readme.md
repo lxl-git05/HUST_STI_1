@@ -7,6 +7,8 @@
 - MPU6050模块的使用
 - 采用硬件IICPB6，PB7进行通信，保证数据的精准传输
 
+参考资料：[STM32 MPU6050 六轴陀螺仪教程（HAL 库零基础入门）_stm32 hal mpu6050-CSDN博客](https://blog.csdn.net/h050210/article/details/145936555?ops_request_misc=%7B%22request%5Fid%22%3A%227ab73d54770aebb1620fdbe591502072%22%2C%22scm%22%3A%2220140713.130102334..%22%7D&request_id=7ab73d54770aebb1620fdbe591502072&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-145936555-null-null.142^v102^pc_search_result_base8&utm_term=mpu6050教程&spm=1018.2226.3001.4187)主要参考资料来自这个csdn链接，其中除了欧拉角部分我没看其他部分应该是没有问题的。
+
 ## 2. 核心功能
 
 ### 1. 测定各向加速度与角速度
