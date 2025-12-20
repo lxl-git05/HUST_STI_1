@@ -158,7 +158,7 @@ def processing_worker(camera_buffer, serial_pack, stop_event):
         serial_pack.insert_two_bytes(serial_pack.num_to_bytes(0))
         serial_pack.insert_two_bytes(serial_pack.num_to_bytes(is_stop))
         serial_pack.insert_two_bytes(serial_pack.num_to_bytes(cx + 100))
-        serial_pack.send_packet()
+        # serial_pack.send_packet()
         
         # 检查退出键
         key = cv2.waitKey(1) & 0xFF

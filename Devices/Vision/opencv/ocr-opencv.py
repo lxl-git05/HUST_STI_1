@@ -83,7 +83,7 @@ try:
         pack.insert_two_bytes(pack.num_to_bytes(str_control))
         pack.insert_two_bytes(pack.num_to_bytes(0))
         pack.insert_two_bytes(pack.num_to_bytes(0))
-        pack.send_packet()
+        # pack.send_packet()
         if cv2.waitKey(1) & 0xFF == 27:  # ESC退出
             break
 
