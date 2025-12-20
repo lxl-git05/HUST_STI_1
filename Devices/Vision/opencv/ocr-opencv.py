@@ -24,7 +24,7 @@ if not cap.isOpened():
     exit()
 
 # 创建窗口和滑块
-cv2.namedWindow("Binary_0")
+# cv2.namedWindow("Binary_0")
 # cv2.namedWindow("ROI2")
 # cv2.createTrackbar("Threshold", "Binary_0", 120, 255, lambda x: None)
 
@@ -54,7 +54,7 @@ try:
         # 计算红绿灯状态和字符识别结果
         red_count, green_count, yellow_count = count_red_green_pixels_rgb(roi2)
         # print(f"Red: {red_count}, Green: {green_count}, Yellow: {yellow_count}, FPS: {smooth_fps:.2f}")
-        rgb_control = 1 if red_count > 1500 else (2 if green_count > 1500 else(3 if yellow_count > 1000 else 0) )
+        rgb_control = 1 if red_count > 1000 else (2 if green_count > 1000 else(3 if yellow_count > 1000 else 0) )
         gray = process_image(roi1,120)#  threshold_value)
         text = recognize_text_opencv(gray)
         # 识别到R时返回1，识别到L时返回2，其他时候返回0
