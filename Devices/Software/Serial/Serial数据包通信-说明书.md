@@ -2,12 +2,12 @@
 
 # 模块名:
 
-## 1. 项目简介
+## 1. *项目简介*
 
 * **功能**:**实现单片机及蓝牙之间的信息通信,并且通过约定协议保证一定的信息传输准确性**
 * **传输**:采用数据包传输,传输方式有HEX(16进制)传输和文本(ABC)传输两种
 * **传输协议**:
-  * HEX传输:	
+  * HEX传输:  
     * 协议:==帧头1(0xFF) + 帧头2(0xAA) + 数据个数 + 数据 +帧尾1(0x55) + 帧尾2(0xFE)==
     * 帧头1:0xFF    帧头2(0xAA)
     * 数据个数:使用高低位传输方式,即高位+低位为1位有效数据,所以个数必为偶数,==并且由此单片机进行HEX传输都需要将有效数据转为高低位再传输==
@@ -30,9 +30,9 @@
   // HEX接收数据包
   typedef struct
   {
-  	int Serial_New_Package[RX_Serial_LEN] ; 		// 正确信息存储数组,长度管够,以后再改
-  	bool Serial_New_Package_Flag ;							// 数据包解析完成flag
-  	int error_Serial	;								  				// 错误查询参数
+    int Serial_New_Package[RX_Serial_LEN] ;     // 正确信息存储数组,长度管够,以后再改
+    bool Serial_New_Package_Flag ;              // 数据包解析完成flag
+    int error_Serial  ;                         // 错误查询参数
   }Serial_HEX_Data_Typedef;
   ```
 
@@ -42,9 +42,9 @@
   // 文本接收数据包
   typedef struct
   {
-  	char Serial_New_Package_ABC[RX_Serial_LEN] ; // 正确信息存储数组,长度管够,以后再改
-  	bool Serial_New_Package_Flag ;							 // 数据包解析完成flag
-  	int error_Serial	;								  				 // 错误查询参数
+    char Serial_New_Package_ABC[RX_Serial_LEN] ; // 正确信息存储数组,长度管够,以后再改
+    bool Serial_New_Package_Flag ;               // 数据包解析完成flag
+    int error_Serial  ;                          // 错误查询参数
   }Serial_ABC_Data_Typedef;
   ```
 
@@ -107,8 +107,8 @@ bool Serial_SetIntData( char *KeyWord , char *cmd , int *Data) ;
 ### 4-2 全局变量(域)
 
 ```c
-extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;			// 解析好的HEX数据包
-extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;			// 解析好的ABC数据包
+extern Serial_HEX_Data_Typedef   Serial_Hex_Data ;      // 解析好的HEX数据包
+extern Serial_ABC_Data_Typedef   Serial_ABC_Data ;      // 解析好的ABC数据包
 ```
 
 
@@ -195,16 +195,16 @@ if (Serial_GetNewPackageFlag_ABC() == 1)
 
 ### 8-1 代码迁移:
 
-​	只需要在`Serial.h`中将
+ 只需要在`Serial.h`中将
 
 ```c
 #define Serial_huart huart2
 #define Serial_USART USART2
 ```
 
-​	改为`huartx` / `USARTx`即可(x自己另配置)
+ 改为`huartx` / `USARTx`即可(x自己另配置)
 
-​	十分方便:smile:
+ 十分方便:smile:
 
 ### 8-2 关于数据包大小与数据溢出阈值
 
@@ -215,7 +215,7 @@ if (Serial_GetNewPackageFlag_ABC() == 1)
 #define RX_Serial_LEN 50
 ```
 
-​	我都设置成50了,后面遇到了相应情景再进行缩减或者扩大
+ 我都设置成50了,后面遇到了相应情景再进行缩减或者扩大
 
 * 数据溢出阈值:
   * 首先跟数据包大小有关

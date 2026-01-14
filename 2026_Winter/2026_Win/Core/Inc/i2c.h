@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    usart.h
+  * @file    i2c.h
   * @brief   This file contains all the function prototypes for
-  *          the usart.c file
+  *          the i2c.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __I2C_H__
+#define __I2C_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,31 +32,15 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart1;
-
-extern UART_HandleTypeDef huart2;
+extern I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_USART1_UART_Init(void);
-void MX_USART2_UART_Init(void);
+void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
-/*** 定义USART索引枚举 ***/
-typedef enum {
-	USART_NONE,			/* 无USART */
-	USART1_IDX,			/* USART1索引 */
-	USART2_IDX,			/* USART2索引 */
-	USART3_IDX,			/* USART3索引 */
-}Current_USART_Indx;
-
-extern UART_HandleTypeDef* Current_USART_Handle;		  /* 当前某个USART的句柄 */
-extern Current_USART_Indx Current_USART_Printf_Indx;	/* 当前某个USART的索引 */
- 
-void Set_Current_USART(Current_USART_Indx indx);			/* 函数声明，用于设置当前使用的USART */
 
 /* USER CODE END Prototypes */
 
@@ -64,5 +48,5 @@ void Set_Current_USART(Current_USART_Indx indx);			/* 函数声明，用于设置当前使用
 }
 #endif
 
-#endif /* __USART_H__ */
+#endif /* __I2C_H__ */
 
