@@ -8,10 +8,19 @@ void Mymain(void)
 {
 	Initial_ALL() ;	
 	__enable_irq(); // 与Systick有关的在Systick初始化后初始化
-	
+
 	while(1)
 	{
-		Menu_Func() ;
+//		Menu_Func() ;
+		
+		// 计时器
+		Timer_Counter_Begin() ;
+		
+		Timer_Counter_End() ;
+		
+		
+		OLED_ShowNum(0 , 0 , time_us , 8 , OLED_6X8) ;
+		OLED_Update() ;
 	}
 }
 
