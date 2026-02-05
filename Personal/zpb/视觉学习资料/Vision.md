@@ -11,3 +11,5 @@
 
 - PaddleOCR [Python实现PaddleOCR与Paddle Lite OCR：从全功能到轻量化的全流程指南](https://cloud.baidu.com/article/3617417)
 
+- Albumtations [(6 封私信) 实战 | 使用Albumentations库图像增强和变换教程（步骤 + 源码） - 知乎](https://zhuanlan.zhihu.com/p/1942031794577843523)
+
