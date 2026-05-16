@@ -67,7 +67,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	int flag = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -103,14 +103,12 @@ int main(void)
 		if (HAL_GPIO_ReadPin(TCRT_GPIO_Port, TCRT_Pin) == GPIO_PIN_RESET)
 		{
 			HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET); // 点亮LED（PC13低电平有效）
-			flag = 1;
 			// 引脚读到低电平，说明检测到物体/白线
 		}
 		else
 		{
 			HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
 			// 引脚读到高电平，说明没检测到/黑线
-			flag = 0;
 		}
 		
     /* USER CODE BEGIN 3 */
