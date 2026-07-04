@@ -5,13 +5,13 @@
 #include "Serial_base.h"
 
 #ifdef Serial1_Enable
-Serial_Typedef 	Serial1 ; // ´®¿Ú1
+Serial_Typedef 	Serial1 ; // ä¸²å£1
 #endif
 #ifdef Serial2_Enable
-Serial_Typedef 	Serial2 ; // ´®¿Ú2
+Serial_Typedef 	Serial2 ; // ä¸²å£2
 #endif
 #ifdef Serial3_Enable
-Serial_Typedef 	Serial3 ; // ´®¿Ú3
+Serial_Typedef 	Serial3 ; // ä¸²å£3
 #endif
 
 #ifdef Serial_Debug
@@ -19,111 +19,111 @@ int Serial_check[40] ;
 int Serial_Count = 0 ;
 #endif
 
-// ============== È«¾Ö±äÁ¿ ==============
+// ============== å…¨å±€å˜é‡ ==============
 
-// ´®¿Ú½ÓÊÕ±äÁ¿
+// ä¸²å£æ¥æ”¶å˜é‡
 #define RX_USART1_LEN 50
-uint8_t RX_USART1[RX_USART1_LEN] ;	// ½ÓÊÕÊı×é
+uint8_t RX_USART1[RX_USART1_LEN] ;	// æ¥æ”¶æ•°ç»„
 
-// ´®¿Ú³õÊ¼»¯:Éî²ã
+// ä¸²å£åˆå§‹åŒ–:æ·±å±‚
 void Serial_Initial(Serial_Typedef *pSerial , USART_TypeDef* USART , UART_HandleTypeDef* huart)
 {
-	// ´®¿ÚµÄUSART³õÊ¼»¯
+	// ä¸²å£çš„USARTåˆå§‹åŒ–
 	pSerial->huart = huart ;
 	pSerial->USART = USART ;
-	// ´®¿ÚµÄÊı¾İÁ´³õÊ¼»¯
+	// ä¸²å£çš„æ•°æ®é“¾åˆå§‹åŒ–
 	pSerial->rxCnt = 0 ;
 	pSerial->rx_temp = 0 ;
-	memset(pSerial->rxBuf, 0, RX_Serial_LEN);	// Êı¾İ»º´æÇøÇåÁã
+	memset(pSerial->rxBuf, 0, RX_Serial_LEN);	// æ•°æ®ç¼“å­˜åŒºæ¸…é›¶
 	
-	// ´ò¿ª¿ÕÏĞÖĞ¶Ïº¯Êı,²»ÔÙÊÇÔ­±¾µÄ¼¤·¢ÖĞ¶Ï
+	// æ‰“å¼€ç©ºé—²ä¸­æ–­å‡½æ•°,ä¸å†æ˜¯åŸæœ¬çš„æ¿€å‘ä¸­æ–­
 	HAL_UARTEx_ReceiveToIdle_IT(huart, pSerial->rxBuf, RX_Serial_LEN);
   
-	// ³õÊ¼»¯´®¿ÚĞ­Òé
+	// åˆå§‹åŒ–ä¸²å£åè®®
 	Serial_Agreement_HEX_Init(&Serial_Agreement_HEX) ;
 	Serial_Agreement_ABC_Init(&Serial_Agreement_ABC) ;
-	// HEXºÍÎÄ±¾±äÁ¿¶¼ÊÇ0,²»ĞèÒª³õÊ¼»¯
+	// HEXå’Œæ–‡æœ¬å˜é‡éƒ½æ˜¯0,ä¸éœ€è¦åˆå§‹åŒ–
 }
 
-// ´®¿Ú³õÊ¼»¯:Íâ²¿µ÷ÓÃ
+// ä¸²å£åˆå§‹åŒ–:å¤–éƒ¨è°ƒç”¨
 void Serial_Init(void)
 {
 	#ifdef Serial1_Enable
-	Serial_Initial(&Serial1 , USART1 , &huart1 ) ;	// ´®¿ÚĞ­Òé³õÊ¼»¯
+	Serial_Initial(&Serial1 , USART1 , &huart1 ) ;	// ä¸²å£åè®®åˆå§‹åŒ–
 	#endif
 	#ifdef Serial2_Enable
-	Serial_Initial(&Serial2 , USART2 , &huart2 ) ;	// ´®¿ÚĞ­Òé³õÊ¼»¯
+	Serial_Initial(&Serial2 , USART2 , &huart2 ) ;	// ä¸²å£åè®®åˆå§‹åŒ–
 	#endif
 	#ifdef Serial3_Enable
-	Serial_Initial(&Serial3 , USART3 , &huart3 ) ;	// ´®¿ÚĞ­Òé³õÊ¼»¯
+	Serial_Initial(&Serial3 , USART3 , &huart3 ) ;	// ä¸²å£åè®®åˆå§‹åŒ–
 	#endif
 }
 
-// ´Ó¸ß8Î»ºÍµÍ8Î»ºÏ³ÉÒ»¸öÊı¾İ
+// ä»é«˜8ä½å’Œä½8ä½åˆæˆä¸€ä¸ªæ•°æ®
 uint16_t Merge_2Bytes(uint8_t high, uint8_t low)
 {
     return ((uint16_t)high << 8) | low;
 }
 
-// ====================HEX:³õ²½´¦ÀíÊı¾İ°ü(½öºÏ²¢Êı¾İ)====================
+// ====================HEX:åˆæ­¥å¤„ç†æ•°æ®åŒ…(ä»…åˆå¹¶æ•°æ®)====================
 void Serial_Data_Deal_HEX(Serial_Typedef* pSerial)
 {
-	// 1. µÚ2¸öÊı¾İÎªÊı¾İ³¤¶È(µÚ0,1¸öÎªÖ¡Í·),ÓÉÓÚÊÇ¸ßµÍÎ»,ËùÒÔ³ıÒÔ2²ÅÊÇÕæÕıµÄÊı¾İ³¤¶È
+	// 1. ç¬¬2ä¸ªæ•°æ®ä¸ºæ•°æ®é•¿åº¦(ç¬¬0,1ä¸ªä¸ºå¸§å¤´),ç”±äºæ˜¯é«˜ä½ä½,æ‰€ä»¥é™¤ä»¥2æ‰æ˜¯çœŸæ­£çš„æ•°æ®é•¿åº¦
 	pSerial->Hex_Data.Serial_New_Package[0] = pSerial->rxBuf[2] / 2;
-	// 2. ´æÈëÊı¾İ
+	// 2. å­˜å…¥æ•°æ®
 	for (int i = 3 , j = 1 ; i < 3 + pSerial->rxBuf[2] ; i += 2 , j ++)
 	{
 		pSerial->Hex_Data.Serial_New_Package[j] = Merge_2Bytes(pSerial->rxBuf[i] , pSerial->rxBuf[i + 1] ) ;
 	}
 }	
 
-// HEX:Êı¾İ¼ì²â+´æ´¢´¦Àíº¯Êı
+// HEX:æ•°æ®æ£€æµ‹+å­˜å‚¨å¤„ç†å‡½æ•°
 void Serial_Data_Check_HEX(Serial_Typedef* pSerial)
 {
-	// 1. ¼ì²âÖ¡Í·ºÏ¹æĞÔ
+	// 1. æ£€æµ‹å¸§å¤´åˆè§„æ€§
 	if (pSerial->rxBuf[0] != Serial_Agreement_HEX.head1 || pSerial->rxBuf[1] != Serial_Agreement_HEX.head2)
 	{
-		// Ö¡Í·²»ºÏ¹æ
+		// å¸§å¤´ä¸åˆè§„
 		pSerial->Hex_Data.error_Serial = Serial_Error_Head;
-		// ²Ù×÷:
-		// Çå¿ÕÕıÊ½Êı×é,ºóĞøµ÷ÓÃ»áÏÔÊ¾¿ÕÊı¾İ
+		// æ“ä½œ:
+		// æ¸…ç©ºæ­£å¼æ•°ç»„,åç»­è°ƒç”¨ä¼šæ˜¾ç¤ºç©ºæ•°æ®
 		memset(pSerial->Hex_Data.Serial_New_Package, 0, sizeof(pSerial->Hex_Data.Serial_New_Package));
-		// ´æ´¢±êÖ¾Î»ÖÃ0
+		// å­˜å‚¨æ ‡å¿—ä½ç½®0
 		pSerial->Hex_Data.Serial_New_Package_Flag = 0 ;
 	}
-	// 2. ½èÖúÊı¾İ³¤¶È¼ì²âÖ¡Î²ºÏ¹æĞÔ
+	// 2. å€ŸåŠ©æ•°æ®é•¿åº¦æ£€æµ‹å¸§å°¾åˆè§„æ€§
 	else if (pSerial->rxBuf[pSerial->rxBuf[2] + 3] != Serial_Agreement_HEX.end1 || pSerial->rxBuf[pSerial->rxBuf[2] + 4] != Serial_Agreement_HEX.end2)
 	{
-		// Ö¡Î²²»ºÏ¹æ
+		// å¸§å°¾ä¸åˆè§„
 		pSerial->Hex_Data.error_Serial = Serial_Error_Tail ;
-		// ²Ù×÷:
-		// Çå¿ÕÕıÊ½Êı×é,ºóĞøµ÷ÓÃ»áÏÔÊ¾¿ÕÊı¾İ
+		// æ“ä½œ:
+		// æ¸…ç©ºæ­£å¼æ•°ç»„,åç»­è°ƒç”¨ä¼šæ˜¾ç¤ºç©ºæ•°æ®
 		memset(pSerial->Hex_Data.Serial_New_Package, 0, sizeof(pSerial->Hex_Data.Serial_New_Package));
-		// ´æ´¢±êÖ¾Î»ÖÃ0
+		// å­˜å‚¨æ ‡å¿—ä½ç½®0
 		pSerial->Hex_Data.Serial_New_Package_Flag = 0 ;
 	}
 	else
 	{
-		// ³õ²½´¦ÀíÊı¾İ°ü(½öºÏ²¢Êı¾İ)
+		// åˆæ­¥å¤„ç†æ•°æ®åŒ…(ä»…åˆå¹¶æ•°æ®)
 		Serial_Data_Deal_HEX(pSerial) ;
-		// ÎŞ´íÎó
+		// æ— é”™è¯¯
 		pSerial->Hex_Data.error_Serial = Serial_Error_None ;
-		// ´æ´¢±êÖ¾Î»ÖÃ1
+		// å­˜å‚¨æ ‡å¿—ä½ç½®1
 		pSerial->Hex_Data.Serial_New_Package_Flag = 1 ;
 	}
 }
-// HEX:µÃµ½´®¿Ú½ÓÊÕ±êÖ¾Î»
+// HEX:å¾—åˆ°ä¸²å£æ¥æ”¶æ ‡å¿—ä½
 uint8_t Serial_GetNewPackageFlag_HEX(Serial_Typedef *pSerial)
 {
-	if (pSerial->Hex_Data.Serial_New_Package_Flag == 1)			//Èç¹û±êÖ¾Î»Îª1
+	if (pSerial->Hex_Data.Serial_New_Package_Flag == 1)			//å¦‚æœæ ‡å¿—ä½ä¸º1
 	{
 		pSerial->Hex_Data.Serial_New_Package_Flag = 0;
-		return 1;					//Ôò·µ»Ø1£¬²¢×Ô¶¯ÇåÁã±êÖ¾Î»
+		return 1;					//åˆ™è¿”å›1ï¼Œå¹¶è‡ªåŠ¨æ¸…é›¶æ ‡å¿—ä½
 	}
-	return 0;						//Èç¹û±êÖ¾Î»Îª0£¬Ôò·µ»Ø0
+	return 0;						//å¦‚æœæ ‡å¿—ä½ä¸º0ï¼Œåˆ™è¿”å›0
 }
 
-// *HEX:µÃµ½´íÎóÔ­Òò*
+// *HEX:å¾—åˆ°é”™è¯¯åŸå› *
 int Serial_GetError_HEX(Serial_Typedef *pSerial)
 {
 	return pSerial->Hex_Data.error_Serial	 ;
@@ -131,81 +131,81 @@ int Serial_GetError_HEX(Serial_Typedef *pSerial)
 
 
 
-// ====================ÎÄ±¾:Êı¾İ¼ì²â+´æ´¢+Êı¾İ´¦Àí(½ö±£ÁôÎÄ±¾)´¦Àíº¯Êı====================
+// ====================æ–‡æœ¬:æ•°æ®æ£€æµ‹+å­˜å‚¨+æ•°æ®å¤„ç†(ä»…ä¿ç•™æ–‡æœ¬)å¤„ç†å‡½æ•°====================
 void Serial_Data_Check_ABC(Serial_Typedef *pSerial)
 {
-	// ¿ªÊ¼¼ì²âÎÄ±¾
-	// 1. ¼ì²âÊı¾İ°üÖ¡Í·ÊÇ·ñ´íÎó
+	// å¼€å§‹æ£€æµ‹æ–‡æœ¬
+	// 1. æ£€æµ‹æ•°æ®åŒ…å¸§å¤´æ˜¯å¦é”™è¯¯
 	if (pSerial->rxBuf[0] != Serial_Agreement_ABC.head)
 	{
-		pSerial->ABC_Data.error_Serial = Serial_Error_Head ; // *´íÎó*:Ö¡Í·²»ºÏ¹æ
+		pSerial->ABC_Data.error_Serial = Serial_Error_Head ; // *é”™è¯¯*:å¸§å¤´ä¸åˆè§„
 	}
-	// 2. ¿ªÊ¼Ò»±ß´¦ÀíÊı¾İÒ»±ß¼ì²âÖ¡Î²,´Ó1¿ªÊ¼(Ìø¹ıÖ¡Í·)
+	// 2. å¼€å§‹ä¸€è¾¹å¤„ç†æ•°æ®ä¸€è¾¹æ£€æµ‹å¸§å°¾,ä»1å¼€å§‹(è·³è¿‡å¸§å¤´)
 	else
 	{
 		int i = 0 ;
 		for (i = 1 ; pSerial->rxBuf[i+1] != Serial_Agreement_ABC.end1 ; i++)
 		{
 			pSerial->ABC_Data.Serial_New_Package_ABC[i-1] = pSerial->rxBuf[i] ;
-			// ¼ì²âÊÇ·ñÒç³ö
+			// æ£€æµ‹æ˜¯å¦æº¢å‡º
 			if (i > Serial_Wait_Tail_MAX)
 				break ;
 		}
-		// ²¹1Î»!!!,±Ï¾¹ÎŞÂÛÈçºÎ¶¼ÊÇ±»ÆÈÀë¿ªfor,ÉÙÁË1Î»
+		// è¡¥1ä½!!!,æ¯•ç«Ÿæ— è®ºå¦‚ä½•éƒ½æ˜¯è¢«è¿«ç¦»å¼€for,å°‘äº†1ä½
 		pSerial->ABC_Data.Serial_New_Package_ABC[i-1] = pSerial->rxBuf[i] ;	
-		// Çé¿ö1:ÍË³öforÊÇÒòÎª¼ì²âµ½ÁËÖ¡Î²
+		// æƒ…å†µ1:é€€å‡ºforæ˜¯å› ä¸ºæ£€æµ‹åˆ°äº†å¸§å°¾
 		if (pSerial->rxBuf[i+1] == Serial_Agreement_ABC.end1)
 		{
-			// 3. ¿ªÊ¼¼ì²âµÚ2¸öÖ¡Î²
+			// 3. å¼€å§‹æ£€æµ‹ç¬¬2ä¸ªå¸§å°¾
 			if (pSerial->rxBuf[i+2] != Serial_Agreement_ABC.end2)
 			{
-				pSerial->ABC_Data.error_Serial = Serial_Error_Tail ; // ´íÎó3:µÚ2¸öÖ¡Î²²»ºÏ¹æ
-				memset(pSerial->ABC_Data.Serial_New_Package_ABC, 0, sizeof(pSerial->ABC_Data.Serial_New_Package_ABC));	// Çå¿Õ¼ÇÂ¼Êı¾İ
+				pSerial->ABC_Data.error_Serial = Serial_Error_Tail ; // é”™è¯¯3:ç¬¬2ä¸ªå¸§å°¾ä¸åˆè§„
+				memset(pSerial->ABC_Data.Serial_New_Package_ABC, 0, sizeof(pSerial->ABC_Data.Serial_New_Package_ABC));	// æ¸…ç©ºè®°å½•æ•°æ®
 				return ;
 			}
 			else
 			{
-				// ³õ²½´¦ÀíÊı¾İ°ü(½öºÏ²¢Êı¾İ)
-				pSerial->ABC_Data.Serial_New_Package_ABC[i] = '\0' ;	// ¼Ó¸ö½áÎ²·ûºÅ
-				// ÎŞ´íÎó
+				// åˆæ­¥å¤„ç†æ•°æ®åŒ…(ä»…åˆå¹¶æ•°æ®)
+				pSerial->ABC_Data.Serial_New_Package_ABC[i] = '\0' ;	// åŠ ä¸ªç»“å°¾ç¬¦å·
+				// æ— é”™è¯¯
 				pSerial->ABC_Data.error_Serial = 0 ; 
-				// ´æ´¢±êÖ¾Î»ÖÃ1
+				// å­˜å‚¨æ ‡å¿—ä½ç½®1
 				pSerial->ABC_Data.Serial_New_Package_Flag = 1 ;
 			}
 		}
-		// Çé¿ö2:ÍË³öforÊÇÒòÎªÒç³öÁË,ËµÃ÷µÚ1¸öÖ¡Î²Ã»ÓĞ¼ì²âµ½
+		// æƒ…å†µ2:é€€å‡ºforæ˜¯å› ä¸ºæº¢å‡ºäº†,è¯´æ˜ç¬¬1ä¸ªå¸§å°¾æ²¡æœ‰æ£€æµ‹åˆ°
 		else
 		{
-			pSerial->ABC_Data.error_Serial = Serial_Error_Tail ; // ´íÎó2:µÚ1¸öÖ¡Î²²»ºÏ¹æ
-			memset(pSerial->ABC_Data.Serial_New_Package_ABC, 0, sizeof(pSerial->ABC_Data.Serial_New_Package_ABC));	// Çå¿Õ¼ÇÂ¼Êı¾İ
+			pSerial->ABC_Data.error_Serial = Serial_Error_Tail ; // é”™è¯¯2:ç¬¬1ä¸ªå¸§å°¾ä¸åˆè§„
+			memset(pSerial->ABC_Data.Serial_New_Package_ABC, 0, sizeof(pSerial->ABC_Data.Serial_New_Package_ABC));	// æ¸…ç©ºè®°å½•æ•°æ®
 			return ;
 		}
 	}
 }
 
-// ÎÄ±¾:µÃµ½´®¿Ú½ÓÊÕ±êÖ¾Î»
+// æ–‡æœ¬:å¾—åˆ°ä¸²å£æ¥æ”¶æ ‡å¿—ä½
 uint8_t Serial_GetNewPackageFlag_ABC(Serial_Typedef *pSerial)
 {
-	if (pSerial->ABC_Data.Serial_New_Package_Flag == 1)			//Èç¹û±êÖ¾Î»Îª1
+	if (pSerial->ABC_Data.Serial_New_Package_Flag == 1)			//å¦‚æœæ ‡å¿—ä½ä¸º1
 	{
 		pSerial->ABC_Data.Serial_New_Package_Flag = 0;
-		return 1;					//Ôò·µ»Ø1£¬²¢×Ô¶¯ÇåÁã±êÖ¾Î»
+		return 1;					//åˆ™è¿”å›1ï¼Œå¹¶è‡ªåŠ¨æ¸…é›¶æ ‡å¿—ä½
 	}
-	return 0;						//Èç¹û±êÖ¾Î»Îª0£¬Ôò·µ»Ø0
+	return 0;						//å¦‚æœæ ‡å¿—ä½ä¸º0ï¼Œåˆ™è¿”å›0
 }
 
-// ÎÄ±¾:µÃµ½´íÎóÔ­Òò
+// æ–‡æœ¬:å¾—åˆ°é”™è¯¯åŸå› 
 int Serial_GetError_ABC(Serial_Typedef *pSerial)
 {
 	return pSerial->ABC_Data.error_Serial ;
 }
 
-// ÎÄ±¾:1. ·â×°Ò»¸öº¯Êı,ÊµÏÖ¼òÒ×¸¡µãÊı±äÁ¿µ÷ÊÔ
+// æ–‡æœ¬:1. å°è£…ä¸€ä¸ªå‡½æ•°,å®ç°ç®€æ˜“æµ®ç‚¹æ•°å˜é‡è°ƒè¯•
 bool Serial_SetFloatData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , float *Data)
 {
-	// KeyWordÎª¹Ø¼ü´Ê,ÓĞ±ğÓë±ğµÄÖ¸Áî cmdÎªÕû¾ä»°,°üº¬%fµÈ,VOFAÔõÃ´Ğ´ÕâÀïÒ²ÔõÃ´Ğ´ DataÎª½ÓÊÕ¸Ä±äÁ¿µÄ±äÁ¿
-	// ¸¡µãÊı¼ÓÉÏ%f¾ÍĞĞ,Î»Êı²»ÓÃ¹Ü,¿Õ¸ñÒ²ĞèÒª×¢Òâ,¾ßÌåĞ­Òé»¹µÃ¿´VOFAÔõÃ´Êä³öµÄ
-	// Àı:	½¨ÒéVOFA·¢ËÍ:	@Kp=%.2f$#	´®¿Ú½ÓÊÕ:	Serial_SetFloatData("Kp" , "Kp=%f" , &test1) ;
+	// KeyWordä¸ºå…³é”®è¯,æœ‰åˆ«ä¸åˆ«çš„æŒ‡ä»¤ cmdä¸ºæ•´å¥è¯,åŒ…å«%fç­‰,VOFAæ€ä¹ˆå†™è¿™é‡Œä¹Ÿæ€ä¹ˆå†™ Dataä¸ºæ¥æ”¶æ”¹å˜é‡çš„å˜é‡
+	// æµ®ç‚¹æ•°åŠ ä¸Š%få°±è¡Œ,ä½æ•°ä¸ç”¨ç®¡,ç©ºæ ¼ä¹Ÿéœ€è¦æ³¨æ„,å…·ä½“åè®®è¿˜å¾—çœ‹VOFAæ€ä¹ˆè¾“å‡ºçš„
+	// ä¾‹:	å»ºè®®VOFAå‘é€:	@Kp=%.2f$#	ä¸²å£æ¥æ”¶:	Serial_SetFloatData("Kp" , "Kp=%f" , &test1) ;
 	if ( strstr(pSerial->ABC_Data.Serial_New_Package_ABC , KeyWord) != NULL )
 	{
 		sscanf(pSerial->ABC_Data.Serial_New_Package_ABC, cmd , Data);
@@ -217,12 +217,12 @@ bool Serial_SetFloatData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , 
 	}
 }
 
-// ÎÄ±¾:2. ·â×°Ò»¸öº¯Êı,ÊµÏÖ¼òÒ×ÕûÊı±äÁ¿µ÷ÊÔ
+// æ–‡æœ¬:2. å°è£…ä¸€ä¸ªå‡½æ•°,å®ç°ç®€æ˜“æ•´æ•°å˜é‡è°ƒè¯•
 bool Serial_SetIntData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , int *Data)
 {
-	// KeyWordÎª¹Ø¼ü´Ê,ÓĞ±ğÓë±ğµÄÖ¸Áî cmdÎªÕû¾ä»°,°üº¬%dµÈ,VOFAÃ»ÓĞ%d,ËùÒÔVOFAĞ´%.0f¼´¿É´ú±í%d DataÎª½ÓÊÕ¸Ä±äÁ¿µÄ±äÁ¿
-	// ÕûÊı¼ÓÉÏ%d¼´¿É,¿Õ¸ñÒ²ĞèÒª×¢Òâ,¾ßÌåĞ­Òé»¹µÃ¿´VOFAÔõÃ´Êä³öµÄ
-	// Àı:	½¨ÒéVOFA·¢ËÍ:	@test=%.0f$#	´®¿Ú½ÓÊÕ:	Serial_SetIntData("test" , "test=%d" , &check1) ;
+	// KeyWordä¸ºå…³é”®è¯,æœ‰åˆ«ä¸åˆ«çš„æŒ‡ä»¤ cmdä¸ºæ•´å¥è¯,åŒ…å«%dç­‰,VOFAæ²¡æœ‰%d,æ‰€ä»¥VOFAå†™%.0få³å¯ä»£è¡¨%d Dataä¸ºæ¥æ”¶æ”¹å˜é‡çš„å˜é‡
+	// æ•´æ•°åŠ ä¸Š%då³å¯,ç©ºæ ¼ä¹Ÿéœ€è¦æ³¨æ„,å…·ä½“åè®®è¿˜å¾—çœ‹VOFAæ€ä¹ˆè¾“å‡ºçš„
+	// ä¾‹:	å»ºè®®VOFAå‘é€:	@test=%.0f$#	ä¸²å£æ¥æ”¶:	Serial_SetIntData("test" , "test=%d" , &check1) ;
 	if ( strstr(pSerial->ABC_Data.Serial_New_Package_ABC , KeyWord) != NULL )
 	{
 		sscanf(pSerial->ABC_Data.Serial_New_Package_ABC, cmd , Data);
@@ -234,12 +234,12 @@ bool Serial_SetIntData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , in
 	}
 }
 
-// ÎÄ±¾:3. ÅĞ¶ÏÖ¸Áî
+// æ–‡æœ¬:3. åˆ¤æ–­æŒ‡ä»¤
 bool Serial_Check_Str(Serial_Typedef *pSerial , char *KeyWord)
 {
-    // Ö»¼ì²âÊÇ·ñ°üº¬Ö¸¶¨¹Ø¼ü´Ê£¬²»×öÊı¾İ½âÎö
-    // KeyWord£ºÒªÆ¥ÅäµÄÖ¸Áî¹Ø¼ü×Ö
-    // ·µ»Ø true ±íÊ¾¼ì²âµ½¸ÃÖ¸Áî
+    // åªæ£€æµ‹æ˜¯å¦åŒ…å«æŒ‡å®šå…³é”®è¯ï¼Œä¸åšæ•°æ®è§£æ
+    // KeyWordï¼šè¦åŒ¹é…çš„æŒ‡ä»¤å…³é”®å­—
+    // è¿”å› true è¡¨ç¤ºæ£€æµ‹åˆ°è¯¥æŒ‡ä»¤
 
     if (strstr(pSerial->ABC_Data.Serial_New_Package_ABC, KeyWord) != NULL)
     {
@@ -251,18 +251,18 @@ bool Serial_Check_Str(Serial_Typedef *pSerial , char *KeyWord)
     }
 }
 
-// ============== ´®¿Ú¿ÕÏĞÖĞ¶Ï»Øµ÷º¯Êı ==============
+// ============== ä¸²å£ç©ºé—²ä¸­æ–­å›è°ƒå‡½æ•° ==============
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
 #ifdef Serial1_Enable
     if (huart->Instance == Serial1.USART)
     {
-        // Size ¾ÍÊÇ±¾´ÎÊµ¼Ê½ÓÊÕµ½µÄ×Ö½ÚÊı£¨Idle ´¥·¢»ò»º³åÇøÂú£©
+        // Size å°±æ˜¯æœ¬æ¬¡å®é™…æ¥æ”¶åˆ°çš„å­—èŠ‚æ•°ï¼ˆIdle è§¦å‘æˆ–ç¼“å†²åŒºæ»¡ï¼‰
         if (Size > 0 && Size <= RX_Serial_LEN)
         {
-            Serial1.rxBuf[Size] = '\0';                    // ¼Ó×Ö·û´®½áÊø·û£¨¶Ô ABC Ğ­ÒéÓĞÓÃ£©
+            Serial1.rxBuf[Size] = '\0';                    // åŠ å­—ç¬¦ä¸²ç»“æŸç¬¦ï¼ˆå¯¹ ABC åè®®æœ‰ç”¨ï¼‰
 
-            // === Êı¾İ´¦Àí£¨ÄãµÄÔ­ÓĞÂß¼­»ù±¾²»¶¯£©===
+            // === æ•°æ®å¤„ç†ï¼ˆä½ çš„åŸæœ‰é€»è¾‘åŸºæœ¬ä¸åŠ¨ï¼‰===
             if (Serial1.rxBuf[0] == 0xFF && Serial1.rxBuf[1] == 0xAA)
             {
                 Serial_Data_Check_HEX(&Serial1);
@@ -272,23 +272,23 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
                 Serial_Data_Check_ABC(&Serial1);
             }
 
-            // »ØÏÔ
-//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial1.rxBuf, Size, 100);     // ×èÈû·¢ËÍ²âÊÔ
+            // å›æ˜¾
+//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial1.rxBuf, Size, 100);     // é˜»å¡å‘é€æµ‹è¯•
         }
 
-        // === ±ØĞëÖØĞÂÆô¶¯½ÓÊÕ ===
+        // === å¿…é¡»é‡æ–°å¯åŠ¨æ¥æ”¶ ===
         HAL_UARTEx_ReceiveToIdle_IT(Serial1.huart, Serial1.rxBuf, RX_Serial_LEN);
     }
 #endif
 #ifdef Serial2_Enable
     if (huart->Instance == Serial2.USART)
     {
-        // Size ¾ÍÊÇ±¾´ÎÊµ¼Ê½ÓÊÕµ½µÄ×Ö½ÚÊı£¨Idle ´¥·¢»ò»º³åÇøÂú£©
+        // Size å°±æ˜¯æœ¬æ¬¡å®é™…æ¥æ”¶åˆ°çš„å­—èŠ‚æ•°ï¼ˆIdle è§¦å‘æˆ–ç¼“å†²åŒºæ»¡ï¼‰
         if (Size > 0 && Size <= RX_Serial_LEN)
         {
-            Serial2.rxBuf[Size] = '\0';                    // ¼Ó×Ö·û´®½áÊø·û£¨¶Ô ABC Ğ­ÒéÓĞÓÃ£©
+            Serial2.rxBuf[Size] = '\0';                    // åŠ å­—ç¬¦ä¸²ç»“æŸç¬¦ï¼ˆå¯¹ ABC åè®®æœ‰ç”¨ï¼‰
 
-            // === Êı¾İ´¦Àí£¨Ô­ÓĞÂß¼­»ù±¾²»¶¯£©===
+            // === æ•°æ®å¤„ç†ï¼ˆåŸæœ‰é€»è¾‘åŸºæœ¬ä¸åŠ¨ï¼‰===
             if (Serial2.rxBuf[0] == 0xFF && Serial2.rxBuf[1] == 0xAA)
             {
                 Serial_Data_Check_HEX(&Serial2);
@@ -298,23 +298,23 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
                 Serial_Data_Check_ABC(&Serial2);
             }
 
-            // »ØÏÔ
-//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial2.rxBuf, Size, 100);     // ×èÈû·¢ËÍ²âÊÔ
+            // å›æ˜¾
+//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial2.rxBuf, Size, 100);     // é˜»å¡å‘é€æµ‹è¯•
         }
 
-        // === ±ØĞëÖØĞÂÆô¶¯½ÓÊÕ ===
+        // === å¿…é¡»é‡æ–°å¯åŠ¨æ¥æ”¶ ===
         HAL_UARTEx_ReceiveToIdle_IT(Serial2.huart, Serial2.rxBuf, RX_Serial_LEN);
     }
 #endif
 #ifdef Serial3_Enable
     if (huart->Instance == Serial3.USART)
     {
-        // Size ¾ÍÊÇ±¾´ÎÊµ¼Ê½ÓÊÕµ½µÄ×Ö½ÚÊı£¨Idle ´¥·¢»ò»º³åÇøÂú£©
+        // Size å°±æ˜¯æœ¬æ¬¡å®é™…æ¥æ”¶åˆ°çš„å­—èŠ‚æ•°ï¼ˆIdle è§¦å‘æˆ–ç¼“å†²åŒºæ»¡ï¼‰
         if (Size > 0 && Size <= RX_Serial_LEN)
         {
-            Serial3.rxBuf[Size] = '\0';                    // ¼Ó×Ö·û´®½áÊø·û£¨¶Ô ABC Ğ­ÒéÓĞÓÃ£©
+            Serial3.rxBuf[Size] = '\0';                    // åŠ å­—ç¬¦ä¸²ç»“æŸç¬¦ï¼ˆå¯¹ ABC åè®®æœ‰ç”¨ï¼‰
 
-            // === Êı¾İ´¦Àí£¨ÄãµÄÔ­ÓĞÂß¼­»ù±¾²»¶¯£©===
+            // === æ•°æ®å¤„ç†ï¼ˆä½ çš„åŸæœ‰é€»è¾‘åŸºæœ¬ä¸åŠ¨ï¼‰===
             if (Serial3.rxBuf[0] == 0xFF && Serial3.rxBuf[1] == 0xAA)
             {
                 Serial_Data_Check_HEX(&Serial3);
@@ -324,17 +324,17 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
                 Serial_Data_Check_ABC(&Serial3);
             }
 
-            // »ØÏÔ
-//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial3.rxBuf, Size, 100);     // ×èÈû·¢ËÍ²âÊÔ
+            // å›æ˜¾
+//            HAL_UART_Transmit(&huart1, (uint8_t *)Serial3.rxBuf, Size, 100);     // é˜»å¡å‘é€æµ‹è¯•
         }
 
-        // === ±ØĞëÖØĞÂÆô¶¯½ÓÊÕ ===
+        // === å¿…é¡»é‡æ–°å¯åŠ¨æ¥æ”¶ ===
         HAL_UARTEx_ReceiveToIdle_IT(Serial3.huart, Serial3.rxBuf, RX_Serial_LEN);
     }
 #endif
 }
 
-// ======================= Serial_printf Ê¹ÓÃ×èÈû·¢ËÍ£¨×î¼òµ¥ÎÈ¶¨£© =====================
+// ======================= Serial_printf ä½¿ç”¨é˜»å¡å‘é€ï¼ˆæœ€ç®€å•ç¨³å®šï¼‰ =====================
 void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...)
 {
     char buffer[256];
@@ -350,6 +350,6 @@ void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...)
         if (len >= (int)sizeof(buffer))
             len = sizeof(buffer) - 1;
 
-        HAL_UART_Transmit(pSerial->huart, (uint8_t*)buffer, len, 100);  // 100ms ³¬Ê±
+        HAL_UART_Transmit(pSerial->huart, (uint8_t*)buffer, len, 100);  // 100ms è¶…æ—¶
     }
 }

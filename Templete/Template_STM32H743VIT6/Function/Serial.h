@@ -4,89 +4,89 @@
 #include "Mysystem.h"
 #include <stdbool.h>
 
-// =============== defineÉùÃ÷ ===============
+// =============== defineå£°æ˜Ž ===============
 
-//#define Serial_Debug						// DebugÄ£Ê½
+//#define Serial_Debug						// Debugæ¨¡å¼
 
-#define Serial1_Enable						// USART1´®¿ÚDMAÄ£Ê½¿ªÆô
-#define Serial2_Enable					// USART2´®¿ÚDMAÄ£Ê½¿ªÆô
-//#define Serial3_Enable					// USART3´®¿ÚDMAÄ£Ê½¿ªÆô
+#define Serial1_Enable						// USART1ä¸²å£DMAæ¨¡å¼å¼€å¯
+#define Serial2_Enable					// USART2ä¸²å£DMAæ¨¡å¼å¼€å¯
+//#define Serial3_Enable					// USART3ä¸²å£DMAæ¨¡å¼å¼€å¯
 
-#define RX_Serial_LEN 40					// DMA½ÓÊÕÊý×é³¤¶È,Ò»´Î½ÓÊÜµÄÊý¾Ý²»ÄÜ´óÓÚÕâ¸ö³¤¶È
-#define Serial_Wait_Tail_MAX 25				// DMAµÈ´ýÖ¡Î²ÅÐ¶ÏÒç³öãÐÖµ
+#define RX_Serial_LEN 40					// DMAæŽ¥æ”¶æ•°ç»„é•¿åº¦,ä¸€æ¬¡æŽ¥å—çš„æ•°æ®ä¸èƒ½å¤§äºŽè¿™ä¸ªé•¿åº¦
+#define Serial_Wait_Tail_MAX 25				// DMAç­‰å¾…å¸§å°¾åˆ¤æ–­æº¢å‡ºé˜ˆå€¼
 
-// =============== ½á¹¹Ìå³õÊ¼»¯ ===============
-// HEX½ÓÊÕÊý¾Ý°ü
+// =============== ç»“æž„ä½“åˆå§‹åŒ– ===============
+// HEXæŽ¥æ”¶æ•°æ®åŒ…
 typedef struct
 {
-	int Serial_New_Package[RX_Serial_LEN] ; 		// ÕýÈ·ÐÅÏ¢´æ´¢Êý×é,³¤¶È¹Ü¹»,ÒÔºóÔÙ¸Ä
-	bool Serial_New_Package_Flag ;							// Êý¾Ý°ü½âÎöÍê³Éflag
-	int error_Serial	;								  				// ´íÎó²éÑ¯²ÎÊý
+	int Serial_New_Package[RX_Serial_LEN] ; 		// æ­£ç¡®ä¿¡æ¯å­˜å‚¨æ•°ç»„,é•¿åº¦ç®¡å¤Ÿ,ä»¥åŽå†æ”¹
+	bool Serial_New_Package_Flag ;							// æ•°æ®åŒ…è§£æžå®Œæˆflag
+	int error_Serial	;								  				// é”™è¯¯æŸ¥è¯¢å‚æ•°
 }Serial_HEX_Data_Typedef;
 
-// ÎÄ±¾½ÓÊÕÊý¾Ý°ü
+// æ–‡æœ¬æŽ¥æ”¶æ•°æ®åŒ…
 typedef struct
 {
-	char Serial_New_Package_ABC[RX_Serial_LEN] ; // ÕýÈ·ÐÅÏ¢´æ´¢Êý×é,³¤¶È¹Ü¹»,ÒÔºóÔÙ¸Ä
-	bool Serial_New_Package_Flag ;							 // Êý¾Ý°ü½âÎöÍê³Éflag
-	int error_Serial	;								  				 // ´íÎó²éÑ¯²ÎÊý
+	char Serial_New_Package_ABC[RX_Serial_LEN] ; // æ­£ç¡®ä¿¡æ¯å­˜å‚¨æ•°ç»„,é•¿åº¦ç®¡å¤Ÿ,ä»¥åŽå†æ”¹
+	bool Serial_New_Package_Flag ;							 // æ•°æ®åŒ…è§£æžå®Œæˆflag
+	int error_Serial	;								  				 // é”™è¯¯æŸ¥è¯¢å‚æ•°
 }Serial_ABC_Data_Typedef;
 
-// ´®¿ÚÊý¾Ý´¦Àí¶¨Òå
+// ä¸²å£æ•°æ®å¤„ç†å®šä¹‰
 typedef struct
 {
 	USART_TypeDef * USART ;				
-	UART_HandleTypeDef* huart ;		// ÍâÉè±ØÐëÊ¹ÓÃÖ¸Õë,ÓÈÆäÊÇhuartÀàËÆµÄ½á¹¹Ìå,·ñÔòµØÖ·»á¸Ä±ä
+	UART_HandleTypeDef* huart ;		// å¤–è®¾å¿…é¡»ä½¿ç”¨æŒ‡é’ˆ,å°¤å…¶æ˜¯huartç±»ä¼¼çš„ç»“æž„ä½“,å¦åˆ™åœ°å€ä¼šæ”¹å˜
 
-	uint8_t rx_temp;							// DMA´«Êä¸øtempÔÝ´æ,²¢ÇÒºÜ¿ì½«±»±£´æÔÚrxBufÖÐ
-	uint8_t rxCnt;								// Cnt¼ÇÂ¼DMA´«ÊäÁË¶àÉÙÎ»Êý¾Ý
-	uint8_t rxBuf[RX_Serial_LEN];	// ½ÓÊÕ»º³åÇø,½ÓÊÕtempÊý¾Ý
+	uint8_t rx_temp;							// DMAä¼ è¾“ç»™tempæš‚å­˜,å¹¶ä¸”å¾ˆå¿«å°†è¢«ä¿å­˜åœ¨rxBufä¸­
+	uint8_t rxCnt;								// Cntè®°å½•DMAä¼ è¾“äº†å¤šå°‘ä½æ•°æ®
+	uint8_t rxBuf[RX_Serial_LEN];	// æŽ¥æ”¶ç¼“å†²åŒº,æŽ¥æ”¶tempæ•°æ®
 	
-	uint8_t Status ;							// ´®¿ÚÊý¾Ý½ÓÊÕ×´Ì¬»ú
+	uint8_t Status ;							// ä¸²å£æ•°æ®æŽ¥æ”¶çŠ¶æ€æœº
 	
-	Serial_HEX_Data_Typedef Hex_Data ;	// 16½øÖÆÊý¾Ý°ü
-	Serial_ABC_Data_Typedef ABC_Data ;	// ×Ö·û´®Êý¾Ý°ü
+	Serial_HEX_Data_Typedef Hex_Data ;	// 16è¿›åˆ¶æ•°æ®åŒ…
+	Serial_ABC_Data_Typedef ABC_Data ;	// å­—ç¬¦ä¸²æ•°æ®åŒ…
 }Serial_Typedef ;
 
-// =============== Íâ²¿±äÁ¿ÉùÃ÷ ===============
+// =============== å¤–éƒ¨å˜é‡å£°æ˜Ž ===============
 #ifdef Serial1_Enable
-extern Serial_Typedef 		 Serial1 ; 		// ´®¿Ú1
+extern Serial_Typedef 		 Serial1 ; 		// ä¸²å£1
 #endif
 #ifdef Serial2_Enable
-extern Serial_Typedef 		 Serial2 ; 		// ´®¿Ú2
+extern Serial_Typedef 		 Serial2 ; 		// ä¸²å£2
 #endif
 #ifdef Serial3_Enable
-extern Serial_Typedef 		 Serial3 ; 		// ´®¿Ú3
+extern Serial_Typedef 		 Serial3 ; 		// ä¸²å£3
 #endif
 
 
-// =============== º¯ÊýÉùÃ÷ ===============
-// ´®¿Ú½ÓÊÕ³õÊ¼»¯
+// =============== å‡½æ•°å£°æ˜Ž ===============
+// ä¸²å£æŽ¥æ”¶åˆå§‹åŒ–
 void Serial_Init(void) ;
 
-// HEX:µÃµ½´®¿Ú½ÓÊÕ±êÖ¾Î»
+// HEX:å¾—åˆ°ä¸²å£æŽ¥æ”¶æ ‡å¿—ä½
 uint8_t Serial_GetNewPackageFlag_HEX(Serial_Typedef *pSerial) ;
 
-// HEX:µÃµ½´íÎóÔ­Òò
+// HEX:å¾—åˆ°é”™è¯¯åŽŸå› 
 int Serial_GetError_HEX(Serial_Typedef *pSerial) ;
 
 
-// ÎÄ±¾:µÃµ½´®¿Ú½ÓÊÕ±êÖ¾Î»
+// æ–‡æœ¬:å¾—åˆ°ä¸²å£æŽ¥æ”¶æ ‡å¿—ä½
 uint8_t Serial_GetNewPackageFlag_ABC(Serial_Typedef *pSerial) ;
 
-// ÎÄ±¾:µÃµ½´íÎóÔ­Òò
+// æ–‡æœ¬:å¾—åˆ°é”™è¯¯åŽŸå› 
 int Serial_GetError_ABC(Serial_Typedef *pSerial) ;
 
-// ÎÄ±¾:1. ·â×°Ò»¸öº¯Êý,ÊµÏÖ¼òÒ×¸¡µãÊý±äÁ¿µ÷ÊÔ
+// æ–‡æœ¬:1. å°è£…ä¸€ä¸ªå‡½æ•°,å®žçŽ°ç®€æ˜“æµ®ç‚¹æ•°å˜é‡è°ƒè¯•
 bool Serial_SetFloatData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , float *Data) ;
 
-// ÎÄ±¾:2. ·â×°Ò»¸öº¯Êý,ÊµÏÖ¼òÒ×ÕûÊý±äÁ¿µ÷ÊÔ
+// æ–‡æœ¬:2. å°è£…ä¸€ä¸ªå‡½æ•°,å®žçŽ°ç®€æ˜“æ•´æ•°å˜é‡è°ƒè¯•
 bool Serial_SetIntData( Serial_Typedef *pSerial , char *KeyWord , char *cmd , int *Data) ;
 
-// ÎÄ±¾:3. ÅÐ¶ÏÖ¸Áî
+// æ–‡æœ¬:3. åˆ¤æ–­æŒ‡ä»¤
 bool Serial_Check_Str(Serial_Typedef *pSerial , char *KeyWord) ;
 
-// ´òÓ¡Êý¾Ý,¼ÇµÃ¼Ó¼õ³Ë³ý¶¼ÒªÔÚºó·½½øÐÐ¶ø²»ÊÇ""ÀïÃæ½øÐÐ
-void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...) ;	// 972us -> Ô¼µÈÓÚ1ms
+// æ‰“å°æ•°æ®,è®°å¾—åŠ å‡ä¹˜é™¤éƒ½è¦åœ¨åŽæ–¹è¿›è¡Œè€Œä¸æ˜¯""é‡Œé¢è¿›è¡Œ
+void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...) ;	// 972us -> çº¦ç­‰äºŽ1ms
 
 #endif

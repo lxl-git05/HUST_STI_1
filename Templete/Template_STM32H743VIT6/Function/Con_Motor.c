@@ -1,10 +1,10 @@
 #include "Con_Motor.h"
 
-Motor_Typedef Motor_A ;	// Ë®Æ½´«ËÍ´ø½á¹¹,Õı·½ÏòÄæÊ±Õë£¬Ò²¾ÍÊÇËùĞèÒªµÄÕı·½Ïò
-Motor_Typedef Motor_B ;	// Ë¿¸ËÉı½µ½á¹¹,Õı·½ÏòÏòÏÂ
+Motor_Typedef Motor_A ;	// æ°´å¹³ä¼ é€å¸¦ç»“æ„,æ­£æ–¹å‘é€†æ—¶é’ˆï¼Œä¹Ÿå°±æ˜¯æ‰€éœ€è¦çš„æ­£æ–¹å‘
+Motor_Typedef Motor_B ;	// ä¸æ†å‡é™ç»“æ„,æ­£æ–¹å‘å‘ä¸‹
 
 Motor_Param_Typedef Motor_Param = {13.0f , 34.0f , 300} ;	// MG370 * 2
-// 1. µç»ú³õÊ¼»¯
+// 1. ç”µæœºåˆå§‹åŒ–
 void Con_Motor_Init(void)
 {
 	// PI
@@ -35,7 +35,7 @@ void Con_Motor_Init(void)
 	Motor_SetSpeed(&Motor_B , 0) ;
 }
 
-// 2. ÉèÖÃµç»úgoalËÙ¶È
+// 2. è®¾ç½®ç”µæœºgoalé€Ÿåº¦
 void Motor_SetSpeed(Motor_Typedef *Motor, float speed)
 {
     if (speed >= Motor->Motor_Param->Motor_Max_Speed)
@@ -50,19 +50,19 @@ void Motor_SetSpeed(Motor_Typedef *Motor, float speed)
     Motor->State = MOTOR_RUN;
 }
 
-// 3. µÃµ½µç»úgoalËÙ¶È
+// 3. å¾—åˆ°ç”µæœºgoalé€Ÿåº¦
 int Motor_Get_GoalSpeed(Motor_Typedef *Motor)
 {
     return Motor->PID_s.goalPoint ;
 }
 
-// 4. µç»úÍ£Ö¹
+// 4. ç”µæœºåœæ­¢
 void Motor_Stop(Motor_Typedef *Motor)
 {
     Motor->State = MOTOR_STOP;
 }
 
-// 5. µç»ú¼±É²
+// 5. ç”µæœºæ€¥åˆ¹
 void Motor_Brake(Motor_Typedef *Motor)
 {
     Motor->PID_s.goalPoint = 0;
@@ -71,69 +71,69 @@ void Motor_Brake(Motor_Typedef *Motor)
     
     Motor->State = MOTOR_BRAKE;
 }
-// 6.1 µç»úËÙ¶È¸üĞÂ(ÄÚ²¿Ê¹ÓÃ)
+// 6.1 ç”µæœºé€Ÿåº¦æ›´æ–°(å†…éƒ¨ä½¿ç”¨)
 static void Motorx_Speed_Update_Tick(Motor_Typedef *Motor , uint32_t Gap_Time_ms)
 {
-    // 1. ¼ÆËãÕæÊµËÙ¶È£¨±àÂëÆ÷£©
+    // 1. è®¡ç®—çœŸå®é€Ÿåº¦ï¼ˆç¼–ç å™¨ï¼‰
     Motor_Speed_Update(Motor , Gap_Time_ms) ;
 
-    // 2. ×´Ì¬»ú¿ØÖÆ
+    // 2. çŠ¶æ€æœºæ§åˆ¶
     switch (Motor->State)
     {
-        case MOTOR_STOP:    // Í£³µ
+        case MOTOR_STOP:    // åœè½¦
             Motor->PID_s.goalPoint = 0;
             break;
 
-        case MOTOR_RUN:     // ĞĞ½ø
+        case MOTOR_RUN:     // è¡Œè¿›
             break;
 
-        case MOTOR_BRAKE:   // É²³µ
+        case MOTOR_BRAKE:   // åˆ¹è½¦
             Motor_SetPWM(Motor, 0);
             return;
     }
 
-    // 3. PID¼ÆËã
+    // 3. PIDè®¡ç®—
     PID_Update(&Motor->PID_s , Motor->PID_s.realPoint_Now) ;
 
-    // 4. Êä³öPWM
+    // 4. è¾“å‡ºPWM
     Motor_SetPWM(Motor, Motor->PID_s.setPoint);
 }
 
-// 6.2 µç»ú½Ç¶È»·PID,²¢²»ĞèÒªÖªµÀÖÜÆÚ,µ«ÊÇÈÔÈ»ĞèÒª·ÅÔÚĞèÒªÖÜÆÚ¶¨Ê±Æ÷ÄÚ
-static void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir)	// Dir: ¾ÀÕıPID¿ØÖÆ·½Ïò
+// 6.2 ç”µæœºè§’åº¦ç¯PID,å¹¶ä¸éœ€è¦çŸ¥é“å‘¨æœŸ,ä½†æ˜¯ä»ç„¶éœ€è¦æ”¾åœ¨éœ€è¦å‘¨æœŸå®šæ—¶å™¨å†…
+static void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir)	// Dir: çº æ­£PIDæ§åˆ¶æ–¹å‘
 {
-	// 1. ¼ÆËã½Ç¶È
+	// 1. è®¡ç®—è§’åº¦
 	Motor_Angle_Update(Motor) ;
-	// 2. ¼ÆËãPID
+	// 2. è®¡ç®—PID
 	PID_Update(&Motor->PID_Angle ,Motor->PID_Angle.realPoint_Now) ;
-	// 3. Êä³öµç»úËÙ¶È(´®ĞĞ»·Ç¶Ì×£¡£¡£¡)
+	// 3. è¾“å‡ºç”µæœºé€Ÿåº¦(ä¸²è¡Œç¯åµŒå¥—ï¼ï¼ï¼)
 	Motor_SetSpeed(Motor, Motor->PID_Angle.setPoint * Dir);
 }
 
-// 7. µç»ú×´Ì¬¸üĞÂ(Íâ²¿½Ó¿Ú)
+// 7. ç”µæœºçŠ¶æ€æ›´æ–°(å¤–éƒ¨æ¥å£)
 void Motor_Speed_Update_Tick(uint32_t Gap_Time_ms)
 {
-	// ËÙ¶È»·(ÄÚ»·)
+	// é€Ÿåº¦ç¯(å†…ç¯)
 	Motorx_Speed_Update_Tick(&Motor_A ,Gap_Time_ms) ;
 	Motorx_Speed_Update_Tick(&Motor_B ,Gap_Time_ms) ;
-	// ½Ç¶È»·
-	Motorx_Angle_Update_Tick(&Motor_A ,  1) ;	// Ê¹ÄÜAµÄ½Ç¶È»·,ÄÇÃ´A¾Í²»ÔÙ±»ÔÊĞí±¶Ö÷¶¯ÉèÖÃËÙ¶È
+	// è§’åº¦ç¯
+	Motorx_Angle_Update_Tick(&Motor_A ,  1) ;	// ä½¿èƒ½Açš„è§’åº¦ç¯,é‚£ä¹ˆAå°±ä¸å†è¢«å…è®¸å€ä¸»åŠ¨è®¾ç½®é€Ÿåº¦
 	Motorx_Angle_Update_Tick(&Motor_B ,  1) ; 
 }	
 
-// 8. ÉèÖÃµç»úĞı×ª½Ç¶È
+// 8. è®¾ç½®ç”µæœºæ—‹è½¬è§’åº¦
 void Motor_SetAngle(Motor_Typedef *Motor , int Angle)
 {
 	Motor->PID_Angle.goalPoint = Angle ;
 }
 
-// 9. µÃµ½µç»úµ±Ç°Î»ÖÃ
+// 9. å¾—åˆ°ç”µæœºå½“å‰ä½ç½®
 float Motor_Get_Angle(Motor_Typedef *Motor)
 {
 	return Motor->PID_Angle.realPoint_Now ;
 }
 
-// 10. ¼ì²éµç»úÎ»ÖÃ
+// 10. æ£€æŸ¥ç”µæœºä½ç½®
 bool Motor_Is_Angle(Motor_Typedef *Motor , int Angle , int Tolerance)
 {
 	float curr = Motor_Get_Angle(Motor) ;
@@ -144,7 +144,7 @@ bool Motor_Is_Angle(Motor_Typedef *Motor , int Angle , int Tolerance)
 	return false ;
 }
 
-// ==================== µç»úÇı¶¯ ====================
+// ==================== ç”µæœºé©±åŠ¨ ====================
 
 void Motor_Hang_Up(void)
 {

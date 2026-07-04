@@ -3,55 +3,55 @@
 
 #include "MySystem.h"
 
-// ´®¿ÚĞ­ÒéÀàĞÍ
-// 1. Êı¾İ½ÓÊÕ¹ı³Ì±êÖ¾Î»
+// ä¸²å£åè®®ç±»å‹
+// 1. æ•°æ®æ¥æ”¶è¿‡ç¨‹æ ‡å¿—ä½
 typedef enum
 {
-	// Êı¾İ³õ²½´æÈëÊı¾İ»º³åÇø½×¶Î
-	RX_OK_HEX 		= 0x00U,	// HEXÊı¾İ°ü½ÓÊÕÍê³É
-	RX_OK_ABC 		= 0x01U,	// ABCÊı¾İ°ü½ÓÊÕÍê³É
+	// æ•°æ®åˆæ­¥å­˜å…¥æ•°æ®ç¼“å†²åŒºé˜¶æ®µ
+	RX_OK_HEX 		= 0x00U,	// HEXæ•°æ®åŒ…æ¥æ”¶å®Œæˆ
+	RX_OK_ABC 		= 0x01U,	// ABCæ•°æ®åŒ…æ¥æ”¶å®Œæˆ
 	
-	RX_BUSY		= 0x02U,	// Êı¾İ°üÕıÔÚ½ÓÊÕ´æ´¢ÖĞ,Ìø¹ı´Ë´Î½âÎö¹ı³Ì
-	RX_WAIT		= 0x03U,	// µÈ´ıÊı¾İ´«Èë(Èç¹ûÍ·Ö¡²»Í¨¹ı¾ÍÒ»Ö±¿¨ÔÚÕâÀï)
+	RX_BUSY		= 0x02U,	// æ•°æ®åŒ…æ­£åœ¨æ¥æ”¶å­˜å‚¨ä¸­,è·³è¿‡æ­¤æ¬¡è§£æè¿‡ç¨‹
+	RX_WAIT		= 0x03U,	// ç­‰å¾…æ•°æ®ä¼ å…¥(å¦‚æœå¤´å¸§ä¸é€šè¿‡å°±ä¸€ç›´å¡åœ¨è¿™é‡Œ)
 	
-	RX_Error_Tail_HEX = 0x6U,		// Êı¾İÎ²Ö¡³ö´í,µ¼ÖÂÊı¾İÒç³ö
-	RX_Error_Tail_ABC = 0x7U,		// Êı¾İÎ²Ö¡³ö´í,µ¼ÖÂÊı¾İÒç³ö
+	RX_Error_Tail_HEX = 0x6U,		// æ•°æ®å°¾å¸§å‡ºé”™,å¯¼è‡´æ•°æ®æº¢å‡º
+	RX_Error_Tail_ABC = 0x7U,		// æ•°æ®å°¾å¸§å‡ºé”™,å¯¼è‡´æ•°æ®æº¢å‡º
 
 	RX_Error,
 }Serial_RX_FLAG_Typedef;
-// 2. Êı¾İ°ü¼ì²â´íÎó´¦Àí
+// 2. æ•°æ®åŒ…æ£€æµ‹é”™è¯¯å¤„ç†
 typedef enum
 {
-	Serial_Error_None = 0x00U,		// Êı¾İÎŞÎó
-	Serial_Error_Head = 0x01U,		// Êı¾İÍ·Ö¡³ö´í
-	Serial_Error_Tail = 0x02U,		// Êı¾İÎ²Ö¡³ö´í
+	Serial_Error_None = 0x00U,		// æ•°æ®æ— è¯¯
+	Serial_Error_Head = 0x01U,		// æ•°æ®å¤´å¸§å‡ºé”™
+	Serial_Error_Tail = 0x02U,		// æ•°æ®å°¾å¸§å‡ºé”™
 	Serial_Error_Data = 0x03U,		
 	Serial_Error_Data_Len = 0x04U,
 }Serial_Data_Error_Typedef;
-// 3. ´®¿ÚĞ­Òé:HEX
+// 3. ä¸²å£åè®®:HEX
 typedef struct
 {
-	uint8_t head1;	// Í·Ö¡1
-	uint8_t head2;	// Í·Ö¡2
-	uint8_t end1;		// Î²Ö¡1
-	uint8_t end2;		// Î²Ö¡2
+	uint8_t head1;	// å¤´å¸§1
+	uint8_t head2;	// å¤´å¸§2
+	uint8_t end1;		// å°¾å¸§1
+	uint8_t end2;		// å°¾å¸§2
 }Serial_Agreement_HEX_TypeDef;
-// 4. ´®¿ÚĞ­Òé:ABC
+// 4. ä¸²å£åè®®:ABC
 typedef struct
 {
-	uint8_t head;	  // Í·Ö¡
-	uint8_t end1;		// Î²Ö¡1
-	uint8_t end2;		// Î²Ö¡2
+	uint8_t head;	  // å¤´å¸§
+	uint8_t end1;		// å°¾å¸§1
+	uint8_t end2;		// å°¾å¸§2
 }Serial_Agreement_ABC_TypeDef;
 
-// Íâ²¿ÉùÃ÷
-extern Serial_Agreement_HEX_TypeDef 	Serial_Agreement_HEX ;		// ´®¿ÚÊı¾İÍ¨ĞÅĞ­Òé:HEX
-extern Serial_Agreement_ABC_TypeDef 	Serial_Agreement_ABC ;		// ´®¿ÚÊı¾İÍ¨ĞÅĞ­Òé:ABC
+// å¤–éƒ¨å£°æ˜
+extern Serial_Agreement_HEX_TypeDef 	Serial_Agreement_HEX ;		// ä¸²å£æ•°æ®é€šä¿¡åè®®:HEX
+extern Serial_Agreement_ABC_TypeDef 	Serial_Agreement_ABC ;		// ä¸²å£æ•°æ®é€šä¿¡åè®®:ABC
 
-// º¯Êı
-// ´®¿ÚĞ­Òé³õÊ¼»¯:HEX
+// å‡½æ•°
+// ä¸²å£åè®®åˆå§‹åŒ–:HEX
 void Serial_Agreement_HEX_Init(Serial_Agreement_HEX_TypeDef *pSerial_Agreement) ;
-// ´®¿ÚĞ­Òé³õÊ¼»¯:ABC
+// ä¸²å£åè®®åˆå§‹åŒ–:ABC
 void Serial_Agreement_ABC_Init(Serial_Agreement_ABC_TypeDef *pSerial_Agreement) ;
 
 #endif // !__SERIAL_BASE_H

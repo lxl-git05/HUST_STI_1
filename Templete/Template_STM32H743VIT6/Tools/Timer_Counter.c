@@ -7,33 +7,33 @@ float time_Func_us ;
 
 void Timer_Counter_Init(void)
 {
-	// ³õÊ¼»¯
+	// åˆå§‹åŒ–
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-	DWT->CYCCNT = 0;     // ÇåÁã
+	DWT->CYCCNT = 0;     // æ¸…é›¶
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
 void Timer_Counter_Begin(void)
 {
-	Timer_Counter_Start_count = DWT->CYCCNT;	// ÆğÊ¼Ê±¼ä
+	Timer_Counter_Start_count = DWT->CYCCNT;	// èµ·å§‹æ—¶é—´
 }
 
 void Timer_Counter_End()
 {
-	Timer_Counter_End_count = DWT->CYCCNT ;	// ÖÕÖ¹Ê±¼ä
-	uint32_t cycles = Timer_Counter_End_count - Timer_Counter_Start_count;	// ¼ä¸ôÊ±¼ä	
-	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);			// µÃµ½¼ä¸ôÊ±¼ä(us)
+	Timer_Counter_End_count = DWT->CYCCNT ;	// ç»ˆæ­¢æ—¶é—´
+	uint32_t cycles = Timer_Counter_End_count - Timer_Counter_Start_count;	// é—´éš”æ—¶é—´	
+	time_us = (float)cycles / (SystemCoreClock / 1000000.0f);			// å¾—åˆ°é—´éš”æ—¶é—´(us)
 }
 
 void Timer_Counter_Func(void)
 {
-	static uint32_t Timer_Counter_Before = 0;	// ÉÏ´ÎÊ±¼ä
+	static uint32_t Timer_Counter_Before = 0;	// ä¸Šæ¬¡æ—¶é—´
 	
-	uint32_t Timer_Counter_Now = DWT->CYCCNT;	// µ±Ç°Ê±¼ä
+	uint32_t Timer_Counter_Now = DWT->CYCCNT;	// å½“å‰æ—¶é—´
 	
-	uint32_t cycles = Timer_Counter_Now - Timer_Counter_Before;					// ¼ÆËã¼ä¸ôÊ±¼ä	
+	uint32_t cycles = Timer_Counter_Now - Timer_Counter_Before;					// è®¡ç®—é—´éš”æ—¶é—´	
 	
-	time_Func_us = (float)cycles / (SystemCoreClock / 1000000.0f);			// µÃµ½ÒÔusÎªµ¥Î»µÄ¼ä¸ôÊ±¼ä
+	time_Func_us = (float)cycles / (SystemCoreClock / 1000000.0f);			// å¾—åˆ°ä»¥usä¸ºå•ä½çš„é—´éš”æ—¶é—´
 	
-	Timer_Counter_Before = Timer_Counter_Now ;	// ¸üĞÂÉÏ´ÎÊ±¼ä
+	Timer_Counter_Before = Timer_Counter_Now ;	// æ›´æ–°ä¸Šæ¬¡æ—¶é—´
 }

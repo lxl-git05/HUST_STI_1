@@ -3,22 +3,17 @@
 
 void Mode_4_Setup(void)
 {
-   OLED_Clear() ;
-	
+    OLED_Clear();
 }
 
-// Ô¤±¸¿ØÖÆ
 void Mode_4_Loop(void)
 {
-	
 }
 
 void Mode_4_Tick(void)
 {
-	
 }
 
 void Mode_4_Exit(void)
 {
-  
 }

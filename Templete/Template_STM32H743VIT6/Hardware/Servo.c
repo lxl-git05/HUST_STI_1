@@ -1,6 +1,6 @@
 #include "Servo.h"
 
-// 1. ¶æ»ú³õÊ¼»¯
+// 1. èˆµæœºåˆå§‹åŒ–
 void Servo_Init
 (
     Servo_Typedef* Servo, MyPWM_Typedef* Servo_PWM, Servo_Type_t type,
@@ -8,60 +8,60 @@ void Servo_Init
     int16_t init_pos, uint16_t step_10ms
 )
 {
-    // PWM³õÊ¼»¯
+    // PWMåˆå§‹åŒ–
     Servo->Servo_PWM = Servo_PWM;
     MyPWM_Init(Servo->Servo_PWM);  
     Servo->type = type;
     
-    // PWMºÍ½Ç¶È²ÎÊı³õÊ¼»¯
+    // PWMå’Œè§’åº¦å‚æ•°åˆå§‹åŒ–
     Servo->pwm_min = pwm_min;
     Servo->pwm_max = pwm_max;
     Servo->pos_min = pos_min;
     Servo->pos_max = pos_max;
     
-    // ²½½ø¿ØÖÆ³õÊ¼»¯
+    // æ­¥è¿›æ§åˆ¶åˆå§‹åŒ–
     Servo->current_pos = init_pos;
     Servo->target_pos = init_pos;      
     Servo->step_10ms = step_10ms;
     Servo->is_Step_Enable = true;
     Servo->tick_counter = 0;           
     
-    // ¼ì²éPWMµÄÆµÂÊÊÇ·ñÊÇ50Hz
+    // æ£€æŸ¥PWMçš„é¢‘ç‡æ˜¯å¦æ˜¯50Hz
     if (MyPWM_GetFre(Servo->Servo_PWM) != 50)
     {
         while(1);
     }
     
-    // ÉèÖÃ³õÊ¼½Ç¶È
+    // è®¾ç½®åˆå§‹è§’åº¦
     uint16_t compare;
     compare = Servo->pwm_min + (uint32_t)init_pos * (Servo->pwm_max - Servo->pwm_min) / ((type == SERVO_TYPE_180) ? 180 : 360);
     MyPWM_SetCompare(Servo->Servo_PWM, compare);
 }
 
-// 2. ¶æ»úÖ±½ÓÉèÖÃ½Ç¶È£¨ÄÚ²¿Ê¹ÓÃ£¬²»¸Ä±ä²½½ø×´Ì¬£©
+// 2. èˆµæœºç›´æ¥è®¾ç½®è§’åº¦ï¼ˆå†…éƒ¨ä½¿ç”¨ï¼Œä¸æ”¹å˜æ­¥è¿›çŠ¶æ€ï¼‰
 static void Servo_SetAngleInternal(Servo_Typedef* Servo, int16_t angle)
 {
     uint16_t compare;
     uint16_t pos_max = (Servo->type == SERVO_TYPE_180) ? 180 : 360;
     
-    // ×ÔÉèÏŞ·ù
+    // è‡ªè®¾é™å¹…
     if(angle < Servo->pos_min) angle = Servo->pos_min;
     if(angle > Servo->pos_max) angle = Servo->pos_max;
-    // ÎïÀíÏŞ·ù
+    // ç‰©ç†é™å¹…
     if(angle < 0) angle = 0;
     if(angle > pos_max) angle = pos_max;
     
-    // ¼ÆËãPWM±È½ÏÖµ
+    // è®¡ç®—PWMæ¯”è¾ƒå€¼
     compare = Servo->pwm_min + (uint32_t)angle * (Servo->pwm_max - Servo->pwm_min) / pos_max;
     
-    // ÉèÖÃ½Ç¶È
+    // è®¾ç½®è§’åº¦
     Servo->current_pos = angle;
     
-    // µ÷ÓÃPWMÉèÖÃº¯Êı
+    // è°ƒç”¨PWMè®¾ç½®å‡½æ•°
     MyPWM_SetCompare(Servo->Servo_PWM, compare);
 }
 
-// 2. ¶æ»úÖ±½ÓÉèÖÃ½Ç¶È£¨Íâ²¿µ÷ÓÃ£¬Í£Ö¹²½½ø£©
+// 2. èˆµæœºç›´æ¥è®¾ç½®è§’åº¦ï¼ˆå¤–éƒ¨è°ƒç”¨ï¼Œåœæ­¢æ­¥è¿›ï¼‰
 void Servo_SetDirectAngle(Servo_Typedef* Servo, int16_t angle)
 {
     if(!Servo) return;
@@ -71,14 +71,14 @@ void Servo_SetDirectAngle(Servo_Typedef* Servo, int16_t angle)
     Servo->is_Step_Enable = false;
 }
 
-// 3. ¶æ»úÉèÖÃÄ¿±ê½Ç¶È
+// 3. èˆµæœºè®¾ç½®ç›®æ ‡è§’åº¦
 void Servo_SetGoalAngle(Servo_Typedef* Servo, int16_t target_pos)
 {
     if(!Servo) return;
     
     uint16_t pos_max = (Servo->type == SERVO_TYPE_180) ? 180 : 360;
     
-    // Ä¿±ê½Ç¶ÈÏŞ·ù
+    // ç›®æ ‡è§’åº¦é™å¹…
     if(target_pos < Servo->pos_min) target_pos = Servo->pos_min;
     if(target_pos > Servo->pos_max) target_pos = Servo->pos_max;
     if(target_pos < 0) target_pos = 0;
@@ -89,51 +89,51 @@ void Servo_SetGoalAngle(Servo_Typedef* Servo, int16_t target_pos)
 //    Servo->tick_counter = 0;
 }
 
-// 4. ¶æ»ú²½½ø¿ØÖÆÌ¨£¬·ÅÈë1msÖĞ¶Ï
-void Servox_GoalAngle_Tick(Servo_Typedef* Servo)  // ½¨Òé¸ÄÃûÎª Servo_GoalAngle_Tick
+// 4. èˆµæœºæ­¥è¿›æ§åˆ¶å°ï¼Œæ”¾å…¥1msä¸­æ–­
+void Servox_GoalAngle_Tick(Servo_Typedef* Servo)  // å»ºè®®æ”¹åä¸º Servo_GoalAngle_Tick
 {
     if(!Servo) return;
     
-    // Èç¹ûÃ»ÓĞÊ¹ÄÜ²½½øÄ£Ê½¾ÍÌø¹ı
+    // å¦‚æœæ²¡æœ‰ä½¿èƒ½æ­¥è¿›æ¨¡å¼å°±è·³è¿‡
     if (Servo->is_Step_Enable == false) return;
     
-    // ÒÑ¾­µ½´ïÄ¿±ê
+    // å·²ç»åˆ°è¾¾ç›®æ ‡
     if (Servo->current_pos == Servo->target_pos)
     {
         Servo->is_Step_Enable = false;
         return;
     }
     
-    // ·ÖÆµ¼ÆÊı£¨Ã¿¸ö¶æ»ú¶ÀÁ¢£©
+    // åˆ†é¢‘è®¡æ•°ï¼ˆæ¯ä¸ªèˆµæœºç‹¬ç«‹ï¼‰
     Servo->tick_counter++;
     if (Servo->tick_counter >= 10)
     {
         Servo->tick_counter = 0;
         
-        // ¼ÆËã²îÖµ
+        // è®¡ç®—å·®å€¼
         int16_t delta = Servo->target_pos - Servo->current_pos;
         
-        // ÅĞ¶ÏÊÇ·ñÔÚ²½³¤·¶Î§ÄÚ£¨×îºóÒ»²½£©
+        // åˆ¤æ–­æ˜¯å¦åœ¨æ­¥é•¿èŒƒå›´å†…ï¼ˆæœ€åä¸€æ­¥ï¼‰
         if (abs(delta) <= Servo->step_10ms)
         {
-            // Ö±½Óµ½´ïÄ¿±ê£¨Ê¹ÓÃÄÚ²¿º¯Êı£¬²»¸Ä±ä²½½ø×´Ì¬£©
+            // ç›´æ¥åˆ°è¾¾ç›®æ ‡ï¼ˆä½¿ç”¨å†…éƒ¨å‡½æ•°ï¼Œä¸æ”¹å˜æ­¥è¿›çŠ¶æ€ï¼‰
             Servo_SetAngleInternal(Servo, Servo->target_pos);
-            Servo->is_Step_Enable = false;  // µ½´ïÄ¿±êºó¹Ø±Õ²½½ø
+            Servo->is_Step_Enable = false;  // åˆ°è¾¾ç›®æ ‡åå…³é—­æ­¥è¿›
         }
         else if (delta > 0)
         {
-            // ÕıÏò²½½ø
+            // æ­£å‘æ­¥è¿›
             Servo_SetAngleInternal(Servo, Servo->current_pos + Servo->step_10ms);
         }
         else  // delta < 0
         {
-            // ·´Ïò²½½ø
+            // åå‘æ­¥è¿›
             Servo_SetAngleInternal(Servo, Servo->current_pos - Servo->step_10ms);
         }
     }
 }
 
-// 5. µÃµ½¶æ»úµ±Ç°½Ç¶È
+// 5. å¾—åˆ°èˆµæœºå½“å‰è§’åº¦
 int Servo_Get_Angle(Servo_Typedef* Servo)
 {
 	return Servo->current_pos ;

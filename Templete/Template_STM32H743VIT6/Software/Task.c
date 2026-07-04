@@ -1,32 +1,32 @@
 #include "Task.h"
 
-// Ö»Ö´ĞĞÒ»´ÎµÄÈÎÎñ
+// åªæ‰§è¡Œä¸€æ¬¡çš„ä»»åŠ¡
 #define Task_Once_Max_Num 10	
-// ÈÎÎñĞòÁĞºÅ,³õÊ¼ÔÚ¸÷¸öÎ»ÖÃ¶¼ÊÇ0,Ö´ĞĞÒ»´ÎÖ®ºóÖÃ1,´ú±íµ¥´ÎÈÎÎñÒÑ¾­ÊµÏÖ,²»ÔÙÖØ¸´Ö´ĞĞ
+// ä»»åŠ¡åºåˆ—å·,åˆå§‹åœ¨å„ä¸ªä½ç½®éƒ½æ˜¯0,æ‰§è¡Œä¸€æ¬¡ä¹‹åç½®1,ä»£è¡¨å•æ¬¡ä»»åŠ¡å·²ç»å®ç°,ä¸å†é‡å¤æ‰§è¡Œ
 int Task_Once_Seq[Task_Once_Max_Num] ;	
-// µ¥´ÎÈÎÎñ×¢²á
+// å•æ¬¡ä»»åŠ¡æ³¨å†Œ
 typedef struct 
 {
-	int task_Cnt ;								// ¼ÆÊıÆ÷
-	void (*callback_func)(void) ;	// »Øµ÷º¯Êı
+	int task_Cnt ;								// è®¡æ•°å™¨
+	void (*callback_func)(void) ;	// å›è°ƒå‡½æ•°
 }task_Once_Typedef ;
-// µ¥´ÎÈÎÎñÖ´ĞĞÊı×é
+// å•æ¬¡ä»»åŠ¡æ‰§è¡Œæ•°ç»„
 task_Once_Typedef task_Once_Array[Task_Once_Max_Num] ;
 
-// ÈÎÎñ³õÊ¼»¯(setup)
+// ä»»åŠ¡åˆå§‹åŒ–(setup)
 void taskInit(mytask* task,uint32_t cnt_init,uint32_t cycle_init , void (*callback_func)(void) )  
 {
 	task->Flag=0;							
-	task->cnt=cnt_init;				// ¼ÆÊıÆ÷
-	task->cycle=cycle_init;		// ¼ÆÊıÊ±³¤(ÖÜÆÚ)
-	task->Enable=1;						// ÈÎÎñÆô¶¯±êÖ¾Î»,³õÊ¼»¯Ö®ºó¾Í´ò¿ª
-	task->callback = callback_func;  // ×¢²áÈÎÎñº¯Êı
+	task->cnt=cnt_init;				// è®¡æ•°å™¨
+	task->cycle=cycle_init;		// è®¡æ•°æ—¶é•¿(å‘¨æœŸ)
+	task->Enable=1;						// ä»»åŠ¡å¯åŠ¨æ ‡å¿—ä½,åˆå§‹åŒ–ä¹‹åå°±æ‰“å¼€
+	task->callback = callback_func;  // æ³¨å†Œä»»åŠ¡å‡½æ•°
 }
 
-// ÈÎÎñÖÜÆÚº¯Êı(·ÅÔÚ¶¨Ê±Æ÷)
+// ä»»åŠ¡å‘¨æœŸå‡½æ•°(æ”¾åœ¨å®šæ—¶å™¨)
 void task_possess(mytask* task)
 {
-	// ÈÎÎñÒ»µ©Æô¶¯¿ªÊ¼½øĞĞprocessÅĞ¶Ï
+	// ä»»åŠ¡ä¸€æ—¦å¯åŠ¨å¼€å§‹è¿›è¡Œprocessåˆ¤æ–­
 	if(task->Enable == 1)
 	{
 		task->cnt++;
@@ -34,54 +34,54 @@ void task_possess(mytask* task)
 		{
 			task->cnt = 0;
 			task->Flag = 1;
-			// ×Ô¶¯µ÷ÓÃÈÎÎñ»Øµ÷º¯Êı£¨Èô´æÔÚ£©
+			// è‡ªåŠ¨è°ƒç”¨ä»»åŠ¡å›è°ƒå‡½æ•°ï¼ˆè‹¥å­˜åœ¨ï¼‰
 			if(task->callback != NULL)
 			{
 					task->callback();
-					task->Flag = 0;  // ÈÎÎñÖ´ĞĞºó×Ô¶¯ÇåÁã
+					task->Flag = 0;  // ä»»åŠ¡æ‰§è¡Œåè‡ªåŠ¨æ¸…é›¶
 			}
 		}
 	}
 }
 
-// ÈÎÎñ×¢Ïúº¯Êı(deinit)
+// ä»»åŠ¡æ³¨é”€å‡½æ•°(deinit)
 void taskDeinit(mytask* task)
 {
-    if (task == NULL) return;  // ·ÀÖ¹¿ÕÖ¸Õë·ÃÎÊ
+    if (task == NULL) return;  // é˜²æ­¢ç©ºæŒ‡é’ˆè®¿é—®
 
-    task->Enable = 0;          // Í£Ö¹ÈÎÎñ
-    task->Flag = 0;            // Çå³ıÈÎÎñ±êÖ¾Î»
-    task->cnt = 0;             // ¼ÆÊıÇåÁã
-    task->cycle = 0;           // ÈÎÎñÖÜÆÚÇåÁã£¨¿ÉÑ¡£©
-    task->callback = NULL;     // Çå¿Õ»Øµ÷º¯ÊıÖ¸Õë£¬·ÀÖ¹Îóµ÷ÓÃ
+    task->Enable = 0;          // åœæ­¢ä»»åŠ¡
+    task->Flag = 0;            // æ¸…é™¤ä»»åŠ¡æ ‡å¿—ä½
+    task->cnt = 0;             // è®¡æ•°æ¸…é›¶
+    task->cycle = 0;           // ä»»åŠ¡å‘¨æœŸæ¸…é›¶ï¼ˆå¯é€‰ï¼‰
+    task->callback = NULL;     // æ¸…ç©ºå›è°ƒå‡½æ•°æŒ‡é’ˆï¼Œé˜²æ­¢è¯¯è°ƒç”¨
 }
 
-// ÈÎÎñÔİÍ£º¯Êı
+// ä»»åŠ¡æš‚åœå‡½æ•°
 void taskStop(mytask* task)
 {
-	if (task == NULL) return;  // ·ÀÖ¹¿ÕÖ¸Õë·ÃÎÊ
+	if (task == NULL) return;  // é˜²æ­¢ç©ºæŒ‡é’ˆè®¿é—®
 
-	task->Enable = 0;          // Í£Ö¹ÈÎÎñ
-	task->Flag = 0;            // Çå³ıÈÎÎñ±êÖ¾Î»
-	task->cnt = 0;             // ¼ÆÊıÇåÁã
+	task->Enable = 0;          // åœæ­¢ä»»åŠ¡
+	task->Flag = 0;            // æ¸…é™¤ä»»åŠ¡æ ‡å¿—ä½
+	task->cnt = 0;             // è®¡æ•°æ¸…é›¶
 }
 
-// ÈÎÎñÖØĞÂ¿ªÊ¼º¯Êı,»ùÓÚÈÎÎñÔİÍ£º¯Êı
+// ä»»åŠ¡é‡æ–°å¼€å§‹å‡½æ•°,åŸºäºä»»åŠ¡æš‚åœå‡½æ•°
 void taskContinue(mytask* task)
 {
-	if (task == NULL) return;  // ·ÀÖ¹¿ÕÖ¸Õë·ÃÎÊ
-	task->Enable = 1;          // Í£Ö¹ÈÎÎñ
+	if (task == NULL) return;  // é˜²æ­¢ç©ºæŒ‡é’ˆè®¿é—®
+	task->Enable = 1;          // åœæ­¢ä»»åŠ¡
 }
 
-// µ¥´ÎÈÎÎñÖ´ĞĞ»Øµ÷º¯ÊıÖ´ĞĞµ¹¼ÆÊ±
+// å•æ¬¡ä»»åŠ¡æ‰§è¡Œå›è°ƒå‡½æ•°æ‰§è¡Œå€’è®¡æ—¶
 void task_Once_Cnt_Tick(void)
 {
-	// ²éÑ¯ÓĞÎŞÃ¦Âµµ¥´ÎÈÎÎñ´¦ÀíÊı×é
+	// æŸ¥è¯¢æœ‰æ— å¿™ç¢Œå•æ¬¡ä»»åŠ¡å¤„ç†æ•°ç»„
 	for (int i = 0 ; i < Task_Once_Max_Num ; i ++ )
 	{
 		if (task_Once_Array[i].task_Cnt > 0)
 		{
-			// ÔÚ1msÖĞ¶ÏÖĞ×Ô¼õ
+			// åœ¨1msä¸­æ–­ä¸­è‡ªå‡
 			task_Once_Array[i].task_Cnt -- ;
 			if (task_Once_Array[i].task_Cnt == 0)
 			{
@@ -95,7 +95,7 @@ void task_Once_Cnt_Tick(void)
 	}
 }
 
-// µ¥´ÎÈÎÎñÖ´ĞĞº¯Êı(º¬Ö´ĞĞÍê±Ï»Øµ÷º¯Êı),ÎŞĞè³õÊ¼»¯,µÚÒ»¸ö²ÎÊıÎªÈÎÎñĞòÁĞºÅ,¾ßÓĞÎ¨Ò»ĞÔ!
+// å•æ¬¡ä»»åŠ¡æ‰§è¡Œå‡½æ•°(å«æ‰§è¡Œå®Œæ¯•å›è°ƒå‡½æ•°),æ— éœ€åˆå§‹åŒ–,ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºä»»åŠ¡åºåˆ—å·,å…·æœ‰å”¯ä¸€æ€§!
 void task_Once_Possess( uint8_t Task_Seq , uint32_t Delay_Time_ms , void (*callback_func)(void))
 {
 	if (Task_Once_Seq[Task_Seq] == 1)
@@ -104,7 +104,7 @@ void task_Once_Possess( uint8_t Task_Seq , uint32_t Delay_Time_ms , void (*callb
 	}
 	else if (Task_Once_Seq[Task_Seq] == 0)
 	{
-		// ²éÑ¯¿ÕÏĞµ¥´ÎÈÎÎñ´¦Àíº¯Êı
+		// æŸ¥è¯¢ç©ºé—²å•æ¬¡ä»»åŠ¡å¤„ç†å‡½æ•°
 		for (int i = 0 ; i < Task_Once_Max_Num ; i ++ )
 		{
 			if (task_Once_Array[i].task_Cnt == 0)
@@ -114,6 +114,6 @@ void task_Once_Possess( uint8_t Task_Seq , uint32_t Delay_Time_ms , void (*callb
 				break ;
 			}
 		}
-		Task_Once_Seq[Task_Seq] = 1 ;	// ×¢Ïúµ¥´ÎÈÎÎñ
+		Task_Once_Seq[Task_Seq] = 1 ;	// æ³¨é”€å•æ¬¡ä»»åŠ¡
 	}
 }

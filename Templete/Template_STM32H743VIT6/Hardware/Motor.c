@@ -1,78 +1,78 @@
 #include "Motor.h"
 
-// 1. ³õÊ¼»¯
+// 1. åˆå§‹åŒ–
 void Motor_Init
-(								
+(
 		Motor_Typedef* pMotor, MyPWM_Typedef* pwm, MyEncoder_Typedef* encoder,
-		MyGPIO_Typedef* in1,MyGPIO_Typedef* in2,
-		Motor_Param_Typedef* param,int8_t pwm_dir,int8_t encoder_dir,
-		Pid_Typedef  PID_s , Pid_Typedef PID_Angle
+		MyGPIO_Typedef* in1, MyGPIO_Typedef* in2,
+		Motor_Param_Typedef* param, int8_t pwm_dir, int8_t encoder_dir,
+		Pid_Typedef PID_s, Pid_Typedef PID_Angle
 )
 {
-    // 1. ³õÊ¼»¯PWM
+    // 1. åˆå§‹åŒ–PWM
     pMotor->Motor_PWM = pwm;
 		MyPWM_Init(pwm) ;
-    
-    // 2. ³õÊ¼»¯±àÂëÆ÷
+
+    // 2. åˆå§‹åŒ–ç¼–ç å™¨
     pMotor->Motor_Encoder = encoder;
 		MyEncoder_Init(encoder) ;
-    
-    // 3. ³õÊ¼»¯GPIO
+
+    // 3. åˆå§‹åŒ–GPIO
     pMotor->Motor_GPIO_IN1 = in1;
     pMotor->Motor_GPIO_IN2 = in2;
-    
-    // 4. ³õÊ¼»¯²ÎÊý
+
+    // 4. åˆå§‹åŒ–å‚æ•°
     pMotor->Motor_Param = param;
-    
-    // 5. ³õÊ¼»¯·½Ïò
+
+    // 5. åˆå§‹åŒ–æ–¹å‘
     pMotor->PWM_Dir = pwm_dir;
     pMotor->Encoder_Dir = encoder_dir;
-    
-    // 6. ³õÊ¼»¯PID
+
+    // 6. åˆå§‹åŒ–PID
     pMotor->PID_s = PID_s ;
 		pMotor->PID_Angle = PID_Angle ;
-		
-		// 7. ×´Ì¬
+
+		// 7. çŠ¶æ€
 		pMotor->State = MOTOR_STOP ;
 }
 
-// 2. ÉèÖÃPWMÖµ
+// 2. è®¾ç½®PWMå€¼
 void Motor_SetPWM(Motor_Typedef *Motor , int PWM)
 {
-	// È·ÈÏ·½Ïò
+	// ç¡®å®šæ–¹å‘
 	 PWM = PWM * Motor->PWM_Dir ;
-	// ÅÐ¶Ï·½Ïò,ÉèÖÃËÙ¶È
+	// åˆ¤æ–­æ–¹å‘,æŽ§åˆ¶é€Ÿåº¦
 	if (PWM >= 0)
 	{
-		My_GPIO_WritePin(Motor->Motor_GPIO_IN2 , 0 ) ;	// µÍµçÆ½,0
-		MyPWM_SetCompare(Motor->Motor_PWM , PWM) ;			// ±ä´ó
-	
+		MyGPIO_WritePin(Motor->Motor_GPIO_IN2 , 0 ) ;	// ä½Žç”µå¹³,0
+		MyPWM_SetCompare(Motor->Motor_PWM , PWM) ;			// æ­£è½¬
+
 	}
 	else
 	{
-		My_GPIO_WritePin(Motor->Motor_GPIO_IN2 , 1 ) ;															// ¸ßµçÆ½,1
-		MyPWM_SetCompare(Motor->Motor_PWM , Motor->Motor_PWM->PWM_MAX + PWM) ;			// ±äÐ¡
+		MyGPIO_WritePin(Motor->Motor_GPIO_IN2 , 1 ) ;															// é«˜ç”µå¹³,1
+		MyPWM_SetCompare(Motor->Motor_PWM, Motor->Motor_PWM->Compare_Max + PWM);
 	}
 }
 
-// 3. µÃµ½Ò»¶ÎÖÜÆÚÄÚµç»úµÄËÙ¶È,Ê¹ÓÃM·¨²âËÙ¹«Ê½,µÃµ½MotorµÄ×ªËÙ:nÈ¦/s
+// 3. å¾—åˆ°ä¸€è½®å†…çš„å¹³å‡é€Ÿåº¦,ä½¿ç”¨Mæ³•æµ‹é€Ÿå…¬å¼,å¾—åˆ°Motorçš„è½¬é€Ÿ:nåœˆ/s
 void Motor_Speed_Update(Motor_Typedef *Motor , uint32_t Gap_Time_ms)
 {
-	// µÃµ½×ÜÂö³åÊý(º¬½ÃÕý·½Ïò)
+	// å¾—åˆ°ç¼–ç å™¨è®¡æ•°å€¼(å¸¦æ–¹å‘)
 	int Motor_CNT = MyEncoder_Get_CNT(Motor->Motor_Encoder) * Motor->Encoder_Dir;
-	
-	// ×ªËÙn = ×ÜÂö³åÊý/±¶Æµ(4)/µ¥È¦Âö³åÊý(13)/¼õËÙ±È(30)/²ÉÑùÊ±¼ä(Gap_Time_ms)
+
+	// è½¬æ¢n = è®¡æ•°å€¼/ç¼–ç å™¨ç²¾åº¦(4)/å•åœˆè„‰å†²æ•°(13)/å‡é€Ÿæ¯”(30)/é—´éš”æ—¶é—´(Gap_Time_ms)
 	Motor->PID_s.realPoint_Now = (float)Motor_CNT * 60 * 1000 / Gap_Time_ms /
 		(Motor->Motor_Encoder->time_Fre * Motor->Motor_Param->PPR * Motor->Motor_Param->ReductionRatio)   ;
 }
 
-// 4. µÃµ½µ±Ç°µç»úÐý×ªµÄ½Ç¶È
+// 4. å¾—åˆ°ç”µæœºå½“å‰è½¬åŠ¨çš„è§’åº¦
 void Motor_Angle_Update(Motor_Typedef *Motor)
 {
-	// µÃµ½½Ç¶È = È¦Êý * 360
-	float curr_Angle = (float)Motor->Motor_Encoder->total_cnt * 360.0f * Motor->Encoder_Dir/ 
+	// å¾—åˆ°è§’åº¦ = åœˆæ•° * 360
+	float curr_Angle = (float)Motor->Motor_Encoder->total_cnt * 360.0f * Motor->Encoder_Dir/
 		(Motor->Motor_Encoder->time_Fre * Motor->Motor_Param->PPR * Motor->Motor_Param->ReductionRatio)   ;
-	
-	// ¼ÇÂ¼µ±Ç°½Ç¶È
+
+	// è®°å½•å½“å‰è§’åº¦
 	Motor->PID_Angle.realPoint_Now = curr_Angle ;
 }

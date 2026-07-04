@@ -33,11 +33,11 @@ static void Flash_Write( MyGPIO_Typedef* MyGPIO,bool isON)
 {
 	if (isON)
 	{
-		My_GPIO_WritePin(MyGPIO , 1) ;
+		MyGPIO_WritePin(MyGPIO , 1) ;
 	}
 	else 
 	{
-		My_GPIO_WritePin(MyGPIO , 0) ;
+		MyGPIO_WritePin(MyGPIO , 0) ;
 	}
 }
 

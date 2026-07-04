@@ -5,29 +5,29 @@
 
 typedef enum 
 {
-    SERVO_TYPE_180,   // 0¡ã ~ 180¡ã
-    SERVO_TYPE_360    // 0¡ã ~ 360¡ã£¨Á¬ĞøĞı×ª£©
+    SERVO_TYPE_180,   // 0Â° ~ 180Â°
+    SERVO_TYPE_360    // 0Â° ~ 360Â°ï¼ˆè¿ç»­æ—‹è½¬ï¼‰
 } Servo_Type_t;
 
 typedef struct 
 {
-		// ¹Ì¶¨²ÎÊı
-    MyPWM_Typedef* Servo_PWM;    // PWM ¾ä±ú
-    Servo_Type_t type;           // ¶æ»úÀàĞÍ
-		uint16_t pwm_min;            // 0¶È				->	PWM×îĞ¡Öµ
-    uint16_t pwm_max;            // ×î´ó¶ÈÊı	->	PWM×î´óÖµ
+		// å›ºå®šå‚æ•°
+    MyPWM_Typedef* Servo_PWM;    // PWM å¥æŸ„
+    Servo_Type_t type;           // èˆµæœºç±»å‹
+		uint16_t pwm_min;            // 0åº¦				->	PWMæœ€å°å€¼
+    uint16_t pwm_max;            // æœ€å¤§åº¦æ•°	->	PWMæœ€å¤§å€¼
 		
-		// ×ÔÉè²ÎÊı
-    uint16_t pos_min;            // ½Ç¶ÈÏŞ·ù£ºÔÊĞíµÄ×îĞ¡½Ç¶È,²¢²»Ò»¶¨ÊÇ×îĞ¡PWM¶ÔÓ¦µÄPos
-    uint16_t pos_max;            // ½Ç¶ÈÏŞ·ù£ºÔÊĞíµÄ×î´ó½Ç¶È£¬½öÏŞ·ùÊ¹ÓÃ
-    int16_t current_pos;         // µ±Ç°½Ç¶È£¬¿ÉÓÃÓÚ³õÊ¼»¯½Ç¶È
-    int16_t target_pos ;				 // Ä¿±ê½Ç¶È
-		bool is_Step_Enable;				 // ÊÇ·ñ¼¤»î²½½ø¿ØÖÆ
-		uint16_t step_10ms	 ;			 // ²½½ø½Ç¶È,10msÔö¼Óstep¶È,Ò²¾ÍÊÇ 1s Ôö¼Ó 100 * step ¶È
-		int tick_counter ;					 // ×ÔÉí²½½ø¶¨Ê±Æ÷(10ms)
+		// è‡ªè®¾å‚æ•°
+    uint16_t pos_min;            // è§’åº¦é™å¹…ï¼šå…è®¸çš„æœ€å°è§’åº¦,å¹¶ä¸ä¸€å®šæ˜¯æœ€å°PWMå¯¹åº”çš„Pos
+    uint16_t pos_max;            // è§’åº¦é™å¹…ï¼šå…è®¸çš„æœ€å¤§è§’åº¦ï¼Œä»…é™å¹…ä½¿ç”¨
+    int16_t current_pos;         // å½“å‰è§’åº¦ï¼Œå¯ç”¨äºåˆå§‹åŒ–è§’åº¦
+    int16_t target_pos ;				 // ç›®æ ‡è§’åº¦
+		bool is_Step_Enable;				 // æ˜¯å¦æ¿€æ´»æ­¥è¿›æ§åˆ¶
+		uint16_t step_10ms	 ;			 // æ­¥è¿›è§’åº¦,10mså¢åŠ stepåº¦,ä¹Ÿå°±æ˜¯ 1s å¢åŠ  100 * step åº¦
+		int tick_counter ;					 // è‡ªèº«æ­¥è¿›å®šæ—¶å™¨(10ms)
 } Servo_Typedef;
 
-// 1. ¶æ»ú³õÊ¼»¯
+// 1. èˆµæœºåˆå§‹åŒ–
 void Servo_Init
 (
 	Servo_Typedef* Servo, MyPWM_Typedef* Servo_PWM, Servo_Type_t type ,
@@ -35,16 +35,16 @@ void Servo_Init
 	int16_t init_pos , uint16_t step_10ms
 );
 
-// 2. ¶æ»úÖ±½ÓÉèÖÃ½Ç¶È,Ò²¾ÍÊÇÖ±½Ó²½½øµ½Ä¿±ê½Ç¶È
+// 2. èˆµæœºç›´æ¥è®¾ç½®è§’åº¦,ä¹Ÿå°±æ˜¯ç›´æ¥æ­¥è¿›åˆ°ç›®æ ‡è§’åº¦
 void Servo_SetDirectAngle(Servo_Typedef* Servo, int16_t angle);
 
-// 3. ¶æ»úÉèÖÃÄ¿±ê½Ç¶È,Ò²¾ÍÊÇ¾ùÔÈ²½½øµ½Ä¿±ê½Ç¶È
+// 3. èˆµæœºè®¾ç½®ç›®æ ‡è§’åº¦,ä¹Ÿå°±æ˜¯å‡åŒ€æ­¥è¿›åˆ°ç›®æ ‡è§’åº¦
 void Servo_SetGoalAngle(Servo_Typedef* Servo, int16_t target_pos);
 
-// 4. ¶æ»ú²½½ø¿ØÖÆÌ¨,·ÅÈë1msÖĞ¶Ï,×ÔÉí´æÔÚ10·ÖÆµ
+// 4. èˆµæœºæ­¥è¿›æ§åˆ¶å°,æ”¾å…¥1msä¸­æ–­,è‡ªèº«å­˜åœ¨10åˆ†é¢‘
 void Servox_GoalAngle_Tick(Servo_Typedef* Servo) ;
 
-// 5. µÃµ½¶æ»úµ±Ç°½Ç¶È
+// 5. å¾—åˆ°èˆµæœºå½“å‰è§’åº¦
 int Servo_Get_Angle(Servo_Typedef* Servo) ;
 
 #endif

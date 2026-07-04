@@ -9,20 +9,20 @@ typedef struct {
     uint16_t GPIO_Pin;
 } MyGPIO_Typedef;
 
-// GPIO外部实例（const，在MySystem.c中定义）
-extern const MyGPIO_Typedef MyGPIO_LED0;
-extern const MyGPIO_Typedef MyGPIO_Key0;
-extern const MyGPIO_Typedef MyGPIO_Key1;
-extern const MyGPIO_Typedef MyGPIO_Key2;
-extern const MyGPIO_Typedef MyGPIO_OLED_SCL;
-extern const MyGPIO_Typedef MyGPIO_OLED_SDA;
-extern const MyGPIO_Typedef MyGPIO_Motor_A_IN1;
-extern const MyGPIO_Typedef MyGPIO_Motor_A_IN2;
-extern const MyGPIO_Typedef MyGPIO_Motor_B_IN1;
-extern const MyGPIO_Typedef MyGPIO_Motor_B_IN2;
+// GPIO外部实例（在MySystem.c中定义）
+extern MyGPIO_Typedef MyGPIO_LED0;
+extern MyGPIO_Typedef MyGPIO_Key0;
+extern MyGPIO_Typedef MyGPIO_Key1;
+extern MyGPIO_Typedef MyGPIO_Key2;
+extern MyGPIO_Typedef MyGPIO_OLED_SCL;
+extern MyGPIO_Typedef MyGPIO_OLED_SDA;
+extern MyGPIO_Typedef MyGPIO_Motor_A_IN1;
+extern MyGPIO_Typedef MyGPIO_Motor_A_IN2;
+extern MyGPIO_Typedef MyGPIO_Motor_B_IN1;
+extern MyGPIO_Typedef MyGPIO_Motor_B_IN2;
 
 // GPIO操作函数
-void My_GPIO_WritePin(const MyGPIO_Typedef *gpio, int isHigh);
-int My_GPIO_ReadPin(const MyGPIO_Typedef *gpio);
+void MyGPIO_WritePin(MyGPIO_Typedef *gpio, int isHigh);
+int MyGPIO_ReadPin(MyGPIO_Typedef *gpio);
 
 #endif // !__MYGPIO_H

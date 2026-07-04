@@ -1,23 +1,23 @@
 #ifndef __TIMER_COUNTER_H
 #define __TIMER_COUNTER_H
 
-// Ê¾·¶:
+// ç¤ºèŒƒ:
 
 //Timer_Counter_Begin() ;
 // func()	
 //Timer_Counter_End() ;
 
-extern float time_us ;				// ´úÂëÖ®¼äµÄÊ±¼ä¼ä¸ô
-extern float time_Func_us ;		// º¯ÊıÁ½´ÎÖ´ĞĞµÄÊ±¼ä¼ä¸ô
+extern float time_us ;				// ä»£ç ä¹‹é—´çš„æ—¶é—´é—´éš”
+extern float time_Func_us ;		// å‡½æ•°ä¸¤æ¬¡æ‰§è¡Œçš„æ—¶é—´é—´éš”
 
 #include "main.h"
-// ¼ÆÊ±Æ÷³õÊ¼»¯
+// è®¡æ—¶å™¨åˆå§‹åŒ–
 void Timer_Counter_Init(void);
-// ¼ÆÊ±Æ÷¿ªÊ¼¼ÆÊ±
+// è®¡æ—¶å™¨å¼€å§‹è®¡æ—¶
 void Timer_Counter_Begin(void);
-// ¼ÆÊ±Æ÷½áÊø¼ÆÊ±
+// è®¡æ—¶å™¨ç»“æŸè®¡æ—¶
 void Timer_Counter_End(void);
-// ¼ÆËãÒ»¸ö¶à´ÎÖ´ĞĞµÄº¯ÊıµÄÃ¿´ÎÖ´ĞĞ¼ä¸ôÊ±¼ä
+// è®¡ç®—ä¸€ä¸ªå¤šæ¬¡æ‰§è¡Œçš„å‡½æ•°çš„æ¯æ¬¡æ‰§è¡Œé—´éš”æ—¶é—´
 void Timer_Counter_Func(void) ;
 
 #endif

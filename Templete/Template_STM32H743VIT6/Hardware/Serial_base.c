@@ -1,11 +1,11 @@
 #include "Serial_base.h"
 
-// ============== È«¾Ö±äÁ¿ ==============
-Serial_Agreement_HEX_TypeDef 	Serial_Agreement_HEX ;		// ´®¿ÚÊı¾İÍ¨ĞÅĞ­Òé:HEX
-Serial_Agreement_ABC_TypeDef 	Serial_Agreement_ABC ;		// ´®¿ÚÊı¾İÍ¨ĞÅĞ­Òé:ABC
+// ============== å…¨å±€å˜é‡ ==============
+Serial_Agreement_HEX_TypeDef 	Serial_Agreement_HEX ;		// ä¸²å£æ•°æ®é€šä¿¡åè®®:HEX
+Serial_Agreement_ABC_TypeDef 	Serial_Agreement_ABC ;		// ä¸²å£æ•°æ®é€šä¿¡åè®®:ABC
 
-// ============== º¯Êı:³õÊ¼»¯ ==============
-// ´®¿ÚĞ­Òé³õÊ¼»¯:HEX
+// ============== å‡½æ•°:åˆå§‹åŒ– ==============
+// ä¸²å£åè®®åˆå§‹åŒ–:HEX
 void Serial_Agreement_HEX_Init(Serial_Agreement_HEX_TypeDef *pSerial_Agreement)
 {
 	pSerial_Agreement->head1 = 0xFF ;
@@ -16,7 +16,7 @@ void Serial_Agreement_HEX_Init(Serial_Agreement_HEX_TypeDef *pSerial_Agreement)
 	pSerial_Agreement->end2  = 0xFE	;
 }
 
-// ´®¿ÚĞ­Òé³õÊ¼»¯:ABC
+// ä¸²å£åè®®åˆå§‹åŒ–:ABC
 void Serial_Agreement_ABC_Init(Serial_Agreement_ABC_TypeDef *pSerial_Agreement)
 {
 	pSerial_Agreement->head  =  '@' ;

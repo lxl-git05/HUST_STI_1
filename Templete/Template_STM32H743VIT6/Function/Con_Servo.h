@@ -11,17 +11,17 @@ extern Servo_Typedef Servo_4 ;
 void Con_Servo_Init(void) ;
 void Con_Servo_GoalAngle_Tick(void) ;
 
-// 夹爪张开
+// 澶圭埅寮犲紑
 void Servo_Claw_Open(void) ;
-// 夹爪闭合
+// 澶圭埅闂悎
 void Servo_Claw_Close(void) ;
-// 衣架 闭合 95 °
+// 琛ｆ灦 闂悎 95 掳
 int Servo_Hanger_Close(void) ;
-// 衣架 张开 0 °
+// 琛ｆ灦 寮犲紑 0 掳
 int Servo_Hanger_Open(void) ;
-// 衣架2 闭合
+// 琛ｆ灦2 闂悎
 int Servo_Hanger2_Close(void) ;
-// 衣架2 张开
+// 琛ｆ灦2 寮犲紑
 int Servo_Hanger2_Open(void) ;
 
 #endif

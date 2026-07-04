@@ -115,11 +115,11 @@ void OLED_W_SCL( uint8_t x )
 {
 	if ( x )
 	{
-		My_GPIO_WritePin(&MyGPIO_OLED_SCL , GPIO_PIN_SET);
+		MyGPIO_WritePin(&MyGPIO_OLED_SCL , GPIO_PIN_SET);
 	}
 	else
 	{
-		My_GPIO_WritePin(&MyGPIO_OLED_SCL , GPIO_PIN_RESET);
+		MyGPIO_WritePin(&MyGPIO_OLED_SCL , GPIO_PIN_RESET);
 	}
 	for (volatile int i = 0; i < 5; i++);
 }
@@ -146,11 +146,11 @@ void OLED_W_SDA( uint8_t x )
 {
 	if ( x )
 	{
-		My_GPIO_WritePin(&MyGPIO_OLED_SDA , GPIO_PIN_SET);
+		MyGPIO_WritePin(&MyGPIO_OLED_SDA , GPIO_PIN_SET);
 	}
 	else
 	{
-		My_GPIO_WritePin(&MyGPIO_OLED_SDA , GPIO_PIN_RESET);
+		MyGPIO_WritePin(&MyGPIO_OLED_SDA , GPIO_PIN_RESET);
 	}
 	for (volatile int i = 0; i < 5; i++);
 }

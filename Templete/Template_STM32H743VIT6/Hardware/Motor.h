@@ -4,28 +4,23 @@
 #include "MySystem.h"
 #include "MyPID.h"
 
-// µç»úÕı·½Ïò
 #define Motor_DIR_P ( 1)
 #define Motor_DIR_N (-1)
 
-// µç»ú×ÔÉí²ÎÊı
 typedef struct
 {
-	float PPR;           	// ±àÂëÆ÷ÏßÊı
-	float ReductionRatio;	// ¼õËÙ±È
-	int Motor_Max_Speed ;	// ×î´óËÙ¶È(ÏŞËÙ,½¨Òé±È×î¸ßËÙ¶È»¹µÍÒ»Ğ©)
+	float PPR;
+	float ReductionRatio;
+	int Motor_Max_Speed ;
 }Motor_Param_Typedef ;
 
-// µç»ú×´Ì¬
 typedef enum
 {
-    MOTOR_STOP = 0, // Í£³µ
-    MOTOR_RUN,      // ÔÊĞí·¢³µ
-    MOTOR_BRAKE     // ¼±É²³µ
+    MOTOR_STOP = 0,
+    MOTOR_RUN,
+    MOTOR_BRAKE
 }Motor_State_Typedef;
 
-
-// µç»ú²ÎÊı
 typedef struct
 {
 	// 1. PWM
@@ -38,30 +33,30 @@ typedef struct
 	// 4. Param
 	Motor_Param_Typedef* Motor_Param ;
 	// 5. Dir
-	int8_t PWM_Dir;				// PWMÕı·½Ïò
-	int8_t Encoder_Dir ;	// ±àÂëÆ÷Õı·½Ïò
+	int8_t PWM_Dir;
+	int8_t Encoder_Dir ;
 	// 6. PID
-	Pid_Typedef PID_s ;			// ËÙ¶È»·(Ò»°ãÎªÄÚ»·)
-	Pid_Typedef PID_Angle ;	// ½Ç¶È»·(Ò»°ãÎªÍâ»·)
-	// 7. ×´Ì¬²ÎÊı
+	Pid_Typedef PID_s ;
+	Pid_Typedef PID_Angle ;
+	// 7. çŠ¶æ€æ ‡è®°
 	Motor_State_Typedef State ;
 }Motor_Typedef ;
 
-// 1. ³õÊ¼»¯
+// 1. åˆå§‹åŒ–
 void Motor_Init
-(								
+(
 		Motor_Typedef* pMotor, MyPWM_Typedef* pwm, MyEncoder_Typedef* encoder,
-		MyGPIO_Typedef* in1,MyGPIO_Typedef* in2,
-		Motor_Param_Typedef* param,int8_t pwm_dir,int8_t encoder_dir,
-		Pid_Typedef  PID_s , Pid_Typedef PID_Angle
+		MyGPIO_Typedef* in1, MyGPIO_Typedef* in2,
+		Motor_Param_Typedef* param, int8_t pwm_dir, int8_t encoder_dir,
+		Pid_Typedef PID_s, Pid_Typedef PID_Angle
 ) ;
 
-// 2. ÉèÖÃPWMÖµ
+// 2. è®¾ç½®PWMå€¼
 void Motor_SetPWM(Motor_Typedef *Motor , int PWM) ;
 
-// 3. µÃµ½Ò»¶ÎÖÜÆÚÄÚµç»úµÄËÙ¶È,Ê¹ÓÃM·¨²âËÙ¹«Ê½,µÃµ½MotorµÄ×ªËÙ:nÈ¦/s
+// 3. å¾—åˆ°ä¸€è½®å†…çš„å¹³å‡é€Ÿåº¦
 void Motor_Speed_Update(Motor_Typedef *Motor , uint32_t Gap_Time_ms) ;
 
-// 4. µÃµ½µ±Ç°µç»úĞı×ªµÄ½Ç¶È
+// 4. å¾—åˆ°ç”µæœºå½“å‰è½¬åŠ¨çš„è§’åº¦
 void Motor_Angle_Update(Motor_Typedef *Motor) ;
 #endif

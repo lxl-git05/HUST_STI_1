@@ -3,30 +3,30 @@
 
 #include "main.h"
 
-// ÈÎÎñ¹ÜÀí½á¹¹Ìå
+// ä»»åŠ¡ç®¡ç†ç»“æ„ä½“
 typedef struct 
 {
 	uint8_t Flag;
 	uint32_t cnt; 
 	uint32_t cycle;
 	uint8_t Enable;
-	void (*callback)(void);   // ĞÂÔö£º»Øµ÷º¯ÊıÖ¸Õë
+	void (*callback)(void);   // æ–°å¢ï¼šå›è°ƒå‡½æ•°æŒ‡é’ˆ
 }mytask;
 
-// ÈÎÎñ³õÊ¼»¯(setup)
+// ä»»åŠ¡åˆå§‹åŒ–(setup)
 void taskInit(mytask* task,uint32_t cnt_init,uint32_t cycle_init ,void (*callback_func)(void) );
-// ÈÎÎñÖÜÆÚº¯Êı(·ÅÔÚ¶¨Ê±Æ÷)
+// ä»»åŠ¡å‘¨æœŸå‡½æ•°(æ”¾åœ¨å®šæ—¶å™¨)
 void task_possess(mytask* task);
-// ÈÎÎñ×¢Ïúº¯Êı(deinit)
+// ä»»åŠ¡æ³¨é”€å‡½æ•°(deinit)
 void taskDeinit(mytask* task);
-// ÈÎÎñÔİÍ£º¯Êı
+// ä»»åŠ¡æš‚åœå‡½æ•°
 void taskStop(mytask* task);
-// ÈÎÎñÖØĞÂ¿ªÊ¼º¯Êı,»ùÓÚÈÎÎñÔİÍ£º¯Êı
+// ä»»åŠ¡é‡æ–°å¼€å§‹å‡½æ•°,åŸºäºä»»åŠ¡æš‚åœå‡½æ•°
 void taskContinue(mytask* task);
 
-// µ¥´ÎÈÎÎñ´¦Àíº¯Êı,·ÅÔÚ1msÖĞ¶Ï
+// å•æ¬¡ä»»åŠ¡å¤„ç†å‡½æ•°,æ”¾åœ¨1msä¸­æ–­
 void task_Once_Cnt_Tick(void);
-// µ¥´ÎÈÎÎñÖ´ĞĞº¯Êı(º¬Ö´ĞĞÍê±Ï»Øµ÷º¯Êı),ÎŞĞè³õÊ¼»¯,µÚÒ»¸ö²ÎÊıÎªÈÎÎñĞòÁĞºÅ,¾ßÓĞÎ¨Ò»ĞÔ!
+// å•æ¬¡ä»»åŠ¡æ‰§è¡Œå‡½æ•°(å«æ‰§è¡Œå®Œæ¯•å›è°ƒå‡½æ•°),æ— éœ€åˆå§‹åŒ–,ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºä»»åŠ¡åºåˆ—å·,å…·æœ‰å”¯ä¸€æ€§!
 void task_Once_Possess( uint8_t Task_Seq , uint32_t Delay_Time_ms , void (*callback_func)(void)) ;
 
 #endif

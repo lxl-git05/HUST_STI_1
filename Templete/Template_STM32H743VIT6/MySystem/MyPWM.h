@@ -3,24 +3,26 @@
 
 #include "MySystem.h"
 
-typedef struct
-{
-	TIM_HandleTypeDef* htimx ;
-	uint32_t Channel ;
-	float PWM_MAX ;
-}MyPWM_Typedef ;
+typedef struct {
+    TIM_HandleTypeDef *htimx;   // TIM外设句柄
+    uint32_t Channel;           // 通道号
+    float Compare_Max;          // SetCompare上限
+    float Compare_Min;          // SetCompare下限
+} MyPWM_Typedef;
 
-extern MyPWM_Typedef MyPWM_Servo1     ;	// PSC:2400(10us) ARR:2000, 舵机应该使用50-250的PWM值
-extern MyPWM_Typedef MyPWM_Servo2     ;
-extern MyPWM_Typedef MyPWM_Servo3     ;
-extern MyPWM_Typedef MyPWM_Servo4     ;
-extern MyPWM_Typedef MyPWM_Motor_A_IN1;	// Fre:20kHz(消音) , ARR:1000
+// PWM外部实例（在MySystem.c中定义）
+extern MyPWM_Typedef MyPWM_Servo1;
+extern MyPWM_Typedef MyPWM_Servo2;
+extern MyPWM_Typedef MyPWM_Servo3;
+extern MyPWM_Typedef MyPWM_Servo4;
+extern MyPWM_Typedef MyPWM_Motor_A_IN1;
 extern MyPWM_Typedef MyPWM_Motor_B_IN1;
 
 // PWM初始化
-void MyPWM_Init(MyPWM_Typedef* MyPWM) ;
-// 设置PWM值
-void MyPWM_SetCompare(MyPWM_Typedef* MyPWM, uint16_t Compare) ;
-// 得到PWM的频率
-int MyPWM_GetFre(MyPWM_Typedef* MyPWM) ;
+void MyPWM_Init(MyPWM_Typedef *pwm);
+// 设置PWM比较值（自动限幅到[Compare_Min, Compare_Max]）
+void MyPWM_SetCompare(MyPWM_Typedef *pwm, float compare);
+// 获取PWM频率
+int MyPWM_GetFre(MyPWM_Typedef *pwm);
+
 #endif

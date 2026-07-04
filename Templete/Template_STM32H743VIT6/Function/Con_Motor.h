@@ -7,40 +7,40 @@
 extern Motor_Typedef Motor_A ;
 extern Motor_Typedef Motor_B ;
 
-// ==================== µç»úÇı¶¯ ====================
+// ==================== ç”µæœºé©±åŠ¨ ====================
 #define Motor_Hang_Up_Cnt    0
 #define Motor_Hang_Mid_Cnt   1000
 #define Motor_Hang_Down_Cnt  6900
 #define Motor_Sigan_Next_Cnt 330
 
-// 1. µç»ú³õÊ¼»¯
+// 1. ç”µæœºåˆå§‹åŒ–
 void Con_Motor_Init(void) ;
 
-// 2. ÉèÖÃµç»úgoalËÙ¶È
+// 2. è®¾ç½®ç”µæœºgoalé€Ÿåº¦
 void Motor_SetSpeed(Motor_Typedef *Motor, float speed) ;
 
-// 3. µÃµ½µç»úgoalËÙ¶È
+// 3. å¾—åˆ°ç”µæœºgoalé€Ÿåº¦
 int Motor_Get_GoalSpeed(Motor_Typedef *Motor) ;
 
-// 4. µç»úÍ£Ö¹
+// 4. ç”µæœºåœæ­¢
 void Motor_Stop(Motor_Typedef *Motor) ;
 
-// 5. µç»ú¼±É²
+// 5. ç”µæœºæ€¥åˆ¹
 void Motor_Brake(Motor_Typedef *Motor) ;
 
-// 7. µç»úËÙ¶È¸üĞÂÓëPID¿ØÖÆ
+// 7. ç”µæœºé€Ÿåº¦æ›´æ–°ä¸PIDæ§åˆ¶
 void Motor_Speed_Update_Tick(uint32_t Gap_Time_ms) ;
 
-// 8. ÉèÖÃµç»úĞı×ª½Ç¶È
+// 8. è®¾ç½®ç”µæœºæ—‹è½¬è§’åº¦
 void Motor_SetAngle(Motor_Typedef *Motor , int Angle); 
 
-// 9. µÃµ½µç»úµ±Ç°Î»ÖÃ
+// 9. å¾—åˆ°ç”µæœºå½“å‰ä½ç½®
 float Motor_Get_Angle(Motor_Typedef *Motor) ;
 
-// 10. ¼ì²éµç»úÎ»ÖÃ
+// 10. æ£€æŸ¥ç”µæœºä½ç½®
 bool Motor_Is_Angle(Motor_Typedef *Motor , int Angle , int Tolerance) ;
 
-// µç»úÇı¶¯
+// ç”µæœºé©±åŠ¨
 void Motor_Hang_Up(void)  ;
 void Motor_Hang_Mid(void) ;
 void Motor_Hang_Down(void);

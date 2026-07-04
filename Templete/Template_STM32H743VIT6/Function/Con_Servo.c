@@ -8,7 +8,7 @@ Servo_Typedef Servo_4 ;
 
 void Con_Servo_Init(void)
 {
-	// 																													[posÏŞ·ù] Init step
+	// 																													[posé™å¹…] Init step
 	Servo_Init(&Servo_1, &MyPWM_Servo1, SERVO_TYPE_180 ,50, 250 ,0 , 180 , 0 , 3);
 	Servo_Init(&Servo_2, &MyPWM_Servo2, SERVO_TYPE_180 ,50, 250 ,0 , 180 , 0 , 3);
 	
@@ -24,21 +24,21 @@ void Con_Servo_GoalAngle_Tick(void)
 	Servox_GoalAngle_Tick(&Servo_4) ;
 }
 
-// ¼Ğ×¦±ÕºÏ
+// å¤¹çˆªé—­åˆ
 void Servo_Claw_Close(void)
 {
 	Servo_SetDirectAngle(&Servo_1 , 85) ;
 	Servo_SetDirectAngle(&Servo_2 , 43) ;	
 }
 
-// ¼Ğ×¦ÕÅ¿ª
+// å¤¹çˆªå¼ å¼€
 void Servo_Claw_Open(void)
 {
 	Servo_SetDirectAngle(&Servo_1 , 50) ;	
 	Servo_SetDirectAngle(&Servo_2 , 84)  ;	
 }
 
-// ÒÂ¼Ü1 ±ÕºÏ
+// è¡£æ¶1 é—­åˆ
 int Servo_Hanger_Close(void)
 {
 	int target = 70 ;
@@ -46,7 +46,7 @@ int Servo_Hanger_Close(void)
 	return target ;
 }
 
-// ÒÂ¼Ü1 ÕÅ¿ª
+// è¡£æ¶1 å¼ å¼€
 int Servo_Hanger_Open(void)
 {
 	int target = 150 ;
@@ -54,7 +54,7 @@ int Servo_Hanger_Open(void)
 	return target ;
 }
 
-// ÒÂ¼Ü2 ±ÕºÏ
+// è¡£æ¶2 é—­åˆ
 int Servo_Hanger2_Close(void)
 {
 	int target = 70 ;
@@ -62,7 +62,7 @@ int Servo_Hanger2_Close(void)
 	return target ;
 }
 
-// ÒÂ¼Ü2 ÕÅ¿ª
+// è¡£æ¶2 å¼ å¼€
 int Servo_Hanger2_Open(void)
 {
 	int target = 150 ;
