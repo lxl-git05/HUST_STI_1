@@ -1,27 +1,27 @@
 #ifndef __MYENCODER_H
 #define __MYENCODER_H
 
-/*ÕâÀïµÄ±àÂëÆ÷ÊÇ±àÂëÆ÷Ä£Ê½,¶ø²»ÊÇÍâ²¿´¥·¢Ä£Ê½,Íâ²¿´¥·¢ĞèÒªÁíÍâĞ´ÏàÓ¦´úÂë*/
+/*è¿™é‡Œçš„ç¼–ç å™¨æ˜¯ç¼–ç å™¨æ¨¡å¼,è€Œä¸æ˜¯å¤–éƒ¨è§¦å‘æ¨¡å¼,å¤–éƒ¨è§¦å‘éœ€è¦å¦å¤–å†™ç›¸åº”ä»£ç */
 
 #include "Mysystem.h"
 
 typedef struct
 {
 	TIM_HandleTypeDef *htimx;
-	uint32_t time_Fre ;		// ±¶ÆµÊı(2±¶Æµ,4±¶ÆµµÈµÈ)
+	uint32_t time_Fre ;		// å€é¢‘æ•°(2å€é¢‘,4å€é¢‘ç­‰ç­‰)
 	int total_cnt ;
 }MyEncoder_Typedef;
 
 extern MyEncoder_Typedef Motor_A_Encoder ;
 extern MyEncoder_Typedef Motor_B_Encoder ;
 
-// 1. ±àÂëÆ÷³õÊ¼»¯
+// 1. ç¼–ç å™¨åˆå§‹åŒ–
 void MyEncoder_Init(MyEncoder_Typedef* MyEncoder) ;
 
-// 2. µÃµ½±àÂëÆ÷µÄÂö³åÊı
+// 2. å¾—åˆ°ç¼–ç å™¨çš„è„‰å†²æ•°
 int MyEncoder_Get_CNT(MyEncoder_Typedef* MyEncoder) ;
 
-// 3. µÃµ½ÀÛ¼ÆÂö³åÊı
+// 3. å¾—åˆ°ç´¯è®¡è„‰å†²æ•°
 int MyEncoder_Get_Total_CNT(MyEncoder_Typedef* MyEncoder) ;
 
 #endif

@@ -1,38 +1,38 @@
 #include "MyEncoder.h"
 
-// 0. ±àÂëÆ÷¶¨Òå
+// 0. ç¼–ç å™¨å®šä¹‰
 MyEncoder_Typedef Motor_A_Encoder = {&htim2 , 4, 0};
 MyEncoder_Typedef Motor_B_Encoder = {&htim3 , 4, 0};
 
-// 1. ±àÂëÆ÷³õÊ¼»¯
+// 1. ç¼–ç å™¨åˆå§‹åŒ–
 void MyEncoder_Init(MyEncoder_Typedef* MyEncoder)
 {
 	HAL_TIM_Encoder_Start(MyEncoder->htimx, TIM_CHANNEL_ALL);
 }
 
-// 2. µÃµ½±àÂëÆ÷µÄÂö³åÊý
+// 2. å¾—åˆ°ç¼–ç å™¨çš„è„‰å†²æ•°
 int MyEncoder_Get_CNT(MyEncoder_Typedef* MyEncoder)
 {
-	// µÃµ½Ò»´Î²ÉÑùÊ±¼äµÄÂö³åÊý
+	// å¾—åˆ°ä¸€æ¬¡é‡‡æ ·æ—¶é—´çš„è„‰å†²æ•°
 	int cnt = __HAL_TIM_GET_COUNTER(MyEncoder->htimx);
 
-	// µÃµ½Âö³åÊý,>0ÎªÕý,<0Îª¸º
+	// å¾—åˆ°è„‰å†²æ•°,>0ä¸ºæ­£,<0ä¸ºè´Ÿ
 	if(cnt > MyEncoder->htimx->Instance->ARR/2)
 	{
-		cnt = cnt - MyEncoder->htimx->Instance->ARR;	// ·´×ª,·ñÔò¾ÍÊÇÕý×ª,Ã»±ä»¯
+		cnt = cnt - MyEncoder->htimx->Instance->ARR;	// åè½¬,å¦åˆ™å°±æ˜¯æ­£è½¬,æ²¡å˜åŒ–
 	}
 	
-	// Âö³åÀÛ¼Ó
+	// è„‰å†²ç´¯åŠ 
 	MyEncoder->total_cnt += cnt ;
 
-	// ÇåÁã
+	// æ¸…é›¶
 	__HAL_TIM_SET_COUNTER(MyEncoder->htimx, 0);
 	
-	// ·µ»Ø±¾´ÎÖÜÆÚµÄ¼ÆÊýÖµ
+	// è¿”å›žæœ¬æ¬¡å‘¨æœŸçš„è®¡æ•°å€¼
 	return cnt;
 }
 
-// 3. µÃµ½ÀÛ¼ÆÂö³åÊý
+// 3. å¾—åˆ°ç´¯è®¡è„‰å†²æ•°
 int MyEncoder_Get_Total_CNT(MyEncoder_Typedef* MyEncoder)
 {
 	return MyEncoder->total_cnt ;

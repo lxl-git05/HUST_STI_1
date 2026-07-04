@@ -1,40 +1,38 @@
 #include "MyPWM.h"
 
-// 0. PWM¶¨Òå
+// 0. PWMå®šä¹‰
 MyPWM_Typedef MyPWM_Servo1      = {&htim1 , TIM_CHANNEL_1 , 2000.0f};
-
-MyPWM_Typedef MyPWM_Servo2      = {&htim1 , TIM_CHANNEL_2 , 2000.0f};	// ÓÉÓÚÒý½ÅËð»µ£¬ËùÒÔ¸ÄÎªTIM8_CH3: PC8
-
+MyPWM_Typedef MyPWM_Servo2      = {&htim1 , TIM_CHANNEL_2 , 2000.0f};
 MyPWM_Typedef MyPWM_Servo3      = {&htim1 , TIM_CHANNEL_3 , 2000.0f};
 MyPWM_Typedef MyPWM_Servo4      = {&htim1 , TIM_CHANNEL_4 , 2000.0f};
 MyPWM_Typedef MyPWM_Motor_A_IN1 = {&htim4 , TIM_CHANNEL_1 , 1000.0f};
 MyPWM_Typedef MyPWM_Motor_B_IN1 = {&htim4 , TIM_CHANNEL_2 , 1000.0f};
 
-// 1. PWM³õÊ¼»¯ - ¼ì²éARRºÍPWM_MAXÊÇ·ñÏàµÈ
+// 1. PWMåˆå§‹åŒ– - æ£€æŸ¥ARRå’ŒPWM_MAXæ˜¯å¦ç›¸ç­‰
 void MyPWM_Init(MyPWM_Typedef* MyPWM)
 {
-    // »ñÈ¡¶¨Ê±Æ÷µÄ×Ô¶¯ÖØ×°ÔØÖµ
+    // èŽ·å–å®šæ—¶å™¨çš„è‡ªåŠ¨é‡è£…è½½å€¼
     uint32_t arr = __HAL_TIM_GET_AUTORELOAD(MyPWM->htimx);
     
-    // ¼ì²éARRºÍPWM_MAXÊÇ·ñÏàµÈ
+    // æ£€æŸ¥ARRå’ŒPWM_MAXæ˜¯å¦ç›¸ç­‰
     if(arr + 1 != MyPWM->PWM_MAX)
     {
-        // ²»ÏàµÈ£¬½øÈëËÀÑ­»·
+        // ä¸ç›¸ç­‰ï¼Œè¿›å…¥æ­»å¾ªçŽ¯
         while(1)
         {
-            // 666ÂÒÐ´MAX
+            // 666ä¹±å†™MAX
         }
     }
-    // Æô¶¯PWMÊä³ö
+    // å¯åŠ¨PWMè¾“å‡º
     HAL_TIM_PWM_Start(MyPWM->htimx, MyPWM->Channel);
 }
 
-// 2. ÉèÖÃPWMÖµ - Ìí¼ÓÏÞ·ù¹¦ÄÜ
+// 2. è®¾ç½®PWMå€¼ - æ·»åŠ é™å¹…åŠŸèƒ½
 void MyPWM_SetCompare(MyPWM_Typedef* MyPWM, uint16_t Compare)
 {
     uint16_t limited_compare = Compare;
     
-    // ÏÞ·ù£ºÈ·±£CompareÖµÔÚ0µ½PWM_MAXÖ®¼ä
+    // é™å¹…ï¼šç¡®ä¿Compareå€¼åœ¨0åˆ°PWM_MAXä¹‹é—´
     if(Compare > MyPWM->PWM_MAX)
     {
         limited_compare = MyPWM->PWM_MAX;
@@ -44,11 +42,11 @@ void MyPWM_SetCompare(MyPWM_Typedef* MyPWM, uint16_t Compare)
         limited_compare = 0;
     }
     
-    // ÉèÖÃ±È½ÏÖµ
+    // è®¾ç½®æ¯”è¾ƒå€¼
     __HAL_TIM_SET_COMPARE(MyPWM->htimx, MyPWM->Channel, limited_compare);
 }
 
-// 3. µÃµ½PWMµÄÆµÂÊ
+// 3. å¾—åˆ°PWMçš„é¢‘çŽ‡
 int MyPWM_GetFre(MyPWM_Typedef* MyPWM)
 {
 		return MySystem_Fre / (MyPWM->htimx->Instance->ARR + 1) / (MyPWM->htimx->Instance->PSC + 1) ;

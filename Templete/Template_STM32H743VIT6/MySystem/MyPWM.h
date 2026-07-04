@@ -10,17 +10,17 @@ typedef struct
 	float PWM_MAX ;
 }MyPWM_Typedef ;
 
-extern MyPWM_Typedef MyPWM_Servo1     ;	// PSC:2400(10us) ARR:2000, ¶æ»úÓ¦¸ÃÊ¹ÓÃ50-250µÄPWMÖµ
+extern MyPWM_Typedef MyPWM_Servo1     ;	// PSC:2400(10us) ARR:2000, èˆµæœºåº”è¯¥ä½¿ç”¨50-250çš„PWMå€¼
 extern MyPWM_Typedef MyPWM_Servo2     ;
 extern MyPWM_Typedef MyPWM_Servo3     ;
 extern MyPWM_Typedef MyPWM_Servo4     ;
-extern MyPWM_Typedef MyPWM_Motor_A_IN1;	// Fre:20kHz(ÏûÒô) , ARR:1000
+extern MyPWM_Typedef MyPWM_Motor_A_IN1;	// Fre:20kHz(æ¶ˆéŸ³) , ARR:1000
 extern MyPWM_Typedef MyPWM_Motor_B_IN1;
 
-// PWM³õÊ¼»¯
+// PWMåˆå§‹åŒ–
 void MyPWM_Init(MyPWM_Typedef* MyPWM) ;
-// ÉèÖÃPWMÖµ
+// è®¾ç½®PWMå€¼
 void MyPWM_SetCompare(MyPWM_Typedef* MyPWM, uint16_t Compare) ;
-// µÃµ½PWMµÄÆµÂÊ
+// å¾—åˆ°PWMçš„é¢‘ç‡
 int MyPWM_GetFre(MyPWM_Typedef* MyPWM) ;
 #endif

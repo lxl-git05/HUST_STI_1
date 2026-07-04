@@ -3,30 +3,26 @@
 
 #include "MySystem.h"
 
-// GPIOΩ·ππÃÂ∂®“Â
-typedef struct 
-{
+// GPIOÁªìÊûÑ‰ΩìÂÆö‰πâ
+typedef struct {
     GPIO_TypeDef *GPIO_Port;
     uint16_t GPIO_Pin;
 } MyGPIO_Typedef;
 
-// GPIOÕ‚≤ø…˘√˜
-extern MyGPIO_Typedef MyGPIO_LED0          ;
+// GPIOÂ§ñÈÉ®ÂÆû‰æãÔºàconstÔºåÂú®MySystem.c‰∏≠ÂÆö‰πâÔºâ
+extern const MyGPIO_Typedef MyGPIO_LED0;
+extern const MyGPIO_Typedef MyGPIO_Key0;
+extern const MyGPIO_Typedef MyGPIO_Key1;
+extern const MyGPIO_Typedef MyGPIO_Key2;
+extern const MyGPIO_Typedef MyGPIO_OLED_SCL;
+extern const MyGPIO_Typedef MyGPIO_OLED_SDA;
+extern const MyGPIO_Typedef MyGPIO_Motor_A_IN1;
+extern const MyGPIO_Typedef MyGPIO_Motor_A_IN2;
+extern const MyGPIO_Typedef MyGPIO_Motor_B_IN1;
+extern const MyGPIO_Typedef MyGPIO_Motor_B_IN2;
 
-extern MyGPIO_Typedef MyGPIO_Key0          ;
-extern MyGPIO_Typedef MyGPIO_Key1          ;
-extern MyGPIO_Typedef MyGPIO_Key2          ;
-
-extern MyGPIO_Typedef MyGPIO_OLED_SCL      ;
-extern MyGPIO_Typedef MyGPIO_OLED_SDA      ;
-
-extern MyGPIO_Typedef MyGPIO_Motor_A_IN1   ;
-extern MyGPIO_Typedef MyGPIO_Motor_A_IN2   ;
-extern MyGPIO_Typedef MyGPIO_Motor_B_IN1   ;
-extern MyGPIO_Typedef MyGPIO_Motor_B_IN2   ;
-
-// GPIO∫Ø ˝…˘√˜
-void My_GPIO_WritePin(MyGPIO_Typedef* MyGPIO , int isHigh) ;    // 1. GPIO–¥
-int My_GPIO_ReadPin(MyGPIO_Typedef* MyGPIO) ;                   // 2. GPIO∂¡
+// GPIOÊìç‰ΩúÂáΩÊï∞
+void My_GPIO_WritePin(const MyGPIO_Typedef *gpio, int isHigh);
+int My_GPIO_ReadPin(const MyGPIO_Typedef *gpio);
 
 #endif // !__MYGPIO_H

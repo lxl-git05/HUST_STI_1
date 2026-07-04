@@ -545,6 +545,11 @@
           <GroupName>MySystem</GroupName>
           <Files>
             <File>
+              <FileName>MySystem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MySystem\MySystem.c</FilePath>
+            </File>
+            <File>
               <FileName>MySystem.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\MySystem\MySystem.h</FilePath>

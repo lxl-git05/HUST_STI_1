@@ -1,35 +1,35 @@
 #include "tim.h"
 
-// ∂® ±∆˜≥ı ºªØ
+// ÂÆöÊó∂Âô®ÂàùÂßãÂåñ
 void Timer_Initial(void)
 {
 	HAL_TIM_Base_Start_IT(&htim16);
 	HAL_TIM_Base_Start_IT(&htim17);
 }
 
-/*»ı∫Ø ˝…˘√˜,÷˜∫Ø ˝µ˜”√*/
+/*Âº±ÂáΩÊï∞Â£∞Êòé,‰∏ªÂáΩÊï∞Ë∞ÉÁî®*/
 __attribute__((weak)) void Timer_1ms_Callback(void)
 {
-    // ƒ¨»œø’ µœ÷
+    // ÈªòËÆ§Á©∫ÂÆûÁé∞
 }
 
-/*»ı∫Ø ˝…˘√˜,÷˜∫Ø ˝µ˜”√*/
+/*Âº±ÂáΩÊï∞Â£∞Êòé,‰∏ªÂáΩÊï∞Ë∞ÉÁî®*/
 __attribute__((weak)) void Timer_20ms_Callback(void)
 {
-    // ƒ¨»œø’ µœ÷
+    // ÈªòËÆ§Á©∫ÂÆûÁé∞
 }
 
-// ∂® ±∆˜ªÿµ˜∫Ø ˝
+// ÂÆöÊó∂Âô®ÂõûË∞ÉÂáΩÊï∞
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  //≈–∂œ «∑Ò «TIM17÷–∂œ
+  //Âà§Êñ≠ÊòØÂê¶ÊòØTIM17‰∏≠Êñ≠
   if (htim->Instance == TIM17)
   {
-    Timer_1ms_Callback() ;	// 1ms÷–∂œ
+    Timer_1ms_Callback() ;	// 1ms‰∏≠Êñ≠
   }
-	// ≈–∂œ «∑Ò «TIM16÷–∂œ
+	// Âà§Êñ≠ÊòØÂê¶ÊòØTIM16‰∏≠Êñ≠
 	else if (htim->Instance == TIM16)
 	{
-		Timer_20ms_Callback() ;	// 20ms÷–∂œ
+		Timer_20ms_Callback() ;	// 20ms‰∏≠Êñ≠
 	}
 }
