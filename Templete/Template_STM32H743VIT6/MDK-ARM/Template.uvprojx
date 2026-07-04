@@ -595,16 +595,6 @@
           <GroupName>Software</GroupName>
           <Files>
             <File>
-              <FileName>DList.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\DList.c</FilePath>
-            </File>
-            <File>
-              <FileName>DList.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Software\DList.h</FilePath>
-            </File>
-            <File>
               <FileName>Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Software\Task.c</FilePath>
@@ -623,16 +613,6 @@
               <FileName>MyPID.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Software\MyPID.h</FilePath>
-            </File>
-            <File>
-              <FileName>Queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\Queue.c</FilePath>
-            </File>
-            <File>
-              <FileName>Queue.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Software\Queue.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -740,16 +720,6 @@
           <GroupName>Tools</GroupName>
           <Files>
             <File>
-              <FileName>Key_Check.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Tools\Key_Check.c</FilePath>
-            </File>
-            <File>
-              <FileName>Key_Check.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Tools\Key_Check.h</FilePath>
-            </File>
-            <File>
               <FileName>Timer_Counter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Tools\Timer_Counter.c</FilePath>
@@ -768,16 +738,6 @@
               <FileName>LED_Flash.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Tools\LED_Flash.h</FilePath>
-            </File>
-            <File>
-              <FileName>Menu_Key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Tools\Menu_Key.c</FilePath>
-            </File>
-            <File>
-              <FileName>Menu_Key.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Tools\Menu_Key.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -858,16 +818,6 @@
               <FileName>AllHeader.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Top\AllHeader.h</FilePath>
-            </File>
-            <File>
-              <FileName>Control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Top\Control.c</FilePath>
-            </File>
-            <File>
-              <FileName>Control.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Top\Control.h</FilePath>
             </File>
           </Files>
         </Group>

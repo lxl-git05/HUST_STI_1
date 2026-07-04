@@ -2,7 +2,7 @@
 #include "AllHeader.h"
 
 Mode_Typedef curr_mode = Mode_Null   ;     // 当前模式
-Mode_Typedef next_mode = Mode_Main   ;     // 下一个模式
+Mode_Typedef next_mode = Mode_2      ;     // 下一个模式
 
 // ========================== 系统setup loop ==========================
 
@@ -10,7 +10,7 @@ Mode_Typedef next_mode = Mode_Main   ;     // 下一个模式
 void Mode_G_Setup(void)
 {
     // 全局初始化
-    Initial_ALL() ;	
+    Initial_ALL() ;
     // 定时器必须最后初始化!!!
     Initial_Timer() ;
 }
@@ -40,19 +40,23 @@ void Timer_1ms_Callback(void)
 	Key_Tick() ;
 	// 功能2: LED闪烁指示灯
 	Flash_Mode_Tick() ;
-	// 功能3: 舵机控制台
-	Con_Servo_GoalAngle_Tick() ;
+	
 }
 
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
-	// 1. 电机速度更新与PID控制
-	Motor_Speed_Update_Tick(20) ;
-	// 2. 展示电机参数
-	if (curr_mode == Mode_PID  ) {Mode_1_Tick() ;}
-	if (curr_mode == Mode_Angle) {Mode_2_Tick() ;}
-	if (curr_mode == Mode_Main)  {Mode_4_Tick() ;}
+	
+	// 20ms定时器逻辑
+	switch (curr_mode) 
+	{
+			case Mode_Null : break;
+			case 1 : Mode_1_Tick() ; break;
+			case 2 : Mode_2_Tick() ; break;
+			case 3 : Mode_3_Tick() ; break;
+			case 4 : Mode_4_Tick() ; break;
+			case Mode_End  : break;
+	}
 }
 
 // ========================== 系统状态配置 ==========================

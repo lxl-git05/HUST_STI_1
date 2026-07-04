@@ -1,17 +1,10 @@
 #ifndef __ALLHEADER_H
 #define __ALLHEADER_H
 
-// 系统库
-#include "string.h"
-#include "stdio.h"
-#include "stdint.h"
-#include "stdbool.h"
-
 // 底层驱动库(MySystem)
 #include "MySystem.h"
 
 // 工具库
-#include "Key_Check.h"
 #include "LED_Flash.h"
 #include "Timer_Counter.h"
 
@@ -22,7 +15,6 @@
 
 
 // 软件算法库
-#include "Control.h"
 
 // 硬件实现库
 #include "Con_Motor.h"
