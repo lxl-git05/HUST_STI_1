@@ -1,9 +1,5 @@
 #include "MyEncoder.h"
 
-// 0. 编码器定义
-MyEncoder_Typedef Motor_A_Encoder = {&htim2 , 4, 0};
-MyEncoder_Typedef Motor_B_Encoder = {&htim3 , 4, 0};
-
 // 1. 编码器初始化
 void MyEncoder_Init(MyEncoder_Typedef* MyEncoder)
 {

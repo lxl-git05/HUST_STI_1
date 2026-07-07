@@ -63,6 +63,7 @@
 +++
 
   1. MyPWM.h — 增强结构体 + 接口：
+
     typedef struct {
       TIM_HandleTypeDef *htimx;   // TIM外设句柄
       uint32_t Channel;           // 通道号
@@ -82,7 +83,9 @@
 
 既然如此，PSC也可以删除了，反正TIM_HandleTypeDef *htimx句柄足够了，你觉得呢，然后PWM_MAX和MIN你觉得需要改成更加直观的名字吗
 
++++
 
+现在开始，你看看定时器文件有没有修改的必要，对于芯片底层移植来说
 
 
 

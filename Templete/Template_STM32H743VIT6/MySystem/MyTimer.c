@@ -28,7 +28,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     Timer_1ms_Callback() ;	// 1ms中断
   }
 	// 判断是否是TIM16中断
-	else if (htim->Instance == TIM16)
+	if (htim->Instance == TIM16)
 	{
 		Timer_20ms_Callback() ;	// 20ms中断
 	}
