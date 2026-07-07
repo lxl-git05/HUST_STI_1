@@ -1,27 +1,23 @@
 #include "Serial_base.h"
 
-// ============== 全局变量 ==============
-Serial_Agreement_HEX_TypeDef 	Serial_Agreement_HEX ;		// 串口数据通信协议:HEX
-Serial_Agreement_ABC_TypeDef 	Serial_Agreement_ABC ;		// 串口数据通信协议:ABC
+// ============== 全局变量（协议常量）==============
+Serial_Agreement_ABC_TypeDef   Serial_Agreement_ABC;   // ABC协议帧
+Serial_Agreement_HEX_TypeDef   Serial_Agreement_HEX;   // HEX协议帧
 
-// ============== 函数:初始化 ==============
-// 串口协议初始化:HEX
-void Serial_Agreement_HEX_Init(Serial_Agreement_HEX_TypeDef *pSerial_Agreement)
+// ============== 协议初始化 ==============
+// ABC协议初始化
+void Serial_Agreement_ABC_Init(void)
 {
-	pSerial_Agreement->head1 = 0xFF ;
-	
-	pSerial_Agreement->head2 = 0xAA ;
-	pSerial_Agreement->end1	 = 0x55 ;
-	
-	pSerial_Agreement->end2  = 0xFE	;
+    Serial_Agreement_ABC.head = '@';
+    Serial_Agreement_ABC.end1 = '$';
+    Serial_Agreement_ABC.end2 = '#';
 }
 
-// 串口协议初始化:ABC
-void Serial_Agreement_ABC_Init(Serial_Agreement_ABC_TypeDef *pSerial_Agreement)
+// HEX协议初始化
+void Serial_Agreement_HEX_Init(void)
 {
-	pSerial_Agreement->head  =  '@' ;
-	pSerial_Agreement->end1	 =  '$' ;
-	pSerial_Agreement->end2  =  '#' ;
+    Serial_Agreement_HEX.head1 = 0xFF;
+    Serial_Agreement_HEX.head2 = 0xAA;
+    Serial_Agreement_HEX.end1  = 0x55;
+    Serial_Agreement_HEX.end2  = 0xFE;
 }
-
-

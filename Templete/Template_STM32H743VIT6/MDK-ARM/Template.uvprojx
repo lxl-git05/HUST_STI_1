@@ -690,14 +690,14 @@
           <GroupName>Function</GroupName>
           <Files>
             <File>
-              <FileName>Serial.c</FileName>
+              <FileName>Serial_porting.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Function\Serial.c</FilePath>
+              <FilePath>..\Function\Serial_porting.c</FilePath>
             </File>
             <File>
-              <FileName>Serial.h</FileName>
+              <FileName>Serial_porting.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Function\Serial.h</FilePath>
+              <FilePath>..\Function\Serial_porting.h</FilePath>
             </File>
             <File>
               <FileName>Con_Motor.c</FileName>

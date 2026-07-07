@@ -1,23 +1,23 @@
 #include "AllHeader.h"
 
-// Mymain³õÊ¼»¯¼¯ºÏ,Ê¹Ö÷º¯Êı¸ü¼ò½à
+// Mymainåˆå§‹åŒ–é›†åˆ,ä½¿ä¸»å‡½æ•°æ›´ç®€æ´
 void Initial_ALL(void)
 {
 	// Hardware
-	OLED_Init() ;																	// OLED³õÊ¼»¯
+	OLED_Init() ;																	// OLEDåˆå§‹åŒ–
 	
 	// Software
-	Serial_Init() ;																// ´®¿Ú³õÊ¼»¯
+	Serial_Init();																// ä¸²å£åˆå§‹åŒ–
 	
 	// Control
-	Con_Motor_Init() ;														// µç»ú³õÊ¼»¯
+	Con_Motor_Init() ;														// ç”µæœºåˆå§‹åŒ–
 	
 	// Tools
-	Flash_Mode_Init() ;														// LEDÉÁË¸¹¤¾ß³õÊ¼»¯
-	Timer_Counter_Init() ;												// Ê±¼ä´Á²â¶¨³õÊ¼»¯
+	Flash_Mode_Init() ;														// LEDé—ªçƒå·¥å…·åˆå§‹åŒ–
+	Timer_Counter_Init() ;												// æ—¶é—´æˆ³æµ‹å®šåˆå§‹åŒ–
 }
 
-// ¶¨Ê±Æ÷³õÊ¼»¯
+// å®šæ—¶å™¨åˆå§‹åŒ–
 void Initial_Timer(void)
 {
 	Timer_Initial() ;

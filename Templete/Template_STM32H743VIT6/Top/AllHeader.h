@@ -1,36 +1,36 @@
 #ifndef __ALLHEADER_H
 #define __ALLHEADER_H
 
-// µ×²ãÇı¶¯¿â(MySystem)
+// åº•å±‚é©±åŠ¨åº“(MySystem)
 #include "MySystem.h"
 
-// ¹¤¾ß¿â
+// å·¥å…·åº“
 #include "LED_Flash.h"
 #include "Timer_Counter.h"
 
-// Ó²¼şÇı¶¯¿â
+// ç¡¬ä»¶é©±åŠ¨åº“
 #include "Key.h"
 #include "OLED.h"
-#include "Serial.h"
+#include "Serial_porting.h"
 
 
-// Èí¼şËã·¨¿â
+// è½¯ä»¶ç®—æ³•åº“
 
-// Ó²¼şÊµÏÖ¿â
+// ç¡¬ä»¶å®ç°åº“
 #include "Con_Motor.h"
 #include "Con_Servo.h"
 
-// Mode¿â
+// Modeåº“
 #include "Mode_G.h"
 #include "Mode_1.h"
 #include "Mode_2.h"
 #include "Mode_3.h"
 #include "Mode_4.h"
 
-// Mymain³õÊ¼»¯¼¯ºÏ,Ê¹Ö÷º¯Êı¸ü¼ò½à
+// Mymainåˆå§‹åŒ–é›†åˆ,ä½¿ä¸»å‡½æ•°æ›´ç®€æ´
 void Initial_ALL(void) ;
 
-// ¶¨Ê±Æ÷³õÊ¼»¯,±ØĞë·ÅÔÚ×îºó³õÊ¼»¯,·ÀÖ¹¿ª¾Ö·ÃÎÊ¿ÕÖ¸Õë
+// å®šæ—¶å™¨åˆå§‹åŒ–,å¿…é¡»æ”¾åœ¨æœ€ååˆå§‹åŒ–,é˜²æ­¢å¼€å±€è®¿é—®ç©ºæŒ‡é’ˆ
 void Initial_Timer(void) ;
 
 #endif
