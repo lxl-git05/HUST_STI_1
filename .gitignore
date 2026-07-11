@@ -107,5 +107,6 @@ Thumbs.db
 **/main.aux
 
 /STM32F407ZGT6-ShangJia
+/Stepper
 
 __pycache__
