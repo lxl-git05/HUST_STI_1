@@ -5,6 +5,7 @@ void Initial_ALL(void)
 {
 	// Hardware
 	OLED_Init() ;																	// OLED初始化
+	Serial_Init() ;                                                               // Serial串口初始化（USART1/USART2）
 	
 	// Software
 	

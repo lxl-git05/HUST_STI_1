@@ -491,7 +491,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart6_rx);
 
     /* USART6_TX Init */
-    hdma_usart6_tx.Instance = DMA1_Stream7;
+    hdma_usart6_tx.Instance = DMA2_Stream7;
     hdma_usart6_tx.Init.Request = DMA_REQUEST_USART6_TX;
     hdma_usart6_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_usart6_tx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -659,5 +659,10 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   }
 }
 			
+// Serial模块 - 串口空闲中断回调（由HAL_UART_IRQHandler调用）
+// 注意：HAL_UARTEx_RxEventCallback 的实现在 Function/Serial_porting.c 中
+// 此处通过 extern 声明确保链接顺序正确
+extern void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
+
 /* USER CODE END 1 */
 

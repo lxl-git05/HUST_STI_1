@@ -2,7 +2,7 @@
 #include "AllHeader.h"
 
 Mode_Typedef curr_mode = Mode_Null   ;     // 当前模式
-Mode_Typedef next_mode = Mode_2      ;     // 下一个模式
+Mode_Typedef next_mode = Mode_3      ;     // 下一个模式
 
 // ========================== 系统setup loop ==========================
 
@@ -11,6 +11,7 @@ void Mode_G_Setup(void)
 {
     // 全局初始化
     Initial_ALL() ;
+		Stepper_Init();  // 步进电机初始化
     // 定时器必须最后初始化!!!
     Initial_Timer() ;
 }
@@ -46,8 +47,9 @@ void Timer_1ms_Callback(void)
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
-	
-	// 20ms定时器逻辑
+	// 1. 香橙派数据更新
+	Oran_Update() ;	
+	// 2. 20ms定时器逻辑
 	switch (curr_mode) 
 	{
 			case Mode_Null : break;
@@ -75,3 +77,10 @@ void Mode_ChangeTo(Mode_Typedef nextmode)
 
     next_mode = nextmode ;
 }
+
+// ============== 5ms定时器回调 ==============
+// 处理队列命令出队和电机状态查询
+//void Timer_5ms_Callback(void)
+//{
+////    Stepper_Polling_5ms();  // 统一处理两个电机的队列和查询,8us完成
+//}

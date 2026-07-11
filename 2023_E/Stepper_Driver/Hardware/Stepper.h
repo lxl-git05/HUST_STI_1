@@ -3,6 +3,7 @@
 
 #include "MySystem.h"
 #include "Emm_V5.h"
+#include "MyPID.h"
 
 // 串口驱动步进电机
 
@@ -59,12 +60,14 @@ typedef struct {
     int8_t Positive_Dir;                // 正方向(1 or -1)
 
     // 速度
-    int Speed_Tar;                       // 目标速度
     int Speed_Now;                       // 当前速度
 
     // 角度
     float Pos_Tar;                       // 目标角度
     float Pos_Now;                       // 当前角度
+		
+		// 角度PID
+		Pid_Typedef PID_Angle ;							 // 角度PID 
 
 } Stepper_Typedef;
 

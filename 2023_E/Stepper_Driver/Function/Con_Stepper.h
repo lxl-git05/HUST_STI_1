@@ -5,10 +5,17 @@
 #include "Stepper.h"
 #include "math.h"
 
-// »æÖÆÕı·½ĞÎ
+// è§’åº¦PIDå€¼æ›´æ–°
+void Stepper_PID_Tick(uint32_t Gap_Time_ms) ;
+// 1. ç»å¯¹è§’åº¦å€¼è®¾å®š
+void Stepper_Angle_Abs_Set(Stepper_Typedef* pS ,uint16_t vel , uint16_t acc , float Tar_Angle) ;
+// 4. æ’å®šé€Ÿåº¦è®¾å®š
+void Stepper_Speed_Rel_Set(Stepper_Typedef* pS ,int16_t vel , uint16_t acc) ;
+
+// ç»˜åˆ¶æ­£æ–¹å½¢
 void Stepper_Draw_Square(float Init_x, float Init_y, float delta_Num, float Square_W) ;
-// Æ«ÖÃ¼ÆËã
+// åç½®è®¡ç®—
 void Stepper_Angle_Dot_Update(void) ;
-// ÊäÈë(x,y)Öµ(ÒÔ×óÏÂ½Ç½ÇµãÎªÔ­µã)(Ã×)£¬Êä³ö(¦Á,¦Â)½Ç¶ÈÖµ(¡ã),aÎª1Î¬ÔÆÌ¨(Ë®Æ½Ğı×ª),bÎª2Î¬ÔÆÌ¨(ÉÏÏÂÔ²ÖÜĞı×ª)
+// è¾“å…¥(x,y)å€¼(ä»¥å·¦ä¸‹è§’è§’ç‚¹ä¸ºåŸç‚¹)(ç±³)ï¼Œè¾“å‡º(Î±,Î²)è§’åº¦å€¼(Â°),aä¸º1ç»´äº‘å°(æ°´å¹³æ—‹è½¬),bä¸º2ç»´äº‘å°(ä¸Šä¸‹åœ†å‘¨æ—‹è½¬)
 void Stepper_XY2AB_Update(float x , float y , Stepper_Typedef* pS1 , Stepper_Typedef* pS2) ;
 #endif

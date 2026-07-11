@@ -1,5 +1,6 @@
 #include "Stepper.h"
 
+
 Stepper_Typedef Stepper1;  // 1号步进电机
 Stepper_Typedef Stepper2;  // 2号步进电机
 
@@ -97,14 +98,14 @@ static void Stepper_Exec_Cmd(Stepper_Typedef* pStepper, Stepper_Cmd* cmd)
             } else {
                 Emm_V5_Vel_Control(pStepper->Stepper_huart, pStepper->addr, 1, -cmd->vel, cmd->acc, false);
             }
-            break;
+            return;
 
         case CMD_REL_POS: {
             int16_t vel = (cmd->vel > 0) ? cmd->vel : -cmd->vel;
             uint8_t dir = (cmd->vel * pStepper->Positive_Dir > 0) ? 0 : 1;
             uint32_t clk = (uint32_t)(cmd->angle / pStepper->pulse_angle);
             Emm_V5_Pos_Control(pStepper->Stepper_huart, pStepper->addr, dir, vel, cmd->acc, clk, 2, false);
-            break;
+            return;
         }
 
         case CMD_ABS_POS: {
@@ -112,28 +113,27 @@ static void Stepper_Exec_Cmd(Stepper_Typedef* pStepper, Stepper_Cmd* cmd)
             uint8_t dir = (cmd->vel * pStepper->Positive_Dir > 0) ? 0 : 1;
             uint32_t clk = (uint32_t)(cmd->angle / pStepper->pulse_angle);
             Emm_V5_Pos_Control(pStepper->Stepper_huart, pStepper->addr, dir, vel, cmd->acc, clk, 1, false);
-            break;
+            return;
         }
 
         case CMD_STOP:
             Emm_V5_Stop_Now(pStepper->Stepper_huart, pStepper->addr, false);
-            break;
+            return;
 
         case CMD_RESET_ZERO:
             Emm_V5_Reset_CurPos_To_Zero(pStepper->Stepper_huart, pStepper->addr);
-            break;
+            return;
 
         case CMD_QUERY_POS:
             Emm_V5_Read_Sys_Params(pStepper->Stepper_huart, pStepper->addr, S_CPOS);
-            break;
+            return;
 
         case CMD_QUERY_VEL:
             Emm_V5_Read_Sys_Params(pStepper->Stepper_huart, pStepper->addr, S_VEL);
-            break;
+            return;
 
         default:
-            pStepper->tx_busy = false;
-            break;
+            return;
     }
 }
 
@@ -242,6 +242,7 @@ void Stepper_Init(void)
     Stepper1.cmd_queue.head = 0;
     Stepper1.cmd_queue.tail = 0;
     Stepper1.cmd_queue.count = 0;
+		PID_Init(&Stepper1.PID_Angle,0.0f,0.0f,0.0f,180.0f,-180.0f,1000.0f) ;
 
     // 电机2
     Stepper2.Stepper_huart = &Stepper2_huart;
@@ -253,6 +254,7 @@ void Stepper_Init(void)
     Stepper2.cmd_queue.head = 0;
     Stepper2.cmd_queue.tail = 0;
     Stepper2.cmd_queue.count = 0;
+		PID_Init(&Stepper2.PID_Angle,0.0f,0.0f,0.0f,180.0f,-180.0f,1000.0f) ;
 
     // RX_DMA
     HAL_UARTEx_ReceiveToIdle_DMA(&Stepper1_huart, (uint8_t *)Stepper1.rx_buf, CMD_LEN);
