@@ -19,6 +19,16 @@ __attribute__((weak)) void Timer_20ms_Callback(void)
     // 默认空实现
 }
 
+__attribute__((weak)) void Timer_Stepper1_Pulse_Callback(void)
+{
+    // 默认空实现，由Mode_G层重写，调用Stepper_PWM_Pulse_Count
+}
+
+__attribute__((weak)) void Timer_Stepper2_Pulse_Callback(void)
+{
+    // 默认空实现，由Mode_G层重写，调用Stepper_PWM_Pulse_Count
+}
+
 // 定时器回调函数
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -31,5 +41,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Instance == TIM7)
 	{
 		Timer_20ms_Callback() ;	// 20ms中断
+	}
+	// 步进电机脉冲计数（TIM9=Stepper1, TIM12=Stepper2）
+	if (htim->Instance == TIM9)
+	{
+	    Timer_Stepper1_Pulse_Callback();
+	}
+	if (htim->Instance == TIM12)
+	{
+	    Timer_Stepper2_Pulse_Callback();
 	}
 }

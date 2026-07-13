@@ -23,6 +23,12 @@ extern MyGPIO_Typedef MyGPIO_Motor_B_IN2;
 extern MyGPIO_Typedef MyGPIO_RGB_R;
 extern MyGPIO_Typedef MyGPIO_RGB_G;
 extern MyGPIO_Typedef MyGPIO_RGB_B;
+extern MyGPIO_Typedef MyGPIO_Key3;
+
+extern MyGPIO_Typedef MyGPIO_Stepper_En   ;
+extern MyGPIO_Typedef MyGPIO_Stepper2_En  ;
+extern MyGPIO_Typedef MyGPIO_Stepper_Dir  ;
+extern MyGPIO_Typedef MyGPIO_Stepper2_Dir ;
 
 // GPIO操作函数
 void MyGPIO_WritePin(MyGPIO_Typedef *gpio, int isHigh);

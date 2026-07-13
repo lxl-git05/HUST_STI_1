@@ -19,23 +19,21 @@ Template_F407ZGT6/
 │   ├── MyEncoder.h/c    # 编码器初始化、读取、累计
 │   └── MyTimer.h/c      # 系统定时器（1ms + 20ms）+ 弱回调 + HAL中断分发
 ├── Hardware/            # 硬件设备驱动层（依赖 MySystem，芯片无关）
-│   ├── Key.h/c          # 按键检测（单击/双击/长按/重复）
+│   ├── Key.h/c          # 按键检测（4键，单击/双击/长按/重复）
 │   ├── OLED.h/c         # OLED 显示屏驱动（软件I2C，完整图形库）
 │   ├── OLED_Data.h/c    # OLED 字库数据（ASCII + 中文）
-│   ├── Motor.h/c        # 直流电机抽象（PWM + 方向 + 编码器 + PID）
-│   ├── Servo.h/c        # 舵机驱动（180°/360° 类型，步进控制，角度限幅）
-│   ├── Buzzer.h/c       # 蜂鸣器
-│   └── Serial_base.h/c  # 串口协议基础（ABC协议 + HEX协议帧定义 + 错误码）
+│   ├── RGB.h/c          # RGB LED 控制（GPIO 开关，共阳极）
+│   ├── Buzzer.h/c       # 蜂鸣器（存根）
+│   ├── Serial_base.h/c  # 串口协议基础（ABC + HEX 帧定义 + 错误码）
+│   └── Stepper_PWM.h/c  # 步进电机 PWM 驱动（🆕 待编写业务逻辑）
 ├── Software/            # 软件算法层（芯片无关）
-│   ├── MyPID.h/c        # PID 控制器（P/I/D分离，积分限幅，微分先行，死区）
-│   └── Task.h/c         # 任务管理器（周期任务 + 单次延迟任务）
+│   └── MyPID.h/c        # PID 控制器（P/I/D分离，积分限幅，微分先行，死区）
 ├── Tools/               # 工具层（芯片无关）
-│   ├── LED_Flash.h/c    # LED 闪烁控制（常亮/常灭/慢闪/快闪/瞬闪）
-│   └── Timer_Counter.h/c # DWT 代码执行时间测量
+│   ├── LED_Flash.h/c    # LED 闪烁控制（5种模式，绑定LED0）
+│   └── Timer_Counter.h/c # DWT 代码执行时间测量（us + ms）
 ├── Function/            # 功能实现层（组合 Hardware + Software，芯片无关）
-│   ├── Serial_porting.h/c # 串口通信移植层（Serial1/2 实例，HEX/ABC 协议解析）
-│   ├── Con_Motor.h/c    # 电机控制器（Motor_A/B 实例，速度/角度双PID环）
-│   └── Con_Servo.h/c    # 舵机控制器（Servo_1~4 实例，夹爪/衣架动作）
+│   ├── Serial_porting.h/c # 串口通信（Serial1/2，DMA收发，ABC/HEX双协议）
+│   └── Con_Stepper.h/c  # 步进电机业务逻辑（🆕 存根，待编写）
 ├── Mode/                # 模式状态机（芯片无关）
 │   ├── Mode_G.h/c       # 全局模式管理（枚举/切换/定时器回调分发）
 │   ├── Mode_1.h/c       # 脱机调参模式（参数调整并保存）
@@ -109,23 +107,34 @@ Template_F407ZGT6/
 |-----|--------|--------|------|
 | MySystem | MyGPIO / MyPWM / MyEncoder / MyTimer | ✅ 完成 | 2026-07-13 |
 | Hardware | Key / OLED / OLED_Data | ✅ 完成 | 2026-07-13 |
-| Hardware | Motor / Servo / Buzzer / Serial_base | ⬜ 待移植 | — |
-| **Software** | **MyPID / Task** | **✅ 完成** | **2026-07-13** |
-| **Tools** | **LED_Flash / Timer_Counter** | **✅ 完成** | **2026-07-13** |
-| Function | Serial_porting / Con_Motor / Con_Servo | ⬜ 待移植 | — |
-| Mode | Mode_G / Mode_1~4 (含Mode_2测试例程) | ✅ 完成 | 2026-07-13 |
+| Hardware | RGB (GPIO开关) | ✅ 完成 | 2026-07-13 |
+| Hardware | Serial_base (ABC/HEX协议) | ✅ 完成 | 2026-07-13 |
+| Hardware | Buzzer | ⬜ 存根 | — |
+| Hardware | Stepper_PWM (步进PWM驱动) | 🆕 框架已有 | 2026-07-13 |
+| Software | MyPID | ✅ 完成 | 2026-07-13 |
+| Tools | LED_Flash / Timer_Counter | ✅ 完成 | 2026-07-13 |
+| Function | Serial_porting (DMA收发) | ✅ 完成 | 2026-07-13 |
+| Function | Con_Stepper (步进业务逻辑) | 🆕 存根 | 2026-07-13 |
+| Mode | Mode_G / Mode_1~4 | ✅ 完成 | 2026-07-13 |
 
-### 测试例程 (Mode_2)
+## 代码约定
 
-Mode_2 包含 4 个子演示，按 KEY0 单击循环切换：
-1. **PID 阶跃响应测试** — 验证 MyPID 模块，KEY1 切换目标值(300/500/800)
-2. **任务调度器测试** — 验证 Task 模块(500ms/200ms周期任务 + 3s单次任务)，KEY1暂停/KEY2恢复
-3. **LED 闪烁模式测试** — 验证 LED_Flash 模块，KEY1 循环切换5种模式
-4. **代码计时器测试** — 验证 Timer_Counter 模块，显示函数执行时间(us)
+| 规则 | 说明 |
+|------|------|
+| Task 库 | **已弃用**，不用 `Task.h`，用静态计数器在 20ms/1ms Tick 中实现 |
+| KEY0 | Mode_G 占用（单击=LED快闪，双击=换模式），测试只用 KEY1/KEY2 |
+| OLED_Update | Mymain 末尾统一调用，各 Mode 不再调用 |
+| 测试代码 | 放 Mode_2，简洁为主，写清测试流程和预期现象 |
 
-### 1ms 中断任务列表
+## 串口配置
 
-`Timer_1ms_Callback()` 中依次执行：
-1. `Key_Tick()` — 按键扫描
-2. `Flash_Mode_Tick()` — LED闪烁状态更新
-3. `task_Once_Cnt_Tick()` — 单次任务倒计时
+| 串口 | 引脚 | DMA TX | DMA RX | 协议 |
+|------|------|--------|--------|------|
+| USART1 (Serial1) | PA9/PA10 | DMA2_Stream7 | DMA2_Stream2 | ABC + HEX |
+| USART2 (Serial2) | PA2/PA3 | DMA1_Stream6 | DMA1_Stream5 | ABC + HEX |
+| USART3 | PB10/PB11 | — | — | 未使用 |
+| USART6 | PC6/PC7 | — | — | 未使用 |
+
+## TODO
+
+- [ ] 下一步：协助编写步进电机驱动（Stepper_PWM）与业务逻辑（Con_Stepper）

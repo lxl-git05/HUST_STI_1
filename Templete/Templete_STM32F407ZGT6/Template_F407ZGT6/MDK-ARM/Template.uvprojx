@@ -1366,6 +1366,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\RGB.h</FilePath>
             </File>
+            <File>
+              <FileName>Stepper_PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Stepper_PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>Stepper_PWM.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Stepper_PWM.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1430,6 +1440,16 @@
               <FileName>Serial_porting.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Function\Serial_porting.h</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Stepper.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Con_Stepper.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Stepper.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Con_Stepper.h</FilePath>
             </File>
           </Files>
         </Group>

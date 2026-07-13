@@ -3,7 +3,7 @@
 
 /*这里的编码器是编码器模式,而不是外部触发模式,外部触发需要另外写相应代码*/
 
-#include "Mysystem.h"
+#include "MySystem.h"
 
 typedef struct
 {

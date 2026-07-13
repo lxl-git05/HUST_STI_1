@@ -14,9 +14,14 @@ MyGPIO_Typedef MyGPIO_Motor_A_IN1 = { Motor_A_IN1_GPIO_Port, Motor_A_IN1_Pin };
 MyGPIO_Typedef MyGPIO_Motor_A_IN2 = { Motor_A_IN2_GPIO_Port, Motor_A_IN2_Pin };
 MyGPIO_Typedef MyGPIO_Motor_B_IN1 = { Motor_B_IN1_GPIO_Port, Motor_B_IN1_Pin };
 MyGPIO_Typedef MyGPIO_Motor_B_IN2 = { Motor_B_IN2_GPIO_Port, Motor_B_IN2_Pin };
-MyGPIO_Typedef MyGPIO_RGB_R     = { RGB_R_GPIO_Port,     RGB_R_Pin };
-MyGPIO_Typedef MyGPIO_RGB_G     = { RGB_G_GPIO_Port,     RGB_G_Pin };
-MyGPIO_Typedef MyGPIO_RGB_B     = { RGB_Y_GPIO_Port,     RGB_Y_Pin };
+MyGPIO_Typedef MyGPIO_RGB_R       = { RGB_R_GPIO_Port,     RGB_R_Pin };
+MyGPIO_Typedef MyGPIO_RGB_G       = { RGB_G_GPIO_Port,     RGB_G_Pin };
+MyGPIO_Typedef MyGPIO_RGB_B       = { RGB_Y_GPIO_Port,     RGB_Y_Pin };
+
+MyGPIO_Typedef MyGPIO_Stepper_En   = {Stepper_En_GPIO_Port  , Stepper_En_Pin } ;
+MyGPIO_Typedef MyGPIO_Stepper2_En  = {Stepper_En2_GPIO_Port , Stepper_En2_Pin} ;
+MyGPIO_Typedef MyGPIO_Stepper_Dir  = {Stepper_Dir_GPIO_Port  , Stepper_Dir_Pin } ;
+MyGPIO_Typedef MyGPIO_Stepper2_Dir = {Stepper_Dir2_GPIO_Port , Stepper_Dir2_Pin} ;
 
 // ====================================================================
 // PWM 实例定义 — 换芯片时只需修改 htim / Channel / Compare_Max / Compare_Min
@@ -27,6 +32,9 @@ MyPWM_Typedef MyPWM_Servo3      = { &htim1, TIM_CHANNEL_3, 2000.0f, 500.0f };  /
 MyPWM_Typedef MyPWM_Servo4      = { &htim1, TIM_CHANNEL_4, 2000.0f, 500.0f };  // 舵机4
 MyPWM_Typedef MyPWM_Motor_A_IN1 = { &htim4, TIM_CHANNEL_3, 1000.0f, 0.0f   };  // 电机A
 MyPWM_Typedef MyPWM_Motor_B_IN1 = { &htim4, TIM_CHANNEL_4, 1000.0f, 0.0f   };  // 电机B
+
+MyPWM_Typedef MyPWM_Stepper1 		= { &htim9 ,TIM_CHANNEL_1, 1000.0f, 0.0f   };  // 步进电机1
+MyPWM_Typedef MyPWM_Stepper2 		= { &htim12,TIM_CHANNEL_1, 1000.0f, 0.0f   };  // 步进电机2
 
 // ====================================================================
 // Encoder 实例定义 — 换芯片时只需修改 htim / time_Fre

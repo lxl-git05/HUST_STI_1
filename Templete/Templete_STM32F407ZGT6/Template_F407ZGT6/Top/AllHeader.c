@@ -12,6 +12,7 @@ void Initial_ALL(void)
 
 	// Control
 //	Con_Motor_Init() ;														// 电机初始化
+	Stepper_Init() ;														// 步进电机初始化
 
 	// Tools
 	Flash_Mode_Init() ;														// LED闪烁工具初始化

@@ -59,6 +59,18 @@ void Timer_20ms_Callback(void)
 	}
 }
 
+// ========================== 步进电机脉冲计数（重写MyTimer弱回调） ==========================
+
+void Timer_Stepper1_Pulse_Callback(void)
+{
+    Stepper_PWM_Pulse_Count(&Stepper1);
+}
+
+void Timer_Stepper2_Pulse_Callback(void)
+{
+    Stepper_PWM_Pulse_Count(&Stepper2);
+}
+
 // ========================== 系统状态配置 ==========================
 // 进入下一状态
 void Mode_To_Next(void)
