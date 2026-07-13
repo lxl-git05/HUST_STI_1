@@ -3,7 +3,7 @@
 // 1. x_real 2. y_real 3. x_tar 4. y_tar
 float x_real = 640.0f ;
 float y_real = 640.0f ;
-float x_tar  = 360.0f ;
+float x_tar  = 500.0f ;
 float y_tar  = 360.0f ;
 
 // 香橙派数据更新,在Mode_G实现20ms固定更新

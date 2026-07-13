@@ -2,7 +2,7 @@
 #include "Mode_3.h"
 #include "AllHeader.h"
 
-bool IsS1 = 1 ;
+bool IsS1 = 0 ;
 
 void Mode_3_Setup(void)
 {
@@ -30,12 +30,14 @@ void Mode_3_Loop(void)
 			Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &Stepper1.PID_Angle.Kp);
 			Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &Stepper1.PID_Angle.Ki);
 			Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &Stepper1.PID_Angle.Kd);
+			Serial_SetFloatData(&Serial1, "Angle", "Angle=%f", &x_tar);
 		}
 		else
 		{
 			Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &Stepper2.PID_Angle.Kp);
 			Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &Stepper2.PID_Angle.Ki);
 			Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &Stepper2.PID_Angle.Kd);
+			Serial_SetFloatData(&Serial1, "Angle", "Angle=%f", &y_tar);
 		}
 	}
 	OLED_Printf(0, 20, OLED_6X8 , "%s",IsS1 ? "Stepper 1" : "Stepper 2") ;
@@ -45,15 +47,19 @@ void Mode_3_Loop(void)
 // 云台PID
 void Mode_3_Tick(void)
 {
+	Timer_Counter_Begin() ;
 	Stepper_PID_Tick(20) ;
 	if (IsS1)
 	{
+		
 		Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
+		
 	}
 	else
 	{
 		Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper2.PID_Angle.goalPoint ,Stepper2.PID_Angle.realPoint_Now ,Stepper2.PID_Angle.setPoint );		
 	}
+	Timer_Counter_End() ;
 }
 
 void Mode_3_Exit(void)

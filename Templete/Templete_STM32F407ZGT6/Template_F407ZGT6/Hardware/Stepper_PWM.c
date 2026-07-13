@@ -20,8 +20,8 @@ void Stepper_PWM_Init(Stepper_PWM_Typedef* pStepper, MyPWM_Typedef* PWM, MyGPIO_
     pStepper->Pos_Tar = 0;
     pStepper->Speed_Now = 0;
 	
-		// PID初始化
-		PID_Init(&pStepper->PID_Angle , 0.0f , 0.0f , 0.0f , 100.0f , -100.0f , 1000.0f) ;
+		// PID初始化在外部调
+		
 
     // 初始化DIR引脚（默认正转）
     MyGPIO_WritePin(pStepper->GPIO_Dir, Positive_Dir > 0 ? 1 : 0);

@@ -2,7 +2,7 @@
 #include "AllHeader.h"
 
 Mode_Typedef curr_mode = Mode_Null   ;     // 当前模式
-Mode_Typedef next_mode = Mode_2      ;     // 下一个模式
+Mode_Typedef next_mode = Mode_3      ;     // 下一个模式
 
 // ========================== 系统setup loop ==========================
 

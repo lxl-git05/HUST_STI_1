@@ -5,8 +5,11 @@
 void Stepper_Init(void)
 {
 	// 假设 1.8° 步进角，16 细分 → 0.1125°/脉冲，正方向暂用STEPPER_DIR_P
-	Stepper_PWM_Init(&Stepper1, &MyPWM_Stepper1, &MyGPIO_Stepper_Dir, 0.1125f, STEPPER_DIR_N);
+	Stepper_PWM_Init(&Stepper1, &MyPWM_Stepper1, &MyGPIO_Stepper_Dir, 0.1125f, STEPPER_DIR_P);
 	Stepper_PWM_Init(&Stepper2, &MyPWM_Stepper2, &MyGPIO_Stepper2_Dir, 0.1125f, STEPPER_DIR_P);
+	
+	PID_Init(&Stepper1.PID_Angle , 0.217f , 0.0f , 0.829f , 100.0f , -100.0f , 1000.0f) ;
+	PID_Init(&Stepper2.PID_Angle , 0.081f , 0.0f , 0.224f , 100.0f , -100.0f , 1000.0f) ;
 }
 
 // 目标角度PID值更新

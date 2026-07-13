@@ -2,6 +2,7 @@
 #include "string.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "Timer_Counter.h"
 
 // ============== 全局实例 ==============
 Serial_Typedef Serial1;
@@ -233,6 +234,7 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
+	Timer_Counter_Func() ;
     // 1. 查找实例
     Serial_Typedef *pSerial = Serial_GetInstance(huart);
     if (pSerial == NULL) return;

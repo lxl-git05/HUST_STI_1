@@ -909,14 +909,30 @@ void OLED_ShowImage(int16_t X, int16_t Y, uint8_t Width, uint8_t Height, const u
   * 返 回 值：无
   * 说    明：调用此函数后，要想真正地呈现在屏幕上，还需调用更新函数
   */
+//void OLED_Printf(int16_t X, int16_t Y, uint8_t FontSize, char *format, ...)
+//{
+//	char String[256];						//定义字符数组
+//	va_list arg;							//定义可变参数列表数据类型的变量arg
+//	va_start(arg, format);					//从format开始，接收参数列表到arg变量
+//	vsprintf(String, format, arg);			//使用vsprintf打印格式化字符串和参数列表到字符数组中
+//	va_end(arg);							//结束变量arg
+//	OLED_ShowString(X, Y, String, FontSize);//OLED显示字符数组（字符串）
+//}
+
 void OLED_Printf(int16_t X, int16_t Y, uint8_t FontSize, char *format, ...)
 {
-	char String[256];						//定义字符数组
-	va_list arg;							//定义可变参数列表数据类型的变量arg
-	va_start(arg, format);					//从format开始，接收参数列表到arg变量
-	vsprintf(String, format, arg);			//使用vsprintf打印格式化字符串和参数列表到字符数组中
-	va_end(arg);							//结束变量arg
-	OLED_ShowString(X, Y, String, FontSize);//OLED显示字符数组（字符串）
+    // 改为 static，这样它就不会在栈（Stack）空间里乱占地方，且天然满足对齐要求
+    // 同时也防止了防不胜防的栈溢出
+    static char String[256]; 
+    
+    va_list arg;
+    va_start(arg, format);
+    
+    // 安全起见，推荐使用 vsnprintf 防止数组越界
+    vsnprintf(String, sizeof(String), format, arg); 
+    
+    va_end(arg);
+    OLED_ShowString(X, Y, String, FontSize);
 }
 
 /**
