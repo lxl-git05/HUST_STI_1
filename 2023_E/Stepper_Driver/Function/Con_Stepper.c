@@ -4,6 +4,7 @@
 #include "Orange.h"
 #include "Stepper.h"
 #include "Emm_V5.h"
+#include "Stepper_PWM.h"
 
 // 云台运动:电机1水平旋转(顺时针为正)，电机2竖直旋转(顺时针为正)
 
@@ -17,69 +18,72 @@ void Stepper_PID_Tick(uint32_t Gap_Time_ms)
 	// 计算PID,得到预设值
 	PID_Update(&Stepper1.PID_Angle , Stepper1.PID_Angle.realPoint_Now) ;
 	// 输出预设角度
-	Stepper_Speed_Rel_Set(&Stepper1 ,Stepper1.PID_Angle.setPoint ,0) ;
+//	Stepper_Speed_Rel_Set(&Stepper1 ,Stepper1.PID_Angle.setPoint ,0) ;
+	Stepper_PWM_Speed_Set(&Stepper_PWM_1 , Stepper1.PID_Angle.setPoint) ;
+
 	// ========= 电机2 =========
-  // 得到真实值和目标值(香橙派发送来的x,y数据)
-//	Stepper2.PID_Angle.realPoint_Now = y_real ;
-//	Stepper2.PID_Angle.goalPoint     = y_tar ;
-//	// 计算PID,得到预设值
-//	PID_Update(&Stepper2.PID_Angle , Stepper2.PID_Angle.realPoint_Now) ;
-//	// 输出预设角度
+	// 得到真实值和目标值(香橙派发送来的x,y数据)
+	Stepper2.PID_Angle.realPoint_Now = y_real ;
+	Stepper2.PID_Angle.goalPoint     = y_tar ;
+	// 计算PID,得到预设值
+	PID_Update(&Stepper2.PID_Angle , Stepper2.PID_Angle.realPoint_Now) ;
+	// 输出预设角度
 //	Stepper_Speed_Rel_Set(&Stepper2 ,Stepper2.PID_Angle.setPoint ,0) ;
+	Stepper_PWM_Speed_Set(&Stepper_PWM_2 , Stepper2.PID_Angle.setPoint) ;
 }
 
-// 1. 绝对角度值设定
-void Stepper_Angle_Abs_Set(Stepper_Typedef* pS ,uint16_t vel , uint16_t acc , float Tar_Angle)
-{
-	// 找方向和大小
-	int8_t dir = 0 ;
-	if (Tar_Angle < 0)
-	{
-		dir = 1 ;
-		Tar_Angle = -Tar_Angle ;
-	}
-	// 脉冲计算
-	uint32_t clk = (uint32_t)(Tar_Angle / pS->pulse_angle) ;
-	// 控制逻辑
-	Emm_V5_Pos_Control(pS->Stepper_huart , pS->addr , dir , vel , acc , clk , 1 , 0) ;
-}
+//// 1. 绝对角度值设定
+//void Stepper_Angle_Abs_Set(Stepper_Typedef* pS ,uint16_t vel , uint16_t acc , float Tar_Angle)
+//{
+//	// 找方向和大小
+//	int8_t dir = 0 ;
+//	if (Tar_Angle < 0)
+//	{
+//		dir = 1 ;
+//		Tar_Angle = -Tar_Angle ;
+//	}
+//	// 脉冲计算
+//	uint32_t clk = (uint32_t)(Tar_Angle / pS->pulse_angle) ;
+//	// 控制逻辑
+//	Emm_V5_Pos_Control(pS->Stepper_huart , pS->addr , dir , vel , acc , clk , 1 , 0) ;
+//}
 
-// 2. 相对角度值设定
-void Stepper_Angle_Rel_Set(Stepper_Typedef* pS ,uint16_t vel , uint16_t acc , float Tar_Angle)
-{
-	// 找方向和大小
-	int8_t dir = 0 ;
-	if (Tar_Angle < 0)
-	{
-		dir = 1 ;
-		Tar_Angle = -Tar_Angle ;
-	}
-	// 脉冲计算
-	uint32_t clk = (uint32_t)(Tar_Angle / pS->pulse_angle) ;
-	// 控制逻辑
-	Emm_V5_Pos_Control(pS->Stepper_huart , pS->addr , dir , vel , acc , clk , 2 , 0) ;
-}
+//// 2. 相对角度值设定
+//void Stepper_Angle_Rel_Set(Stepper_Typedef* pS ,uint16_t vel , uint16_t acc , float Tar_Angle)
+//{
+//	// 找方向和大小
+//	int8_t dir = 0 ;
+//	if (Tar_Angle < 0)
+//	{
+//		dir = 1 ;
+//		Tar_Angle = -Tar_Angle ;
+//	}
+//	// 脉冲计算
+//	uint32_t clk = (uint32_t)(Tar_Angle / pS->pulse_angle) ;
+//	// 控制逻辑
+//	Emm_V5_Pos_Control(pS->Stepper_huart , pS->addr , dir , vel , acc , clk , 2 , 0) ;
+//}
 
-// 3. 位置清零
-void Stepper_Angle_Reset(Stepper_Typedef* pS)
-{
-	
-}
+//// 3. 位置清零
+//void Stepper_Angle_Reset(Stepper_Typedef* pS)
+//{
+//	
+//}
 
 
-// 4. 恒定速度设定
-void Stepper_Speed_Rel_Set(Stepper_Typedef* pS ,int16_t vel , uint16_t acc)
-{
-	// 找方向和大小
-	int8_t dir = 0 ;
-	if (vel < 0)
-	{
-		dir = 1 ;
-		vel = -vel ;
-	}
-	// 配置速度
-	Emm_V5_Vel_Control(pS->Stepper_huart,pS->addr,dir,vel,acc,0) ;
-}
+//// 4. 恒定速度设定
+//void Stepper_Speed_Rel_Set(Stepper_Typedef* pS ,int16_t vel , uint16_t acc)
+//{
+//	// 找方向和大小
+//	int8_t dir = 0 ;
+//	if (vel < 0)
+//	{
+//		dir = 1 ;
+//		vel = -vel ;
+//	}
+//	// 配置速度
+//	Emm_V5_Vel_Control(pS->Stepper_huart,pS->addr,dir,vel,acc,0) ;
+//}
 
 
 

@@ -21,6 +21,9 @@ extern MyGPIO_Typedef MyGPIO_Motor_A_IN2;
 extern MyGPIO_Typedef MyGPIO_Motor_B_IN1;
 extern MyGPIO_Typedef MyGPIO_Motor_B_IN2;
 
+extern MyGPIO_Typedef MyGPIO_Stepper1 ;
+extern MyGPIO_Typedef MyGPIO_Stepper2 ;
+
 // GPIO操作函数
 void MyGPIO_WritePin(MyGPIO_Typedef *gpio, int isHigh);
 int MyGPIO_ReadPin(MyGPIO_Typedef *gpio);

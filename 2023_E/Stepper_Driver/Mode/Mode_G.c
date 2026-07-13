@@ -11,7 +11,7 @@ void Mode_G_Setup(void)
 {
     // 全局初始化
     Initial_ALL() ;
-		Stepper_Init();  // 步进电机初始化
+		
     // 定时器必须最后初始化!!!
     Initial_Timer() ;
 }

@@ -18,6 +18,9 @@ extern MyPWM_Typedef MyPWM_Servo4;
 extern MyPWM_Typedef MyPWM_Motor_A_IN1;
 extern MyPWM_Typedef MyPWM_Motor_B_IN1;
 
+extern MyPWM_Typedef MyPWM_Stepper1 ;
+extern MyPWM_Typedef MyPWM_Stepper2 ;
+
 // PWM初始化
 void MyPWM_Init(MyPWM_Typedef *pwm);
 // 设置PWM比较值（自动限幅到[Compare_Min, Compare_Max]）
