@@ -10,6 +10,10 @@ void Stepper_Init(void)
 	
 	PID_Init(&Stepper1.PID_Angle , 0.217f , 0.0f , 0.829f , 100.0f , -100.0f , 1000.0f) ;
 	PID_Init(&Stepper2.PID_Angle , 0.081f , 0.0f , 0.224f , 100.0f , -100.0f , 1000.0f) ;
+
+	// 软件限位配置
+	Stepper_PWM_Limit_Config(&Stepper1, 120.0f, -120.0f);  // 电机1 水平旋转 ±120°
+	Stepper_PWM_Limit_Config(&Stepper2, 50.0f,  -50.0f);   // 电机2 竖直旋转 ±50°
 }
 
 // 目标角度PID值更新
@@ -22,7 +26,7 @@ void Stepper_PID_Tick(uint32_t Gap_Time_ms)
 	// 计算PID,得到预设值
 	PID_Update(&Stepper1.PID_Angle , Stepper1.PID_Angle.realPoint_Now) ;
 	// 输出预设角度
-	Stepper_PWM_Speed_Set(&Stepper1 , -Stepper1.PID_Angle.setPoint) ;
+	Stepper_PWM_Speed_Set(&Stepper1 , -Stepper1.PID_Angle.setPoint , Stepper1.Acc_Val) ;
 
 	// ========= 电机2 =========
 	// 得到真实值和目标值(香橙派发送来的x,y数据)
@@ -31,7 +35,7 @@ void Stepper_PID_Tick(uint32_t Gap_Time_ms)
 	// 计算PID,得到预设值
 	PID_Update(&Stepper2.PID_Angle , Stepper2.PID_Angle.realPoint_Now) ;
 	// 输出预设角度
-	Stepper_PWM_Speed_Set(&Stepper2 , Stepper2.PID_Angle.setPoint) ;
+	Stepper_PWM_Speed_Set(&Stepper2 , Stepper2.PID_Angle.setPoint , Stepper2.Acc_Val) ;
 }
 
 

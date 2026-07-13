@@ -91,6 +91,8 @@ Template_F407ZGT6/
 | 电机 PWM | TIM4 (CH3-4) | TIM4 (CH1-2) |
 | 编码器A | TIM2 | 同 |
 | 编码器B | TIM3 | 同 |
+| 步进电机1 PWM | TIM9 (CH1, PE5) | — |
+| 步进电机2 PWM | TIM12 (CH1, PB14) | — |
 
 ## 跨芯片移植指南
 
@@ -110,12 +112,99 @@ Template_F407ZGT6/
 | Hardware | RGB (GPIO开关) | ✅ 完成 | 2026-07-13 |
 | Hardware | Serial_base (ABC/HEX协议) | ✅ 完成 | 2026-07-13 |
 | Hardware | Buzzer | ⬜ 存根 | — |
-| Hardware | Stepper_PWM (步进PWM驱动) | 🆕 框架已有 | 2026-07-13 |
+| Hardware | Stepper_PWM (步进PWM驱动) | ✅ 完成 | 2026-07-13 |
+
+### Stepper_PWM — 步进电机 PWM 驱动
+
+#### 结构体 `Stepper_PWM_Typedef`
+
+```c
+typedef struct {
+    // 驱动
+    MyPWM_Typedef* PWM;          // PWM输出 (TIM9_CH1 / TIM12_CH1)
+    MyGPIO_Typedef* GPIO_Dir;    // 方向引脚
+    // 电机参数
+    float pulse_angle;           // 每脉冲角度（度）
+    int8_t Positive_Dir;         // 正方向（+1/-1）
+    // 运行状态
+    float Pos_Now;               // 当前绝对角度（度），脉冲中断累加
+    float Pos_Tar;               // 目标角度（度）
+    float Speed_Now;             // 当前速度（rpm），带符号
+    float Speed_Tar;             // 目标速度（rpm），加速度ramp终点
+    // 限位功能（纯软件，基于 Pos_Now）
+    float Limit_Angle_Max;       // 正向限位角度
+    float Limit_Angle_Min;       // 反向限位角度
+    uint8_t Limit_Enable;        // 限位使能
+    // 加速度控制
+    float Acc_Val;               // 加速度步进（rpm/Tick），0=瞬时
+    // PID
+    Pid_Typedef PID_Angle;       // 角度PID控制器
+} Stepper_PWM_Typedef;
+```
+
+#### API
+
+| 函数 | 说明 |
+|------|------|
+| `Stepper_PWM_Init(pStepper, PWM, GPIO_Dir, pulse_angle, Positive_Dir)` | 初始化：绑定PWM/方向引脚，配置NVIC+更新中断，限位/加速度默认关闭 |
+| `Stepper_PWM_Speed_Set(pStepper, Speed, acc)` | 速度控制：acc=0瞬时响应，acc>0存入Speed_Tar等待Tick ramp |
+| `Stepper_PWM_Speed_Tick(pStepper)` | **20ms中断调用**：逐步将Speed_Now推向Speed_Tar |
+| `Stepper_PWM_Stop(pStepper)` | 急停：PWM置0，Speed_Now清零 |
+| `Stepper_PWM_Pulse_Count(pStepper)` | **脉冲中断调用**：更新Pos_Now + 第2层限位兜底 |
+| `Stepper_PWM_Limit_Config(pStepper, max, min)` | 配置软件限位角度并启用 |
+| `Stepper_PWM_Limit_Check(pStepper, speed)` | 限位询问：返回1=放行/0=拦截（反向退回始终放行） |
+| `Stepper_PWM_Limit_LED_Update(void)` | 更新RGB限位指示灯 |
+
+#### 双层限位
+
+| 层 | 位置 | 机制 |
+|----|------|------|
+| 第1层 | `_Stepper_Apply_Speed` 入口 | Speed_Set/Speed_Tick 发出的速度被 Limit_Check 前置拦截 |
+| 第2层 | `Pulse_Count` 脉冲中断 | 每个脉冲后检查 Pos_Now，超限立即 Stop |
+
+#### 加速度架构
+
+```
+Speed_Set(target, acc)  →  存储 Speed_Tar, Acc_Val
+                              │ acc=0 → 即时应用
+                              │ acc>0 → 不做任何事
+                              
+Timer_20ms_Callback
+  →  Speed_Tick()      →  每20ms: Speed_Now ±= Acc_Val, 趋近 Speed_Tar
+  →  _Stepper_Apply_Speed   (内部: 限位→方向→频率→PWM硬件)
+```
+
+#### 中断链路
+
+```
+TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
+  → HAL_TIM_PeriodElapsedCallback (MyTimer.c)
+  → Timer_Stepper1/2_Pulse_Callback (Mode_G.c 弱回调重写)
+  → Stepper_PWM_Pulse_Count       (更新 Pos_Now + 限位兜底)
+```
+
+#### 引脚
+
+| 信号 | 步进电机1 (云台水平) | 步进电机2 (云台竖直) |
+|------|---------------------|---------------------|
+| Stp (脉冲) | PE5 (TIM9_CH1, AF3) | PB14 (TIM12_CH1, AF9) |
+| Dir (方向) | PE6 | PB15 |
+| En (使能) | PC0 | PC2 |
+
+#### Con_Stepper — 步进电机业务逻辑
+
+| 函数 | 说明 |
+|------|------|
+| `Stepper_Init()` | 初始化两台步进电机 + PID参数 + 限位配置（水平±120°，竖直±50°） |
+| `Stepper_PID_Tick(Gap_Time_ms)` | 20ms调用：从Orange Pi读取x/y目标，PID计算，输出速度 |
+
+| Hardware | Stepper_PWM (步进PWM驱动) | ✅ 完成 | 2026-07-13 |
 | Software | MyPID | ✅ 完成 | 2026-07-13 |
 | Tools | LED_Flash / Timer_Counter | ✅ 完成 | 2026-07-13 |
 | Function | Serial_porting (DMA收发) | ✅ 完成 | 2026-07-13 |
-| Function | Con_Stepper (步进业务逻辑) | 🆕 存根 | 2026-07-13 |
+| Function | Con_Stepper (步进业务逻辑) | ✅ 完成 | 2026-07-13 |
 | Mode | Mode_G / Mode_1~4 | ✅ 完成 | 2026-07-13 |
+| Function | Con_Stepper (步进业务逻辑) | ✅ 完成 | 2026-07-13 |
 
 ## 代码约定
 
@@ -137,4 +226,4 @@ Template_F407ZGT6/
 
 ## TODO
 
-- [ ] 下一步：协助编写步进电机驱动（Stepper_PWM）与业务逻辑（Con_Stepper）
+- [ ] **目标角度精确控制**：利用 Pos_Now 位置反馈实现 Stepper_PWM_Pos_Set(target_angle, speed)，自动运动到目标角度后停止

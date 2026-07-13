@@ -19,6 +19,12 @@ typedef struct
     float Pos_Now;                    	// 当前旋转的绝对角度(度)
     float Pos_Tar;                  		// 目标角度(度)
     float Speed_Now;                    // 当前的速度(rpm)，0=停止，>0=正转，<0=反转
+    // 限位功能（纯软件，基于Pos_Now角度检测）
+    float Limit_Angle_Max;
+    float Limit_Angle_Min;
+    uint8_t Limit_Enable;
+    float Acc_Val;                      // 加速度步进值（rpm/次），0=瞬时响应
+    float Speed_Tar;                    // 目标速度（rpm），用于加速度ramp
 		// PID参数
 		Pid_Typedef PID_Angle;							// 香橙派角度对应PID
 } Stepper_PWM_Typedef;
@@ -30,7 +36,7 @@ extern Stepper_PWM_Typedef Stepper2 ;
 void Stepper_PWM_Init(Stepper_PWM_Typedef* pStepper , MyPWM_Typedef* PWM , MyGPIO_Typedef* GPIO_Dir , float pulse_angle , int8_t Positive_Dir) ;
 
 // 速度配置(rpm)
-void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed);
+void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed , float acc);
 
 // 电机制动（停止）
 void Stepper_PWM_Stop(Stepper_PWM_Typedef* pStepper);
@@ -38,6 +44,11 @@ void Stepper_PWM_Stop(Stepper_PWM_Typedef* pStepper);
 // 脉冲中断处理（每脉冲完成调用一次，在TIM12更新中断中调用）
 void Stepper_PWM_Pulse_Count(Stepper_PWM_Typedef* pStepper);
 
+// 限位配置与检查
+void Stepper_PWM_Limit_Config(Stepper_PWM_Typedef* pStepper, float Limit_Angle_Max, float Limit_Angle_Min);
+uint8_t Stepper_PWM_Limit_Check(Stepper_PWM_Typedef* pStepper, float target_speed);
+
+void Stepper_PWM_Speed_Tick(Stepper_PWM_Typedef* pStepper);
 // =================== 脉冲输出控制 ===================
 
 #endif
