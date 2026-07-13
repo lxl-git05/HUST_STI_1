@@ -2,6 +2,7 @@
 #define __STEPPER_PWM_H
 
 #include "MySystem.h"
+#include "MyPID.h"
 
 #define STEPPER_DIR_P   (1)    // 正向
 #define STEPPER_DIR_N   (-1)   // 反向
@@ -18,6 +19,8 @@ typedef struct
     float Pos_Now;                    	// 当前旋转的绝对角度(度)
     float Pos_Tar;                  		// 目标角度(度)
     float Speed_Now;                    // 当前的速度(rpm)，0=停止，>0=正转，<0=反转
+		// PID参数
+		Pid_Typedef PID_Angle;							// 香橙派角度对应PID
 } Stepper_PWM_Typedef;
 
 extern Stepper_PWM_Typedef Stepper1 ;

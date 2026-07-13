@@ -47,7 +47,9 @@ void Timer_1ms_Callback(void)
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
-	// 20ms定时器逻辑
+	// 1. 香橙派更新
+	Oran_Update() ;
+	// 2. 20ms定时器逻辑
 	switch (curr_mode)
 	{
 			case Mode_Null : break;

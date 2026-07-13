@@ -1376,6 +1376,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Stepper_PWM.h</FilePath>
             </File>
+            <File>
+              <FileName>Orange.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Orange.c</FilePath>
+            </File>
+            <File>
+              <FileName>Orange.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Orange.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

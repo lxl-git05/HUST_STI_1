@@ -14,6 +14,7 @@
 #include "Serial_porting.h"
 #include "RGB.h"
 #include "Stepper_PWM.h"
+#include "Orange.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"
