@@ -24,7 +24,7 @@ void Serial_Init(void)
     memset(Serial1.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial1.ABC_Data, 0, sizeof(Serial1.ABC_Data));
     memset(&Serial1.HEX_Data, 0, sizeof(Serial1.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial1.huart, Serial1.rxBuf, Serial_RX_BUF_SIZE);
+    HAL_UARTEx_ReceiveToIdle_DMA(Serial1.huart, Serial1.rxBuf, Serial_RX_BUF_SIZE);
 
 #ifdef Serial2_Enable
     // ----- Serial2 -----
@@ -34,7 +34,7 @@ void Serial_Init(void)
     memset(Serial2.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial2.ABC_Data, 0, sizeof(Serial2.ABC_Data));
     memset(&Serial2.HEX_Data, 0, sizeof(Serial2.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial2.huart, Serial2.rxBuf, Serial_RX_BUF_SIZE);
+    HAL_UARTEx_ReceiveToIdle_DMA(Serial2.huart, Serial2.rxBuf, Serial_RX_BUF_SIZE);
 #endif
 
     // 初始化协议常量
@@ -56,7 +56,8 @@ void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...)
     if (len > 0) {
         if (len >= (int)sizeof(buffer))
             len = sizeof(buffer) - 1;
-        HAL_UART_Transmit(pSerial->huart, (uint8_t *)buffer, len, 100);
+        HAL_UART_Transmit_DMA(pSerial->huart, (uint8_t *)buffer, len);
+        while (__HAL_DMA_GET_COUNTER(pSerial->huart->hdmatx) != 0);
     }
 }
 
@@ -258,5 +259,5 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
 
 _restart:
-    HAL_UARTEx_ReceiveToIdle_IT(pSerial->huart, pSerial->rxBuf, Serial_RX_BUF_SIZE);
+    HAL_UARTEx_ReceiveToIdle_DMA(pSerial->huart, pSerial->rxBuf, Serial_RX_BUF_SIZE);
 }
