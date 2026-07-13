@@ -1,49 +1,42 @@
 #include "Mode_2.h"
 #include "AllHeader.h"
 
-// ========================== 步进电机限位测试 ==========================
-// 测试流程:
-//   KEY1按住 → Stepper1 正向 30RPM → 接近 +120° 自动停止（验证正向限位）
-//   KEY2按住 → Stepper1 反向 -30RPM → 接近 -120° 自动停止（验证反向限位）
-//   KEY3按住 → Stepper2 正向 30RPM → 接近 +50° 自动停止（验证竖直限位）
-// 预期现象:
-//   OLED 上 Pos_Now 到达限位角后不再变化，电机停转；松手按反向键可退回
-
 void Mode_2_Setup(void)
 {
-	OLED_Clear() ;
-}
+	OLED_Clear();
 
-float acc = 0.0f ;
+	// 初始化参数编辑器
+	Param_Init();
+
+	// 注册 5 个演示参数
+	// AT24C02 的值已在 Initial_ALL → Param_AT24C02_Init() 中从 EEPROM 恢复
+	// Param_Register 内会自动检测 AT 关联并载入已存值
+	Param_Register("Mode",  &g_mode,       1,    PARAM_INT8);
+	Param_Register("Speed", &g_motorSpeed, 10,   PARAM_INT32);
+	Param_Register("Kp",    &g_pidKp,      0.1f, PARAM_FLOAT);
+	Param_Register("Ki",    &g_pidKi,      0.01f,PARAM_FLOAT);
+	Param_Register("Kd",    &g_pidKd,      0.01f,PARAM_FLOAT);
+}
 
 void Mode_2_Loop(void)
 {
-	OLED_Printf(0, 0, OLED_6X8, "===Mode2 LimitTest===") ;
-	OLED_Printf(0, 16, OLED_6X8, "Pos1=%.1f/120", Stepper1.Pos_Now) ;
-	OLED_Printf(0, 24, OLED_6X8, "Pos2=%.1f/50",  Stepper2.Pos_Now) ;
-	OLED_Printf(0, 40, OLED_6X8, "K1:1+ K2:1- K3:2+") ;
-	
-	// KEY1: Stepper1 正向（测试 +120° 限位）
-	if (Key_Check(KEY_1, KEY_SINGLE)) {
-		Stepper_PWM_Speed_Set(&Stepper1, 120.0f, 100);   // acc: 100 rpm/s
+	// 非编辑模式时显示静态参数快照
+	if (!Param_IsActive())
+	{
+		
 	}
-	// KEY2: Stepper1 反向（测试 -120° 限位）
-	else if (Key_Check(KEY_2, KEY_SINGLE)) {
-		Stepper_PWM_Speed_Set(&Stepper1, -60.0f, 250);  // acc: 250 rpm/s
-	}
-	// KEY3: Stepper2 正向（测试 +50° 限位）
-	else if (Key_Check(KEY_3, KEY_SINGLE)) {
-		Stepper_PWM_Speed_Set(&Stepper2, 30.0f, 0);
-	}
+
+	// Param_Loop 内部会自行处理 OLED 显示 (Param_Show)
+	// 编辑模式下 Param_Show 绘制完整参数列表
+	Param_Loop();
 }
 
 void Mode_2_Tick(void)
 {
-	Serial_printf(&Serial1, "%.2f,%.2f\n",Stepper1.Pos_Now , Stepper1.Speed_Now) ; 
+	
 }
 
 void Mode_2_Exit(void)
 {
-	Stepper_PWM_Stop(&Stepper1);
-	Stepper_PWM_Stop(&Stepper2);
+	
 }

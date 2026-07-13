@@ -48,3 +48,23 @@
 | Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 替换限位测试为T型位置控制测试（KEY1:+30° KEY2:-30° KEY3:0°） |
 | CLAUDE.md | Template_F407ZGT6/CLAUDE.md | 修改 | TODO标记完成，更新API文档 |
 | stepper-pwm-driver.md | memory/stepper-pwm-driver.md | 修改 | 新增位置控制API文档和结构体字段说明 |
+
+## 2026-07-13 22:50 | 移植旋转编码器+AT24C02+ParamEdit到F407工程
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Encoder_Key.h | Template_F407ZGT6/Hardware/Encoder_Key.h | 新增 | EC11旋转编码器驱动头文件（Encoder_Init/Encoder_Get） |
+| Encoder_Key.c | Template_F407ZGT6/Hardware/Encoder_Key.c | 新增 | EC11 EXTI解码驱动，PF3/PF7下降沿中断+HAL_GPIO_EXTI_Callback |
+| bsp_at24c02.h | Template_F407ZGT6/Hardware/bsp_at24c02.h | 新增 | AT24C02软件I2C头文件，PA4/PA5引脚宏，NOP延时*19(168MHz) |
+| bsp_at24c02.c | Template_F407ZGT6/Hardware/bsp_at24c02.c | 新增 | AT24C02软件I2C实现（Start/Stop/Ack/SendByte/ReadByte） |
+| at24c02_manager.h | Template_F407ZGT6/Software/at24c02_manager.h | 新增 | AT24C02参数管理层头文件（AT_ParamItem结构体+注册宏+API） |
+| at24c02_manager.c | Template_F407ZGT6/Software/at24c02_manager.c | 新增 | AT24C02参数管理实现（地址自动分配+空白芯片检测+读写协调） |
+| ParamEdit.h | Template_F407ZGT6/Software/ParamEdit.h | 新增 | OLED参数编辑器头文件，KEY_1=进入/退出, KEY_2=前后翻, KEY_3=保存 |
+| ParamEdit.c | Template_F407ZGT6/Software/ParamEdit.c | 新增 | 参数编辑器状态机（进入/退出编辑+编码器值修改+AT脏标记+OLED显示），移除OLED_Update遵循工程约定 |
+| Param_AT24C02.h | Template_F407ZGT6/Function/Param_AT24C02.h | 新增 | AT24C02业务层头文件，声明5个测试全局变量+持久化API |
+| Param_AT24C02.c | Template_F407ZGT6/Function/Param_AT24C02.c | 新增 | AT24C02业务层实现，定义变量+注册AT参数表+EraseAll/读写 |
+| AllHeader.h | Template_F407ZGT6/Top/AllHeader.h | 修改 | 新增6个include（Encoder_Key/bsp_at24c02/at24c02_manager/ParamEdit/Param_AT24C02） |
+| AllHeader.c | Template_F407ZGT6/Top/AllHeader.c | 修改 | Initial_ALL中新增Encoder_Init()和Param_AT24C02_Init()调用 |
+| gpio.c | Template_F407ZGT6/Core/Src/gpio.c | 修改 | EC11 EXTI触发边沿 IT_RISING→IT_FALLING（适配编码器解码逻辑） |
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 完全重写为ParamEdit测试代码（5个演示参数+编辑/保存/串口日志） |
+| CLAUDE.md | Template_F407ZGT6/CLAUDE.md | 修改 | 移植进度新增5个模块，追加Encoder_Key/AT24C02/ParamEdit完整文档 |

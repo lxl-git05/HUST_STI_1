@@ -1386,6 +1386,26 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Orange.h</FilePath>
             </File>
+            <File>
+              <FileName>bsp_at24c02.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\bsp_at24c02.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_at24c02.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\bsp_at24c02.h</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder_Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Encoder_Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Encoder_Key.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1410,6 +1430,26 @@
               <FileName>Task.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Software\Task.h</FilePath>
+            </File>
+            <File>
+              <FileName>at24c02_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\at24c02_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>at24c02_manager.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\at24c02_manager.h</FilePath>
+            </File>
+            <File>
+              <FileName>ParamEdit.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\ParamEdit.c</FilePath>
+            </File>
+            <File>
+              <FileName>ParamEdit.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\ParamEdit.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1460,6 +1500,16 @@
               <FileName>Con_Stepper.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Function\Con_Stepper.h</FilePath>
+            </File>
+            <File>
+              <FileName>Param_AT24C02.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Param_AT24C02.c</FilePath>
+            </File>
+            <File>
+              <FileName>Param_AT24C02.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Param_AT24C02.h</FilePath>
             </File>
           </Files>
         </Group>

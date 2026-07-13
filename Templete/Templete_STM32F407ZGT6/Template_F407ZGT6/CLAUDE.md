@@ -205,6 +205,11 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 | Function | Con_Stepper (步进业务逻辑) | ✅ 完成 | 2026-07-13 |
 | Mode | Mode_G / Mode_1~4 | ✅ 完成 | 2026-07-13 |
 | Function | Con_Stepper (步进业务逻辑) | ✅ 完成 | 2026-07-13 |
+| Hardware | Encoder_Key (EC11编码器驱动) | ✅ 完成 | 2026-07-13 |
+| Hardware | bsp_at24c02 (AT24C02软件I2C) | ✅ 完成 | 2026-07-13 |
+| Software | at24c02_manager (AT参数管理) | ✅ 完成 | 2026-07-13 |
+| Software | ParamEdit (OLED参数编辑器) | ✅ 完成 | 2026-07-13 |
+| Function | Param_AT24C02 (业务参数持久化) | ✅ 完成 | 2026-07-13 |
 
 ## 代码约定
 
@@ -227,3 +232,114 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 ## TODO
 
 - [x] **目标角度精确控制**：✅ 2026-07-13 完成。`Stepper_PWM_Pos_Set(target_angle, max_speed, acc)` 实现T型速度曲线（等腰三角形/梯形），自动到位停止
+
+---
+
+## Encoder_Key — EC11 旋转编码器驱动
+
+### 硬件引脚
+
+| 信号 | 引脚 | EXTI | 说明 |
+|------|------|------|------|
+| EC11_S1 (A相) | PF3 | EXTI3, 下降沿 | 旋转编码器A相 |
+| EC11_S2 (B相) | PF7 | EXTI9_5, 下降沿 | 旋转编码器B相 |
+| EC11_Key (按键) | PF5 | KEY_3 | 编码器自带的轻触按键 |
+
+### API
+
+| 函数 | 说明 |
+|------|------|
+| `Encoder_Init()` | 初始化（空操作，EXTI 由 MX_GPIO_Init 配置） |
+| `Encoder_Get()` | 读取累计增量并清零，返回 int16_t（正=CW，负=CCW） |
+
+### 工作原理
+
+- 下降沿中断触发后，读取另一相电平判断旋转方向
+- `HAL_GPIO_EXTI_Callback` 在 `Encoder_Key.c` 中重写 HAL 弱回调
+- **重要**：gpio.c 中 EC11 引脚必须配置为 `GPIO_MODE_IT_FALLING`。CubeMX 重新生成后需手动改回
+
+---
+
+## AT24C02 EEPROM 持久化 (三层架构)
+
+### 引脚
+
+| 信号 | 引脚 | 说明 |
+|------|------|------|
+| AT_SCL | PA4 | 软件 I2C 时钟 |
+| AT_SDA | PA5 | 软件 I2C 数据 |
+| 设备地址 | 0xA0(写)/0xA1(读) | 7位地址 0x50 左移1位 |
+
+### 软件 I2C 时序
+
+- NOP 延时: `* 19` (168MHz，校准自 F103 72MHz 的 `* 8`)
+- 写周期等待: `HAL_Delay(5)` (5ms/字节)
+
+### 三层架构
+
+```
+Param_AT24C02 (Function)    — 业务层：定义哪些变量需要持久化
+at24c02_manager (Software)  — 管理层：注册、地址自动分配、读写协调
+bsp_at24c02 (Hardware)      — 驱动层：软件 I2C 字节级读写
+```
+
+### API 速查
+
+| 模块 | 关键函数 |
+|------|----------|
+| bsp_at24c02 | `AT24C02_Init()`, `AT24C02_WriteByte(addr, data)`, `AT24C02_ReadByte(addr)` |
+| at24c02_manager | `AT_Manager_Register()`, `AT_Manager_Init()`, `AT_Manager_Write/Read()`, `AT_Manager_SaveAll()` |
+| Param_AT24C02 | `Param_AT24C02_Init()`, `Param_AT24C02_SaveAll()`, `Param_AT24C02_EraseAll()` |
+
+### 注册宏
+
+```c
+AT_PARAM_I8(&var, default)    // int8_t,  1 字节
+AT_PARAM_I16(&var, default)   // int16_t, 2 字节
+AT_PARAM_I32(&var, default)   // int32_t, 4 字节
+AT_PARAM_F(&var, default)     // float,   4 字节
+```
+
+### EEPROM 地址分配
+
+按注册顺序自动分配。当前 5 个参数使用 17 字节 (0x00~0x10)，AT24C02 共 256 字节可用。
+
+**空白芯片检测**：读取值为 0xFF 时判定为空白，自动使用注册时的默认值。
+
+---
+
+## ParamEdit — OLED 参数编辑器
+
+### 交互模型
+
+| 操作 | 按键 | 说明 |
+|------|------|------|
+| 进入/退出编辑 | KEY_1 长按 1s | 切换编辑/正常模式 |
+| 下一个参数 | KEY_2 单击 | 光标下移，到末尾回绕 |
+| 上一个参数 | KEY_2 双击 | 光标上移，到开头回绕 |
+| 修改参数值 | 旋转编码器 | 步长 × 旋转增量 |
+| 保存到 EEPROM | KEY_3(编码器按键) 单击 | 仅保存已修改的 AT 参数 |
+
+### API
+
+| 函数 | 说明 |
+|------|------|
+| `Param_Init()` | 初始化/清空参数表 |
+| `Param_Register(name, var, step, type)` | 注册一个参数（type: PARAM_INT8/INT16/INT32/FLOAT） |
+| `Param_Loop()` | 主循环调用，运行状态机 |
+| `Param_IsActive()` | 返回 1=编辑模式, 0=正常模式 |
+
+### 初始化顺序
+
+```
+Param_AT24C02_Init()  → 注册 AT 参数 + 从 EEPROM 恢复值
+Param_Init()          → 清空 ParamEdit 参数表
+Param_Register(...)   → 注册 UI 参数（自动关联 AT 表）
+```
+
+### 注意事项
+
+- `ParamEdit.c` 内部的 `OLED_Update()` 调用已注释掉，遵循本工程 "Mymain 末尾统一刷新" 的约定
+- `MAX_PARAM = 30`，超出会跳过注册
+- `KEY_0` 被 Mode_G 占用（模式切换），ParamEdit 不得使用
+

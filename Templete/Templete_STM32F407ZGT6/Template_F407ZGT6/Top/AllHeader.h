@@ -11,6 +11,8 @@
 // 硬件驱动库
 #include "Key.h"
 #include "OLED.h"
+#include "Encoder_Key.h"
+#include "bsp_at24c02.h"
 #include "Serial_porting.h"
 #include "RGB.h"
 #include "Stepper_PWM.h"
@@ -18,9 +20,12 @@
 
 // 软件算法库 (Software)
 #include "MyPID.h"
+#include "at24c02_manager.h"
+#include "ParamEdit.h"
 
 //// 硬件实现库
 #include "Con_Stepper.h"
+#include "Param_AT24C02.h"
 
 // Mode库
 #include "Mode_G.h"
