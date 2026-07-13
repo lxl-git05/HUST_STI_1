@@ -23,21 +23,21 @@ uint8_t Key_GetState(uint8_t n)		// 得到按键状态
 	}
 	else if (n == KEY_1)
 	{
-		if (MyGPIO_ReadPin(&MyGPIO_Key1) == 0)
+		if (MyGPIO_ReadPin(&MyGPIO_Key2) == 0)
 		{
 			return KEY_PRESSED;
 		}
 	}
 	else if (n == KEY_2)
 	{
-		if (MyGPIO_ReadPin(&MyGPIO_Key2) == 0)
+		if (MyGPIO_ReadPin(&MyGPIO_Key3) == 0)
 		{
 			return KEY_PRESSED;
 		}
 	}
 	 else if (n == KEY_3)
 	 {
-		if (MyGPIO_ReadPin(&MyGPIO_Key3) == 0)
+		if (MyGPIO_ReadPin(&MyGPIO_EC11_Key) == 0)
 		{
 			return KEY_PRESSED;
 		}

@@ -25,11 +25,11 @@ void Mode_2_Loop(void)
 	
 	// KEY1: Stepper1 正向（测试 +120° 限位）
 	if (Key_Check(KEY_1, KEY_SINGLE)) {
-		Stepper_PWM_Speed_Set(&Stepper1, 60.0f, 2);
+		Stepper_PWM_Speed_Set(&Stepper1, 120.0f, 100);   // acc: 100 rpm/s
 	}
 	// KEY2: Stepper1 反向（测试 -120° 限位）
 	else if (Key_Check(KEY_2, KEY_SINGLE)) {
-		Stepper_PWM_Speed_Set(&Stepper1, -60.0f, 5);
+		Stepper_PWM_Speed_Set(&Stepper1, -60.0f, 250);  // acc: 250 rpm/s
 	}
 	// KEY3: Stepper2 正向（测试 +50° 限位）
 	else if (Key_Check(KEY_3, KEY_SINGLE)) {

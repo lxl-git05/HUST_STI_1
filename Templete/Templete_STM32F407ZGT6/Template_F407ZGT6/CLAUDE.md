@@ -226,4 +226,4 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 
 ## TODO
 
-- [ ] **目标角度精确控制**：利用 Pos_Now 位置反馈实现 Stepper_PWM_Pos_Set(target_angle, speed)，自动运动到目标角度后停止
+- [x] **目标角度精确控制**：✅ 2026-07-13 完成。`Stepper_PWM_Pos_Set(target_angle, max_speed, acc)` 实现T型速度曲线（等腰三角形/梯形），自动到位停止

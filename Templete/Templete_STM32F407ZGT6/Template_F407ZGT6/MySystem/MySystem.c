@@ -18,6 +18,9 @@ MyGPIO_Typedef MyGPIO_RGB_R       = { RGB_R_GPIO_Port,     RGB_R_Pin };
 MyGPIO_Typedef MyGPIO_RGB_G       = { RGB_G_GPIO_Port,     RGB_G_Pin };
 MyGPIO_Typedef MyGPIO_RGB_B       = { RGB_Y_GPIO_Port,     RGB_Y_Pin };
 
+MyGPIO_Typedef MyGPIO_Buzzer      = { Buzzer_GPIO_Port, Buzzer_Pin };
+MyGPIO_Typedef MyGPIO_EC11_Key    = { EC11_Key_GPIO_Port, EC11_Key_Pin };
+
 MyGPIO_Typedef MyGPIO_Stepper_En   = {Stepper_En_GPIO_Port  , Stepper_En_Pin } ;
 MyGPIO_Typedef MyGPIO_Stepper2_En  = {Stepper_En2_GPIO_Port , Stepper_En2_Pin} ;
 MyGPIO_Typedef MyGPIO_Stepper_Dir  = {Stepper_Dir_GPIO_Port  , Stepper_Dir_Pin } ;

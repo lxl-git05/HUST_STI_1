@@ -92,7 +92,7 @@ static void _Stepper_Apply_Speed(Stepper_PWM_Typedef* pStepper, float Speed)
 
 // =================== 速度配置(rpm) ===================
 
-// Speed: 目标速度，acc: 加速度步进（rpm/Tick），0=瞬时响应
+// Speed: 目标速度 rpm，acc: 加速度 rpm/s，0=瞬时响应
 void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed, float acc)
 {
     pStepper->Speed_Tar = Speed;
@@ -101,24 +101,26 @@ void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed, float acc
     if (acc <= 0.001f) {
         _Stepper_Apply_Speed(pStepper, Speed);   // 无加速度：瞬时响应
     }
-    // acc>0: 等待 Speed_Tick 在 20ms 中断中逐步 ramp
+    // acc>0: 等待 Speed_Tick 在 1ms 中断中逐步 ramp
 }
 
-// 加速度Tick：每20ms调用一次，逐步逼近目标速度
+// 加速度Tick：每1ms调用一次，逐步逼近目标速度
+// Acc_Val 单位: rpm/s，内部 /1000 得到每ms步长
 void Stepper_PWM_Speed_Tick(Stepper_PWM_Typedef* pStepper)
 {
     if (pStepper->Acc_Val <= 0.001f) return;
 
+    float step = pStepper->Acc_Val / 1000.0f;    // rpm/s → rpm/ms
     float diff = pStepper->Speed_Tar - pStepper->Speed_Now;
-    float applied;
-    if (diff > pStepper->Acc_Val)
-        applied = pStepper->Speed_Now + pStepper->Acc_Val;
-    else if (diff < -pStepper->Acc_Val)
-        applied = pStepper->Speed_Now - pStepper->Acc_Val;
-    else
-        applied = pStepper->Speed_Tar;
 
-    _Stepper_Apply_Speed(pStepper, applied);
+    if (diff > step)
+        pStepper->Speed_Now += step;
+    else if (diff < -step)
+        pStepper->Speed_Now -= step;
+    else
+        pStepper->Speed_Now = pStepper->Speed_Tar;
+
+    _Stepper_Apply_Speed(pStepper, pStepper->Speed_Now);
 }
 
 
@@ -179,5 +181,14 @@ uint8_t Stepper_PWM_Limit_Check(Stepper_PWM_Typedef* pStepper, float target_spee
     if (!moving_positive && pStepper->Pos_Now <= pStepper->Limit_Angle_Min) return 0;
     return 1;
 }
+
+// =================== 位置功能 ===================
+
+
+
+
+
+
+
 
 

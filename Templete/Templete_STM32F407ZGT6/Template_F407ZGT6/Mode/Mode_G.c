@@ -36,21 +36,21 @@ void Mode_G_Loop(void)
 // 1ms定时器
 void Timer_1ms_Callback(void)
 {
-	
+
   // 功能1: 按键
 	Key_Tick() ;
 	// 功能2: LED闪烁指示灯
 	Flash_Mode_Tick() ;
+	// 功能3: 步进电机加速度Tick（1ms丝滑ramp）
+	Stepper_PWM_Speed_Tick(&Stepper1);
+	Stepper_PWM_Speed_Tick(&Stepper2);
 
 }
 
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
-    // 0. 步进电机加速度Tick
-    Stepper_PWM_Speed_Tick(&Stepper1);
-    Stepper_PWM_Speed_Tick(&Stepper2);
-	// 1. 香橙派更新
+    // 1. 香橙派更新
 	Oran_Update() ;
 	// 2. 20ms定时器逻辑
 	switch (curr_mode)

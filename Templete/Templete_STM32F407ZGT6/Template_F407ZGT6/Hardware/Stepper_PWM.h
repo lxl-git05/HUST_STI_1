@@ -18,13 +18,13 @@ typedef struct
     // 内部参数
     float Pos_Now;                    	// 当前旋转的绝对角度(度)
     float Pos_Tar;                  		// 目标角度(度)
-    float Speed_Now;                    // 当前的速度(rpm)，0=停止，>0=正转，<0=反转
+    float Speed_Now;                    // 当前的速度，0=停止，>0=正转，<0=反转
     // 限位功能（纯软件，基于Pos_Now角度检测）
     float Limit_Angle_Max;
     float Limit_Angle_Min;
     uint8_t Limit_Enable;
-    float Acc_Val;                      // 加速度步进值（rpm/次），0=瞬时响应
-    float Speed_Tar;                    // 目标速度（rpm），用于加速度ramp
+    float Acc_Val;                      // 加速度 rpm/s，0=瞬时响应
+    float Speed_Tar;                    // 目标速度（rpm/s），用于加速度ramp
 		// PID参数
 		Pid_Typedef PID_Angle;							// 香橙派角度对应PID
 } Stepper_PWM_Typedef;

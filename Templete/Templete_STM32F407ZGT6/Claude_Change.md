@@ -28,3 +28,23 @@
 | RGB.c | Template_F407ZGT6/Hardware/RGB.c | 修改 | 实现：Init/Set_Color/Control（自动循环+手动选色） |
 | Mode_G.c | Template_F407ZGT6/Mode/Mode_G.c | 修改 | 20ms Tick 中加入 RGB_Auto_Task__Possess() |
 | Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | RGB 测试例程（KEY1自动/手动, KEY2切换颜色） |
+
+## 2026-07-13 21:15 | Speed ramp: Acc_Val 单位改为 rpm/s + Speed_Tick 移到 1ms 回调
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_PWM.h | Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | Acc_Val 注释更新为 rpm/s |
+| Stepper_PWM.c | Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | Speed_Tick 内部 Acc_Val/1000 得到每ms步长；注释更新 |
+| Mode_G.c | Template_F407ZGT6/Mode/Mode_G.c | 修改 | Speed_Tick 从 Timer_20ms 移到 Timer_1ms（1ms丝滑ramp，粒度提升20倍） |
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | acc 值适配 rpm/s（2→100, 5→250） |
+
+## 2026-07-13 20:50 | 实现步进电机T型速度曲线位置控制
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_PWM.h | Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 结构体新增7个位置控制字段 + Pos_Set/Pos_Tick函数声明 |
+| Stepper_PWM.c | Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 实现Pos_Set规划器（三角形/梯形判定）+ Pos_Tick执行器（加速→匀速→减速）+ Init/Stop/Speed_Tick加guard |
+| Mode_G.c | Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_20ms_Callback中新增Pos_Tick调用（优先级高于Speed_Tick） |
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 替换限位测试为T型位置控制测试（KEY1:+30° KEY2:-30° KEY3:0°） |
+| CLAUDE.md | Template_F407ZGT6/CLAUDE.md | 修改 | TODO标记完成，更新API文档 |
+| stepper-pwm-driver.md | memory/stepper-pwm-driver.md | 修改 | 新增位置控制API文档和结构体字段说明 |

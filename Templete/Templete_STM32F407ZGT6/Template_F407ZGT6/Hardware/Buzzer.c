@@ -1,30 +1,32 @@
 #include "Buzzer.h"
 
-// Buzzer³õÊ¼»¯:ĞèÒªÎªµÍµçÆ½
+//#define Buzzer_On 
+
+// Buzzeråˆå§‹åŒ–:éœ€è¦ä¸ºé«˜ç”µå¹³
 void Buzzer_Init(void)
 {
 	
 }
 
-// BuzzerÏì
-void Buzzer_On(void)
+// Buzzerå“
+void Buzzer_ON(void)
 {
 	
 }
 
-// Buzzer°²¾²
+// Buzzerå®‰é™
 void Buzzer_OFF(void)
 {
 	
 }
 
-// Buzzer°´ÕÕÉè¶¨ÖÜÆÚÏìn´Î
-void Buzzer_Set(int T_s , int On_Times)
+// BuzzeræŒ‰ç…§è®¾å®šå‘¨æœŸå“næ¬¡
+void Buzzer_Set(int T_ms , int On_Times)
 {
 	
 }
 
-// BuzzerÔÚ20ms¶¨Ê±Æ÷½øĞĞÏìºÍ²»ÏìµÄÅäÖÃ£¬´îÅäBuzzer_Set½øĞĞÏìÓ¦
+// Buzzeråœ¨20mså®šæ—¶å™¨è¿›è¡Œå“å’Œä¸å“çš„é…ç½®ï¼Œæ­é…Buzzer_Setè¿›è¡Œå“åº”
 void Buzzer_Set_Tick(void)
 {
 	
