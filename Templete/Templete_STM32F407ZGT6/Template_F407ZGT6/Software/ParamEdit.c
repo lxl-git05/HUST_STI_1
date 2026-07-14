@@ -5,6 +5,8 @@
 #include "at24c02_manager.h"
 #endif
 
+#include "Orange.h"
+
 // ============= 参数结构体 =============
 typedef struct
 {
@@ -261,6 +263,8 @@ void Param_Loop(void)
             AT_Manager_Write(item->var);   // 写入EEPROM
             item->dirty = 0;               // 清除脏标记
         }
+        // 香橙派处理
+        Oran_Send_Data((int*)item->var) ;
     }
 #endif
 

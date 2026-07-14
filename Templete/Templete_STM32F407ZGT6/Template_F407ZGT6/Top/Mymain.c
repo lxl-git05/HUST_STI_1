@@ -45,6 +45,9 @@ void Mymain(void)
 					}
 			}
 			curr_mode = next_mode ; // 状态更新
+			// 记忆模式：保存到 AT24C02，下次上电自动恢复
+			if (curr_mode != Mode_Null)
+				Param_AT24C02_Write(&curr_mode) ;
 		  OLED_Update() ;
 	}
 }

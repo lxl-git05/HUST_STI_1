@@ -2,7 +2,7 @@
 #include "AllHeader.h"
 
 Mode_Typedef curr_mode = Mode_Null   ;     // 当前模式
-Mode_Typedef next_mode = Mode_2      ;     // 下一个模式
+Mode_Typedef next_mode = Mode_Null      ;     // 下一个模式
 
 // ========================== 系统setup loop ==========================
 
@@ -13,6 +13,29 @@ void Mode_G_Setup(void)
     Initial_ALL() ;
     // 定时器必须最后初始化!!!
     Initial_Timer() ;
+    // ★ PARAM_FORCE：手动推送代码默认值到 AT24C02
+    // 修改 C 默认值后，取消注释、改值、烧录一次，再重新注释
+    // PARAM_FORCE(curr_mode, Mode_1);
+    // PARAM_FORCE(Stepper1.PID_Angle.Kp, 0.217f);
+    // PARAM_FORCE(Stepper1.PID_Angle.Ki, 0.0f);
+    // PARAM_FORCE(Stepper1.PID_Angle.Kd, 0.829f);
+    // PARAM_FORCE(Stepper2.PID_Angle.Kp, 0.081f);
+    // PARAM_FORCE(Stepper2.PID_Angle.Ki, 0.0f);
+    // PARAM_FORCE(Stepper2.PID_Angle.Kd, 0.224f);
+    // PARAM_FORCE(angle_shift, 50);
+    // PARAM_FORCE(offset, 20);
+    // PARAM_FORCE(black_h, 20);
+    // PARAM_FORCE(black_s, 255);
+    // PARAM_FORCE(black_v, 100);
+
+    // ★ 从 AT24C02 恢复上次关机时的模式
+    //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode
+    //    将其复制到 next_mode 并重置 curr_mode，让 Mymain 执行完整模式切换
+    if (curr_mode > Mode_Null && curr_mode < Mode_End)
+    {
+        next_mode = curr_mode;
+        curr_mode = Mode_Null;
+    }
 }
 
 // 循环loop
@@ -29,6 +52,10 @@ void Mode_G_Loop(void)
         Mode_To_Next() ;
     }
     // OLED展示
+    if (curr_mode == Mode_Null)
+    {
+        OLED_Printf(0,0,OLED_6X8,"===Mode_G===") ;
+    }
 }
 
 // ========================== 系统定时器配置 ==========================
@@ -85,7 +112,8 @@ void Mode_To_Next(void)
 {
     // Mode_End纯属标记模式尽头防止越界
     uint32_t next_val = (uint32_t)next_mode + 1;
-    next_mode = (next_val == (uint32_t)Mode_End) ? Mode_Null : (Mode_Typedef)next_val;
+    next_mode = (next_val >= (uint32_t)Mode_End) ? Mode_Null : (Mode_Typedef)next_val;
+    // ★ 模式记忆由 Mymain.c 在 curr_mode = next_mode 后统一保存
 }
 
 // 将当前状态转换为:

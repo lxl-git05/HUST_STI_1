@@ -70,16 +70,13 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOF, Addr_0_Pin|Addr_1_Pin|Addr_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOG, Buzzer_Pin|RGB_R_Pin|RGB_G_Pin|RGB_Y_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, Stepper_Dir2_Pin|LED0_Pin|OLED_SCL_Pin|OLED_SDA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10|LCD_CS_Pin|LCD_DC_Pin|LCD_BLK_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, RGB_R_Pin|RGB_G_Pin|RGB_Y_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Motor_B_IN2_GPIO_Port, Motor_B_IN2_Pin, GPIO_PIN_RESET);

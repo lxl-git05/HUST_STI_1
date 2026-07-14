@@ -5,7 +5,11 @@
 // 用途：专门用于脱机调整参数并保存到存储（如 AT24C02）
 // =================================================================
 
-#include "main.h"
+#include "AllHeader.h"
+
+// 向外引出地址表
+extern const AT_ParamItem s_AT_Params[] ;
+extern int At_Size ;
 
 void Mode_1_Setup(void);
 
