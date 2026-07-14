@@ -18,6 +18,7 @@
 #include "Stepper_PWM.h"
 #include "Orange.h"
 #include "Buzzer.h"
+#include "Elec.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"

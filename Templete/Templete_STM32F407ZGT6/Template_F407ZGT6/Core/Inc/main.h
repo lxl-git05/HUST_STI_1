@@ -109,14 +109,8 @@ void Error_Handler(void);
 #define Addr_2_GPIO_Port GPIOF
 #define Buzzer_Pin GPIO_PIN_1
 #define Buzzer_GPIO_Port GPIOG
-#define PWM_Servo1_Pin GPIO_PIN_9
-#define PWM_Servo1_GPIO_Port GPIOE
-#define PWM_Servo2_Pin GPIO_PIN_11
-#define PWM_Servo2_GPIO_Port GPIOE
-#define PWM_Servo3_Pin GPIO_PIN_13
-#define PWM_Servo3_GPIO_Port GPIOE
-#define PWM_Servo4_Pin GPIO_PIN_14
-#define PWM_Servo4_GPIO_Port GPIOE
+#define Elec_Pin GPIO_PIN_11
+#define Elec_GPIO_Port GPIOE
 #define Stepper_Stp2_Pin GPIO_PIN_14
 #define Stepper_Stp2_GPIO_Port GPIOB
 #define Stepper_Dir2_Pin GPIO_PIN_15

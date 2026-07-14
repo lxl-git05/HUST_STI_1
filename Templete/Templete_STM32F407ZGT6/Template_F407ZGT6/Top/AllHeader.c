@@ -7,6 +7,7 @@ void Initial_ALL(void)
 	OLED_Init() ;																	// OLED初始化
 	RGB_Init() ;
 	Buzzer_Init() ;																	// Buzzer初始化
+	Elec_Init() ;																	// 电磁阀初始化
 
 	// Software
 	Serial_Init();																// 串口初始化
