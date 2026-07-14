@@ -44,6 +44,9 @@ void Timer_1ms_Callback(void)
 	// 功能3: 步进电机加速度Tick（1ms丝滑ramp）
 	Stepper_PWM_Speed_Tick(&Stepper1);
 	Stepper_PWM_Speed_Tick(&Stepper2);
+	// 功能4: 步进电机位置模式Tick（1ms速度ramp + 阶段切换）
+	Stepper_PWM_Pos_Tick(&Stepper1);
+	Stepper_PWM_Pos_Tick(&Stepper2);
 
 }
 

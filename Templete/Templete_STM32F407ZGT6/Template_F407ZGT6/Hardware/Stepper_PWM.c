@@ -32,15 +32,26 @@ void Stepper_PWM_Init(Stepper_PWM_Typedef* pStepper, MyPWM_Typedef* PWM, MyGPIO_
     pStepper->Pos_Now = 0;
     pStepper->Pos_Tar = 0;
     pStepper->Speed_Now = 0;
-	
-		// PID初始化在外部调
+
+    // PID初始化在外部调
     // 限位默认关闭（外部调用Limit_Config启用）
     pStepper->Limit_Angle_Max = 360.0f;
     pStepper->Limit_Angle_Min = -360.0f;
     pStepper->Limit_Enable = 0;
     pStepper->Acc_Val = 0;
     pStepper->Speed_Tar = 0;
-		
+
+    // 位置模式初始化
+    pStepper->Pos_MaxSpeed = 0;
+    pStepper->Pos_Acc = 0;
+    pStepper->Pos_Phase = POS_PHASE_IDLE;
+    pStepper->Pos_TotalSteps = 0;
+    pStepper->Pos_AccSteps = 0;
+    pStepper->Pos_CruiseSteps = 0;
+    pStepper->Pos_StepCnt = 0;
+    pStepper->Pos_MoveDir = 1;
+    pStepper->Pos_StartAngle = 0;
+    pStepper->Pos_TargetAngle = 0;
 
     // 初始化DIR引脚（默认正转）
     MyGPIO_WritePin(pStepper->GPIO_Dir, Positive_Dir > 0 ? 1 : 0);
@@ -61,11 +72,13 @@ void Stepper_PWM_Init(Stepper_PWM_Typedef* pStepper, MyPWM_Typedef* PWM, MyGPIO_
 
 static void _Stepper_Apply_Speed(Stepper_PWM_Typedef* pStepper, float Speed)
 {
-    // 第1层限位：前置门禁
-    if (!Stepper_PWM_Limit_Check(pStepper, Speed)) {
-        Stepper_PWM_Stop(pStepper);
-        Stepper_PWM_Limit_LED_Update();
-        return;
+    // 第1层限位：前置门禁（位置模式下跳过，由位置模式自己的目标控制+Layer2兜底）
+    if (pStepper->Pos_Phase == POS_PHASE_IDLE) {
+        if (!Stepper_PWM_Limit_Check(pStepper, Speed)) {
+            Stepper_PWM_Stop(pStepper);
+            Stepper_PWM_Limit_LED_Update();
+            return;
+        }
     }
 
     int dir = (Speed * pStepper->Positive_Dir >= 0) ? 1 : 0;
@@ -95,6 +108,12 @@ static void _Stepper_Apply_Speed(Stepper_PWM_Typedef* pStepper, float Speed)
 // Speed: 目标速度 rpm，acc: 加速度 rpm/s，0=瞬时响应
 void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed, float acc)
 {
+    // 速度模式覆盖位置模式：取消正在进行的位控运动
+    if (pStepper->Pos_Phase != POS_PHASE_IDLE) {
+        pStepper->Pos_Phase = POS_PHASE_IDLE;
+        pStepper->Pos_StepCnt = 0;
+    }
+
     pStepper->Speed_Tar = Speed;
     pStepper->Acc_Val = acc;
 
@@ -108,6 +127,9 @@ void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed, float acc
 // Acc_Val 单位: rpm/s，内部 /1000 得到每ms步长
 void Stepper_PWM_Speed_Tick(Stepper_PWM_Typedef* pStepper)
 {
+    // 位置模式下 Speed_Tick 不干预速度（Pos_Tick 接管速度控制）
+    if (pStepper->Pos_Phase != POS_PHASE_IDLE) return;
+
     if (pStepper->Acc_Val <= 0.001f) return;
 
     float step = pStepper->Acc_Val / 1000.0f;    // rpm/s → rpm/ms
@@ -138,20 +160,51 @@ void Stepper_PWM_Stop(Stepper_PWM_Typedef* pStepper)
 void Stepper_PWM_Pulse_Count(Stepper_PWM_Typedef* pStepper)
 {
     if (pStepper->Speed_Now == 0)
-		{
+    {
         return;
     }
     // 更新位置：Pos_Now单位为度
     int dir = (pStepper->Speed_Now * pStepper->Positive_Dir >= 0) ? 1 : -1;
-    pStepper->Pos_Now += pStepper->pulse_angle * dir ;
+    pStepper->Pos_Now += pStepper->pulse_angle * dir;
+
+    // --- 位置模式：步数累加 + 到位停止 ---
+    if (pStepper->Pos_Phase != POS_PHASE_IDLE) {
+        pStepper->Pos_StepCnt++;
+
+        // DECEL阶段到位停止（脉冲中断级，比1ms Tick更及时）
+        if (pStepper->Pos_Phase == POS_PHASE_DECEL
+            && pStepper->Pos_StepCnt >= pStepper->Pos_TotalSteps) {
+            Stepper_PWM_Stop(pStepper);
+            pStepper->Pos_Phase = POS_PHASE_IDLE;
+            Stepper_PWM_Limit_LED_Update();
+            return;
+        }
+
+        // 快速模式(acc<0.001)：直接以max_speed运行，脉冲中断检测到位即停
+        // 用角度判断：按运动方向检查是否越过目标角度
+        if (pStepper->Pos_Acc < 0.001f) {
+            int reached = (pStepper->Pos_MoveDir > 0)
+                ? (pStepper->Pos_Now >= pStepper->Pos_TargetAngle)
+                : (pStepper->Pos_Now <= pStepper->Pos_TargetAngle);
+            if (reached) {
+                Stepper_PWM_Stop(pStepper);
+                pStepper->Pos_Phase = POS_PHASE_IDLE;
+                Stepper_PWM_Limit_LED_Update();
+                return;
+            }
+        }
+    }
 
     // 限位检查（脉冲中断级，每个脉冲都检查，即时性最高）
+    // 位置模式下也保留作为安全兜底
     if (pStepper->Limit_Enable) {
         if (dir > 0 && pStepper->Pos_Now >= pStepper->Limit_Angle_Max) {
             Stepper_PWM_Stop(pStepper);
+            pStepper->Pos_Phase = POS_PHASE_IDLE;  // 位控也取消
         }
         if (dir < 0 && pStepper->Pos_Now <= pStepper->Limit_Angle_Min) {
             Stepper_PWM_Stop(pStepper);
+            pStepper->Pos_Phase = POS_PHASE_IDLE;
         }
     }
 
@@ -184,11 +237,153 @@ uint8_t Stepper_PWM_Limit_Check(Stepper_PWM_Typedef* pStepper, float target_spee
 
 // =================== 位置功能 ===================
 
+// 绝对角度旋转
+// target_angle: 目标绝对角度（度）
+// max_speed: 最大速度（rpm），取绝对值
+// acc: 加速度（rpm/s），<0.001=快速模式（直接到位，脉冲中断停止）
+void Stepper_PWM_Pos_Set_Abs(Stepper_PWM_Typedef* pStepper, float target_angle, float max_speed, float acc)
+{
+    // 1. 取消速度模式
+    pStepper->Speed_Tar = 0;
+    pStepper->Acc_Val = 0;
 
+    // 2. 计算角度差
+    float delta_angle = target_angle - pStepper->Pos_Now;
+    float abs_delta = (delta_angle > 0) ? delta_angle : -delta_angle;
 
+    // 3. 零步运动检查
+    if (abs_delta < pStepper->pulse_angle * 0.5f) {
+        pStepper->Pos_Phase = POS_PHASE_IDLE;
+        return;
+    }
 
+    // 4. 方向与总步数
+    int8_t dir = (delta_angle >= 0) ? 1 : -1;
+    int32_t total_steps = (int32_t)(abs_delta / pStepper->pulse_angle);
+    if (total_steps < 1) total_steps = 1;
 
+    // 5. 确保max_speed为正
+    float max_spd = (max_speed > 0) ? max_speed : -max_speed;
+    if (max_spd < 0.01f) max_spd = 60.0f;  // 默认60rpm
 
+    // 6. 确保acc为正
+    float acc_abs = (acc > 0) ? acc : -acc;
 
+    // 7. 存储运动参数
+    pStepper->Pos_TargetAngle = target_angle;
+    pStepper->Pos_StartAngle  = pStepper->Pos_Now;
+    pStepper->Pos_MaxSpeed    = max_spd;
+    pStepper->Pos_Acc         = acc_abs;
+    pStepper->Pos_MoveDir     = dir;
+    pStepper->Pos_StepCnt     = 0;
+    pStepper->Pos_TotalSteps  = total_steps;
 
+    // 8. 快速模式（acc < 0.001）：直接以max_speed运行，脉冲中断到位停止
+    if (acc_abs < 0.001f) {
+        pStepper->Pos_Phase      = POS_PHASE_CRUISE;
+        pStepper->Pos_AccSteps   = 0;
+        pStepper->Pos_CruiseSteps = 0;
+        _Stepper_Apply_Speed(pStepper, dir * max_spd);
+        return;
+    }
 
+    // 9. 匀加速运动预计算
+    // 公式: N = (v² - v₀²) * 3 / (acc * pulse_angle)
+    float v_min = STEPPER_V_MIN;
+    float a_eff = acc_abs * pStepper->pulse_angle / 3.0f;  // rpm²/step
+
+    int32_t acc_steps;
+    if (max_spd > v_min) {
+        acc_steps = (int32_t)((max_spd * max_spd - v_min * v_min) / a_eff);
+        if (acc_steps < 1) acc_steps = 1;
+    } else {
+        acc_steps = 1;  // max_speed太小，几乎瞬时
+    }
+
+    // 10. 场景判定
+    if (acc_steps * 2 >= total_steps) {
+        // 场景B：三角形（行程不足，无法达到max_speed）
+        pStepper->Pos_AccSteps   = total_steps / 2;
+        pStepper->Pos_CruiseSteps = 0;
+        // 减速段步数 = 总步数 - 加速段步数（处理奇偶）
+    } else {
+        // 场景A：梯形（行程充足，能达到max_speed）
+        pStepper->Pos_AccSteps   = acc_steps;
+        pStepper->Pos_CruiseSteps = total_steps - 2 * acc_steps;
+    }
+
+    // 11. 启动：初始速度 = 方向 * 最小速度
+    pStepper->Pos_Phase = POS_PHASE_ACCEL;
+    _Stepper_Apply_Speed(pStepper, dir * v_min);
+}
+
+// 相对角度旋转
+void Stepper_PWM_Pos_Set_Rel(Stepper_PWM_Typedef* pStepper, float relative_angle, float max_speed, float acc)
+{
+    float target = pStepper->Pos_Now + relative_angle;
+    Stepper_PWM_Pos_Set_Abs(pStepper, target, max_speed, acc);
+}
+
+// 位置模式 1ms Tick：速度ramp + 阶段切换
+void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper)
+{
+    if (pStepper->Pos_Phase == POS_PHASE_IDLE) return;
+
+    // 快速模式：速度已在Pos_Set中设置，脉冲中断负责停止，Tick不需要干预
+    if (pStepper->Pos_Acc < 0.001f) return;
+
+    float v_min = STEPPER_V_MIN;
+    int32_t step_cnt = pStepper->Pos_StepCnt;  // 由脉冲中断实时更新
+    float speed_mag = (pStepper->Speed_Now > 0) ? pStepper->Speed_Now : -pStepper->Speed_Now;
+
+    // --- 阶段切换（基于实际步数） ---
+    switch (pStepper->Pos_Phase) {
+    case POS_PHASE_ACCEL:
+        if (step_cnt >= pStepper->Pos_AccSteps) {
+            if (pStepper->Pos_CruiseSteps > 0) {
+                pStepper->Pos_Phase = POS_PHASE_CRUISE;
+            } else {
+                pStepper->Pos_Phase = POS_PHASE_DECEL;
+            }
+        }
+        break;
+
+    case POS_PHASE_CRUISE:
+        if (step_cnt >= pStepper->Pos_AccSteps + pStepper->Pos_CruiseSteps) {
+            pStepper->Pos_Phase = POS_PHASE_DECEL;
+        }
+        break;
+
+    case POS_PHASE_DECEL:
+        // 到位停止由脉冲中断处理，1ms Tick作为兜底
+        if (step_cnt >= pStepper->Pos_TotalSteps) {
+            Stepper_PWM_Stop(pStepper);
+            pStepper->Pos_Phase = POS_PHASE_IDLE;
+            return;
+        }
+        break;
+    }
+
+    // --- 速度ramp（基于当前阶段） ---
+    switch (pStepper->Pos_Phase) {
+    case POS_PHASE_ACCEL:
+        speed_mag += pStepper->Pos_Acc / 1000.0f;
+        if (speed_mag > pStepper->Pos_MaxSpeed) {
+            speed_mag = pStepper->Pos_MaxSpeed;
+        }
+        break;
+
+    case POS_PHASE_CRUISE:
+        speed_mag = pStepper->Pos_MaxSpeed;
+        break;
+
+    case POS_PHASE_DECEL:
+        speed_mag -= pStepper->Pos_Acc / 1000.0f;
+        if (speed_mag < v_min) {
+            speed_mag = v_min;
+        }
+        break;
+    }
+
+    _Stepper_Apply_Speed(pStepper, speed_mag * pStepper->Pos_MoveDir);
+}

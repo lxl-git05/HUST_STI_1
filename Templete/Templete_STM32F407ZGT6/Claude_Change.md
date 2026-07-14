@@ -68,3 +68,19 @@
 | gpio.c | Template_F407ZGT6/Core/Src/gpio.c | 修改 | EC11 EXTI触发边沿 IT_RISING→IT_FALLING（适配编码器解码逻辑） |
 | Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 完全重写为ParamEdit测试代码（5个演示参数+编辑/保存/串口日志） |
 | CLAUDE.md | Template_F407ZGT6/CLAUDE.md | 修改 | 移植进度新增5个模块，追加Encoder_Key/AT24C02/ParamEdit完整文档 |
+
+## 2026-07-14 20:30 | 实现步进电机位置模式（T型/三角形速度曲线）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_PWM.h | Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 新增POS_PHASE枚举宏 + 结构体新增11个位控字段 + 3个位控API声明 |
+| Stepper_PWM.c | Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 实现位控核心：Pos_Set_Abs(匀加速公式预计算+场景判定) / Pos_Set_Rel / Pos_Tick(1ms阶段机) / 修改Pulse_Count(步数累加+脉冲中断到位停止) / 修改_Apply_Speed(位控跳过L1限位) / 修改Speed_Set/Tick(互斥) |
+| Mode_G.c | Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_1ms_Callback中新增Stepper_PWM_Pos_Tick调用(2台步进) |
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 位置模式测试例程：KEY1绝对±90°/KEY2相对±30°/KEY3急停/OLED显示角度+阶段+步数 |
+
+## 2026-07-14 21:00 | 重写Mode_2循环往复测试 + 编写步进电机完整驱动说明书
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 重写为循环往复测试：KEY1=相对±180°往复(120rpm/60acc) / KEY2=绝对+90°↔-180°往复 / KEY3=停止 / 到位自动翻转方向 |
+| Stepper_PWM_Manual.md | Template_F407ZGT6/Hardware/Stepper_PWM_Manual.md | 新增 | 步进电机驱动完整说明书（12章）：API参考/驱动原理/算法推导/移植指南/8个完整例程/故障排查 |
