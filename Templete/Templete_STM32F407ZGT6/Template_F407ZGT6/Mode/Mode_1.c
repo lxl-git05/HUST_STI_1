@@ -56,18 +56,18 @@ void Mode_1_Loop(void)
 			// 要求传输信息
 			Serial_printf(&Serial2 , "@start:6$#") ;
 			// 蜂鸣器
-			MyGPIO_WritePin(&MyGPIO_Buzzer , 1) ;
+			Buzzer_ON() ;
 			HAL_Delay(500) ;
-			MyGPIO_WritePin(&MyGPIO_Buzzer , 0) ;
+			Buzzer_OFF() ;
 		}
 	}
 	// 应答
 	if (Serial_Check_Str(&Serial2 , "Get") && Serial_GetNewPackageFlag_ABC(&Serial2))
 	{
 		// 蜂鸣器
-		MyGPIO_WritePin(&MyGPIO_Buzzer , 1) ;
+		Buzzer_ON() ;
 		HAL_Delay(500) ;
-		MyGPIO_WritePin(&MyGPIO_Buzzer , 0) ;
+		Buzzer_OFF() ;
 	}
 
 	// Param_Loop 内部会自行处理 OLED 显示 (Param_Show)

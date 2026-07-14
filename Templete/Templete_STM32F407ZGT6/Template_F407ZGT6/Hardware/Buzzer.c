@@ -1,33 +1,23 @@
 #include "Buzzer.h"
 
-//#define Buzzer_On 
+#define BUZZER_ON  MyGPIO_WritePin(&MyGPIO_Buzzer, 1) ;
+#define BUZZER_OFF MyGPIO_WritePin(&MyGPIO_Buzzer, 0) ;
 
-// Buzzer初始化:需要为高电平
+// Buzzer初始化:需要为低电平
 void Buzzer_Init(void)
 {
-	
+    BUZZER_OFF
 }
 
 // Buzzer响
 void Buzzer_ON(void)
 {
-	
+	BUZZER_ON
 }
 
 // Buzzer安静
 void Buzzer_OFF(void)
 {
-	
+	BUZZER_OFF
 }
 
-// Buzzer按照设定周期响n次
-void Buzzer_Set(int T_ms , int On_Times)
-{
-	
-}
-
-// Buzzer在20ms定时器进行响和不响的配置，搭配Buzzer_Set进行响应
-void Buzzer_Set_Tick(void)
-{
-	
-}

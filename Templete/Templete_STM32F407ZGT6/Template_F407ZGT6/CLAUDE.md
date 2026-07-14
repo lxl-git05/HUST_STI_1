@@ -219,6 +219,8 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 | KEY0 | Mode_G 占用（单击=LED快闪，双击=换模式），测试只用 KEY1/KEY2 |
 | OLED_Update | Mymain 末尾统一调用，各 Mode 不再调用 |
 | 测试代码 | 放 Mode_2，简洁为主，写清测试流程和预期现象 |
+| 模式记忆 | 切模式自动保存到 AT24C02，下次上电自动恢复。Mode_Null 不保存 |
+| PARAM_FORCE | 手动推送默认值到 EEPROM 用，推送完必须重新注释 |
 
 ## 串口配置
 
@@ -302,7 +304,9 @@ AT_PARAM_F(&var, default)     // float,   4 字节
 
 ### EEPROM 地址分配
 
-按注册顺序自动分配。当前 5 个参数使用 17 字节 (0x00~0x10)，AT24C02 共 256 字节可用。
+按注册顺序自动分配。当前 12 个参数使用约 35 字节，AT24C02 共 256 字节可用。详见 `Mode/Mode_1.c` 的 `s_AT_Params[]`。
+
+**☆ 数组顺序一旦确定不要改。** 改顺序或增删会导致 EEPROM 旧数据和新布局错位。
 
 **空白芯片检测**：读取值为 0xFF 时判定为空白，自动使用注册时的默认值。
 
@@ -342,4 +346,81 @@ Param_Register(...)   → 注册 UI 参数（自动关联 AT 表）
 - `ParamEdit.c` 内部的 `OLED_Update()` 调用已注释掉，遵循本工程 "Mymain 末尾统一刷新" 的约定
 - `MAX_PARAM = 30`，超出会跳过注册
 - `KEY_0` 被 Mode_G 占用（模式切换），ParamEdit 不得使用
+
+---
+
+## 模式记忆（2026-07-14 实现）
+
+### 机制
+
+每次成功切换模式后，**自动将新模式保存到 AT24C02**，下次上电自动恢复。
+
+```
+Mymain 主循环:
+  curr_mode = next_mode                     // 模式切换完成
+  Param_AT24C02_Write(&curr_mode)           // ★ 自动记忆
+
+Mode_G_Setup() 启动:
+  Param_AT24C02_Init()                      // 从 EEPROM 恢复 curr_mode
+  if (curr_mode > Null && curr_mode < End):
+    next_mode = curr_mode; curr_mode = Null // 恢复启动目标
+```
+
+### 行为
+
+| 场景 | 行为 |
+|------|------|
+| 首次上电（EEPROM 空白） | 进 Mode_1（AT 注册宏默认值） |
+| 正常工作切模式后断电 | 下次上电恢复到上次关机时的模式 |
+| 切到 Mode_Null 再断电 | Mode_Null 不保存，回到上一个有效模式 |
+
+### 关键代码位置
+
+- **保存**：`Top/Mymain.c` 第 48-50 行
+- **恢复**：`Mode/Mode_G.c` `Mode_G_Setup()` 第 31-38 行
+- **Mode_To_Next 已清理**：不再自行保存，统一由 Mymain 处理
+
+---
+
+## PARAM_FORCE 宏（2026-07-14 新增）
+
+定义在 `Function/Param_AT24C02.h`：
+
+```c
+#define PARAM_FORCE(var, val)  do { (var) = (val); Param_AT24C02_Write(&(var)); } while(0)
+```
+
+**用途**：手动将代码默认值推送到 AT24C02。
+
+**使用流程**：
+1. 在 `Mode_G.c` 的 `Mode_G_Setup()` 中取消对应行注释并改值
+2. 编译烧录一次（新值覆盖 EEPROM）
+3. 重新注释掉（否则每次上电都覆盖用户调好的值）
+
+**位置**：所有 `PARAM_FORCE` 集中在 `Mode/Mode_G.c` 的 `Mode_G_Setup()` 末尾。
+
+### ★ 类型必须匹配
+
+`AT_PARAM_xx` 字节数必须和变量 `sizeof` 一致，否则内存越界。
+
+| 常见问题 | 原因 | 现象 |
+|----------|------|------|
+| OLED 显示超大数字 | I32（4字节）读 1 字节 enum | 读到相邻内存垃圾 |
+| 相邻变量异常 | I32 写越界覆盖 | next_mode 被破坏 |
+
+### 参数表布局规则
+
+`s_AT_Params[]` 定义在 `Mode/Mode_1.c`。EEPROM 地址按数组声明顺序自动分配。**一旦确定不要改顺序/增删**，否则旧数据布局和新代码错位。必须改时先 `EraseAll()` + `PARAM_FORCE` 重推。
+
+---
+
+## 失能/关闭功能
+
+| 目标 | 操作 |
+|------|------|
+| 关闭某个 Mode | `Mymain.c` 中对应 case 改为 `break;` |
+| 关闭模式记忆（上电不恢复） | `Mymain.c` 注释掉 `Param_AT24C02_Write(&curr_mode)` |
+| 关闭 AT24C02 整系统 | `AllHeader.c` 注释掉 `Param_AT24C02_Init()` |
+| 关闭 ParamEdit UI | `Mode_1_Loop()` 注释掉 `Param_Loop()` |
+| 关闭 PARAM_FORCE | 确保所有行已注释 |
 
