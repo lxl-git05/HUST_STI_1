@@ -35,6 +35,10 @@ extern MyGPIO_Typedef MyGPIO_Stepper2_Dir ;
 
 extern MyGPIO_Typedef MyGPIO_Elec  ;
 
+extern MyGPIO_Typedef MyGPIO_Y8_Addr0 ;
+extern MyGPIO_Typedef MyGPIO_Y8_Addr1 ;
+extern MyGPIO_Typedef MyGPIO_Y8_Addr2 ;
+
 // GPIO操作函数
 void MyGPIO_WritePin(MyGPIO_Typedef *gpio, int isHigh);
 int MyGPIO_ReadPin(MyGPIO_Typedef *gpio);

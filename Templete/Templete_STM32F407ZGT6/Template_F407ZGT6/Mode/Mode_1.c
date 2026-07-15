@@ -31,10 +31,10 @@ void Mode_1_Setup(void)
 	Param_Init();
 	// Param_Register 内会自动检测 AT 关联并载入已存值
 	Param_Register("curr_mode",&curr_mode,1,PARAM_INT8);
-	Param_Register("Stp1_Kp",  &Stepper1.PID_Angle.Kp,0.01f,PARAM_FLOAT);
-	Param_Register("Stp1_Kd",  &Stepper1.PID_Angle.Kd,0.01f,PARAM_FLOAT);
-	Param_Register("Stp2_Kp",  &Stepper2.PID_Angle.Kp,0.01f,PARAM_FLOAT);
-	Param_Register("Stp2_Kd",  &Stepper2.PID_Angle.Kd,0.01f,PARAM_FLOAT);
+//	Param_Register("Stp1_Kp",  &Stepper1.PID_Angle.Kp,0.01f,PARAM_FLOAT);
+//	Param_Register("Stp1_Kd",  &Stepper1.PID_Angle.Kd,0.01f,PARAM_FLOAT);
+//	Param_Register("Stp2_Kp",  &Stepper2.PID_Angle.Kp,0.01f,PARAM_FLOAT);
+//	Param_Register("Stp2_Kd",  &Stepper2.PID_Angle.Kd,0.01f,PARAM_FLOAT);
 	// 香橙派数据
 	Param_Register("angle_shift",  &angle_shift,1,PARAM_INT16);
 	Param_Register("offset",   &offset ,1,PARAM_INT16);
