@@ -17,10 +17,14 @@ typedef struct {
 
 // ============== 外部实例声明 ==============
 #define Serial2_Enable 1
+#define Serial4_Enable 1
 
 extern Serial_Typedef Serial1;
 #ifdef Serial2_Enable
 extern Serial_Typedef Serial2;
+#endif
+#ifdef Serial4_Enable
+extern Serial_Typedef Serial4;
 #endif
 
 // ============== 初始化/发送 ==============

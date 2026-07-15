@@ -9,6 +9,9 @@ Serial_Typedef Serial1;
 #ifdef Serial2_Enable
 Serial_Typedef Serial2;
 #endif
+#ifdef Serial4_Enable
+Serial_Typedef Serial4;
+#endif
 
 // ============== 内部函数声明 ==============
 static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart);
@@ -36,6 +39,17 @@ void Serial_Init(void)
     memset(&Serial2.ABC_Data, 0, sizeof(Serial2.ABC_Data));
     memset(&Serial2.HEX_Data, 0, sizeof(Serial2.HEX_Data));
     HAL_UARTEx_ReceiveToIdle_DMA(Serial2.huart, Serial2.rxBuf, Serial_RX_BUF_SIZE);
+#endif
+
+#ifdef Serial4_Enable
+    // ----- Serial4 -----
+    Serial4.Instance = UART4;
+    Serial4.huart = &huart4;
+    Serial4.rxLen = 0;
+    memset(Serial4.rxBuf, 0, Serial_RX_BUF_SIZE);
+    memset(&Serial4.ABC_Data, 0, sizeof(Serial4.ABC_Data));
+    memset(&Serial4.HEX_Data, 0, sizeof(Serial4.HEX_Data));
+    HAL_UARTEx_ReceiveToIdle_DMA(Serial4.huart, Serial4.rxBuf, Serial_RX_BUF_SIZE);
 #endif
 
     // 初始化协议常量
@@ -219,6 +233,9 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
 #ifdef Serial2_Enable
     if (huart->Instance == Serial2.Instance) return &Serial2;
 #endif
+#ifdef Serial4_Enable
+    if (huart->Instance == Serial4.Instance) return &Serial4;
+#endif
     return NULL;
 }
 
@@ -234,7 +251,6 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-	Timer_Counter_Func() ;
     // 1. 查找实例
     Serial_Typedef *pSerial = Serial_GetInstance(huart);
     if (pSerial == NULL) return;

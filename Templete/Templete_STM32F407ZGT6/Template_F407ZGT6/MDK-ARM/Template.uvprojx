@@ -1416,6 +1416,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Elec.h</FilePath>
             </File>
+            <File>
+              <FileName>TJC_LCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\TJC_LCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>TJC_LCD.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\TJC_LCD.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

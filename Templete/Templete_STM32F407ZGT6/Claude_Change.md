@@ -1,5 +1,14 @@
 # 变更记录
 
+## 2026-07-15 17:01 | 加入 Serial4 (UART4) 并改写 Mode_2 为串口测试
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Serial_porting.h | Template_F407ZGT6/Function/Serial_porting.h | 修改 | 新增 Serial4_Enable 宏和 extern Serial4 声明 |
+| Serial_porting.c | Template_F407ZGT6/Function/Serial_porting.c | 修改 | 新增 Serial4 实例、初始化、GetInstance 路由 |
+| Mode_2.c | Template_F407ZGT6/Mode/Mode_2.c | 修改 | 改为 Serial4 ABC 收发测试：OLED 显示原始字符串 + 解析 p1/p2/p3 int 参数 + KEY1 回执 |
+| CLAUDE.md | Template_F407ZGT6/CLAUDE.md | 修改 | 串口配置表新增 UART4 (Serial4) |
+
 ## 2026-07-13 13:01 | 移植 Software 和 Tools 层并编写测试例程
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |

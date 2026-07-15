@@ -19,6 +19,7 @@
 #include "Orange.h"
 #include "Buzzer.h"
 #include "Elec.h"
+#include "TJC_LCD.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"

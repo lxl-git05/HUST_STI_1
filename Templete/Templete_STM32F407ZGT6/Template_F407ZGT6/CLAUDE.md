@@ -228,6 +228,7 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 |------|------|--------|--------|------|
 | USART1 (Serial1) | PA9/PA10 | DMA2_Stream7 | DMA2_Stream2 | ABC + HEX |
 | USART2 (Serial2) | PA2/PA3 | DMA1_Stream6 | DMA1_Stream5 | ABC + HEX |
+| UART4 (Serial4) | PC10/PC11 | DMA1_Stream4 | DMA1_Stream2 | ABC + HEX |
 | USART3 | PB10/PB11 | — | — | 未使用 |
 | USART6 | PC6/PC7 | — | — | 未使用 |
 
