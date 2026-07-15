@@ -15,7 +15,7 @@ void Initial_ALL(void)
 	Param_AT24C02_Init() ;													// AT24C02初始化+从EEPROM恢复参数
 
 	// Control
-//	Con_Motor_Init() ;														// 电机初始化
+	Con_Motor_Init() ;														// 电机初始化
 	Stepper_Init() ;														// 步进电机初始化
 
 	// Tools

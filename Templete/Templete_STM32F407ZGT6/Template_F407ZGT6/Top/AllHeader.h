@@ -20,6 +20,7 @@
 #include "Buzzer.h"
 #include "Elec.h"
 #include "TJC_LCD.h"
+#include "Motor.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"
@@ -28,6 +29,7 @@
 
 //// 硬件实现库
 #include "Con_Stepper.h"
+#include "Con_Motor.h"
 #include "Param_AT24C02.h"
 
 // Mode库
@@ -36,6 +38,16 @@
 #include "Mode_2.h"
 #include "Mode_3.h"
 #include "Mode_4.h"
+#include "Mode_5.h"
+#include "Mode_6.h"
+
+// Con_Mode库
+#include "Con_Mode_1.h"
+#include "Con_Mode_2.h"
+#include "Con_Mode_3.h"
+#include "Con_Mode_4.h"
+#include "Con_Mode_5.h"
+#include "Con_Mode_6.h"
 
 // Mymain初始化集合,使主函数更简洁
 void Initial_ALL(void) ;
