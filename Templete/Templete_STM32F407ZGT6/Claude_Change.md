@@ -32,3 +32,15 @@
 | Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_20ms_Callback 新增 Con_Mode_1~6 的 Tick 分发 |
 | Mymain.c | ./Template_F407ZGT6/Top/Mymain.c | 修改 | Loop/Exit/Setup 三处 switch 新增 Con_Mode_1~6 |
 | AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | 新增 Con_Mode_1~6.h 的 include |
+
+## 2026-07-16 | 从Robot_V2移植环形队列库 + gpio.c修复电机B复位误转
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Queue.h | ./Template_F407ZGT6/Software/Queue.h | 新增 | 环形队列头文件，QueueData_Typedef待用户定义后取消注释 |
+| Queue.c | ./Template_F407ZGT6/Software/Queue.c | 新增 | 环形队列实现：Init/Enqueue/Dequeue/Peek/Size/Clear/IsEmpty/IsFull |
+| AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | Software 区新增 #include "Queue.h" |
+| Template.uvprojx | ./Template_F407ZGT6/MDK-ARM/Template.uvprojx | 修改 | SoftWare 组新增 Queue.c/.h |
+| gpio.c | ./Template_F407ZGT6/Core/Src/gpio.c | 修改 | PD14/PD15 在 MX_GPIO_Init 开头写 LOW，修复复位期间电机B误转 |
+| Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | Motorx_Angle_Update_Tick 去 static 使其可外部调用 |
+| Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | 位置环+速度环双模式PID调参（KEY_1切电机，KEY_2切环类型） |

@@ -26,11 +26,13 @@
 #include "MyPID.h"
 #include "at24c02_manager.h"
 #include "ParamEdit.h"
+#include "Queue.h"
 
 //// 硬件实现库
 #include "Con_Stepper.h"
 #include "Con_Motor.h"
 #include "Param_AT24C02.h"
+#include "Con_Task.h"
 
 // Mode库
 #include "Mode_G.h"

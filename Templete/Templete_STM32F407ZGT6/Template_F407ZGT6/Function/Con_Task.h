@@ -1,0 +1,59 @@
+// Con_Task.h — 通用任务队列调度器
+// 生命周期: Setup(一次) → Run(每帧) → IsExit?→true → 自动出队下一个
+// 用法: Mode_X_Setup 中 Con_Task_Init + Enqueue, Mode_X_Loop 中 Con_Task_Loop
+#ifndef __CON_TASK_H
+#define __CON_TASK_H
+
+#include "Queue.h"
+
+// ==================== 全局任务枚举（所有 Mode 共用） ====================
+typedef enum {
+    TASK_NONE = 0,
+    TASK_WAIT_TIME,       // 等待指定毫秒: p[0]=ms
+    TASK_MOTOR_SPEED,     // 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms(0=永久)
+    TASK_MOTOR_ANGLE,     // 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
+    // ... 后续按需追加
+    TASK_COUNT             // ★ 枚举总数，必须放最后
+} Task_Type;
+
+// ==================== 任务回调函数类型 ====================
+typedef void (*Task_SetupFunc)(float params[4]);     // 进入任务时调用一次
+typedef void (*Task_RunFunc)  (float params[4]);     // 每帧主循环调用，可为 NULL
+typedef bool (*Task_ExitFunc) (float params[4]);     // 返回 true 则自动切换下一个任务
+typedef void (*Task_TickFunc) (float params[4]);     // 20ms 中断调用，可为 NULL
+
+// ==================== 任务描述表（按 Task_Type 索引） ====================
+typedef struct {
+    Task_SetupFunc Setup;
+    Task_RunFunc   Run;
+    Task_ExitFunc  IsExit;
+    Task_TickFunc  Tick;       // 20ms Tick 回调，可为 NULL
+} Task_Descriptor_Typedef;
+
+// ==================== API ====================
+
+// 注册任务表 + 清空队列 + 终止当前任务（可重复调用，每次 Mode 切换时调用）
+void Con_Task_Init(const Task_Descriptor_Typedef *table, int size);
+
+// 便捷入队（4 个 float 参数），Setup/Loop 中均可调用
+void Con_Task_Enqueue(int task_type, float p0, float p1, float p2, float p3);
+
+// 清空队列 + 终止当前任务（紧急停止）
+void Con_Task_Clear(void);
+
+// 主循环调度（State Machine: Setup → Run → IsExit → 自动出队）
+void Con_Task_Loop(void);
+
+// 20ms ISR 分发（分发到当前活跃任务的 .Tick 回调，无任务时零开销）
+void Con_Task_Tick(void);
+
+// 是否有任务正在执行
+bool Con_Task_IsBusy(void);
+
+// 当前任务类型枚举值（-1 = 空闲）
+int  Con_Task_CurrType(void);
+
+// 队列中剩余任务数
+int  Con_Task_Remaining(void);
+
+#endif

@@ -81,9 +81,11 @@ void Timer_1ms_Callback(void)
 void Timer_20ms_Callback(void)
 {
     // 1. 香橙派更新
-	Oran_Update() ;
-	// 2. 20ms定时器逻辑
-	switch (curr_mode)
+    Oran_Update() ;
+    // 2. Con_Task 通用 Tick（无任务时自动跳过）
+    Con_Task_Tick() ;
+    // 3. 20ms定时器逻辑
+    switch (curr_mode)
 	{
 			case Mode_Null : break;
 			case 1 : Mode_1_Tick() ; break;
