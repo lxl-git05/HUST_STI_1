@@ -13,12 +13,12 @@ void Con_Motor_Init(void)
 	PID_Init(&Motor_B.PID_s , 8.0f,1.0f,0.0f,1000 , -1000 , 1000) ;
 	
 	// PD
-	PID_Init(&Motor_A.PID_Angle , 0.9f,0.0f,1.0f,30 , -30 , 350) ;
-	PID_Init(&Motor_B.PID_Angle , 0.9f,0.0f,1.0f,30 , -30 , 350) ;
+	PID_Init(&Motor_A.PID_Angle , 2.29f,0.0f,3.0f,200 , -200 , 350) ;
+	PID_Init(&Motor_B.PID_Angle , 2.29f,0.0f,3.0f,200 , -200 , 350) ;
 	
 	// PD
-	PID_Init(&Motor_A.PID_Pos , 30.0f,0.0f,5.0f,50 , -300 , 350) ;
-	PID_Init(&Motor_B.PID_Pos , 30.0f,0.0f,5.0f,50 , -300 , 350) ;
+//	PID_Init(&Motor_A.PID_Pos , 30.0f,0.0f,5.0f,50 , -300 , 350) ;
+//	PID_Init(&Motor_B.PID_Pos , 30.0f,0.0f,5.0f,50 , -300 , 350) ;
 	
 	Motor_Init
 	(
@@ -105,7 +105,7 @@ static void Motorx_Speed_Update_Tick(Motor_Typedef *Motor , uint32_t Gap_Time_ms
 }
 
 // 6.2 电机角度环PID,并不需要知道周期,但是仍然需要放在需要周期定时器内
-static void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir)	// Dir: 纠正PID控制方向
+void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir)	// Dir: 纠正PID控制方向
 {
 	// 1. 计算角度
 	Motor_Angle_Update(Motor) ;

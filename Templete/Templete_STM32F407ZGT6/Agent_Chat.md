@@ -91,7 +91,9 @@ Key3作为编码器按键一般不可使用
 
 
 
+# 2. 2024_E题
 
+现在我们进入新的任务：首先你去到D:\github\2-2-STM32\STM32\Projects\Robot2026\XIAO\Robot_V2，查看
 
 
 

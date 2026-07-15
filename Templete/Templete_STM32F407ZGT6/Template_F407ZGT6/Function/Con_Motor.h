@@ -22,8 +22,11 @@ void Motor_Stop(Motor_Typedef *Motor) ;
 // 5. 电机急刹
 void Motor_Brake(Motor_Typedef *Motor) ;
 
-// 7. 电机速度更新与PID控制
+// 6.1 电机速度更新与PID控制
 void Motor_Speed_Update_Tick(uint32_t Gap_Time_ms) ;
+
+// 6.2 电机角度环PID,并不需要知道周期,但是仍然需要放在需要周期定时器内
+void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir);	// Dir: 纠正PID控制方向
 
 // 8. 设置电机旋转角度
 void Motor_SetAngle(Motor_Typedef *Motor , int Angle); 
