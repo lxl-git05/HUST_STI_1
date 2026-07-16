@@ -1,13 +1,13 @@
 #include "Con_Mode_2.h"
-// È«¾Ö±äÁ¿
+// å…¨å±€å˜é‡
 int Mode_2_Move = 0 ;
 
 void Con_Mode_2_Setup(void)
 {
     OLED_Clear();
-	// ÈÎÎñ¶ÓÁĞ³õÊ¼»¯
+	// ä»»åŠ¡é˜Ÿåˆ—åˆå§‹åŒ–
 	Con_Task_Init(Con_Mode_Table , TASK_COUNT) ;
-	// ´òÓ¡ÈÕÖ¾
+	// æ‰“å°æ—¥å¿—
 	Serial_printf(&Serial2 , "@Con_Mode_2:2$#");
 }
 
@@ -16,44 +16,44 @@ void Con_Mode_2_Setup(void)
 void Con_Mode_2_Loop(void)
 {
 	OLED_Printf(0, 0, OLED_6X8, "=====Con_Mode_2=====") ;
-	// ¼àÌı´®¿Ú4(LCD)
+	// ç›‘å¬ä¸²å£4(LCD)
 	if (Serial_GetNewPackageFlag_ABC(&Serial4))
 	{
-		// ¼ì²âºÚÉ«Æå×Ó
+		// æ£€æµ‹é»‘è‰²æ£‹å­
 		if (Serial_SetIntData(&Serial4 , "Move" , "Move=%d" , &Mode_2_Move))
 		{
-			// ·¢»Ø¸øÏã³ÈÅÉ
+			// å‘å›ç»™é¦™æ©™æ´¾
 			Serial_printf(&Serial2 , "@Move:%d$#",Mode_2_Move) ;
 		}
 	}
-	// ¼àÌı´®¿Ú2(Ïã³ÈÅÉ)
+	// ç›‘å¬ä¸²å£2(é¦™æ©™æ´¾)
 	if (Serial_GetNewPackageFlag_ABC(&Serial2))
 	{
-		// 1. TarÈÎÎñ
+		// 1. Tarä»»åŠ¡
 		if (Serial_Check_Str(&Serial2 , "TarXY"))
 		{
-			// ¿ªÊ¼½øĞĞ(x,y)Î»ÖÃ¶¨Î»
-			Con_Task_Enqueue(Task_Tar_XY , 1000 , 1 , 0 , 0) ;
+			// å¼€å§‹è¿›è¡Œ(x,y)ä½ç½®å®šä½
+			Con_Task_Enqueue(Task_Tar_XY , Tar_XY_Tol_Distance , Tar_XY_Tol_Speed , 0 , 0) ;
 		}
-		// 2. DownÈÎÎñ(ÆäÊµÊÇ²ğ·Ö³ÉÁË3¸öĞ¡ÈÎÎñ:ÏÂ½µ->È¡/·ÅÆå×Ó->ÉÏÉı£¬Ö»ÓĞÔÚÉÏÉıµÄÊ±ºò»á·¢OK)
+		// 2. Downä»»åŠ¡(å…¶å®æ˜¯æ‹†åˆ†æˆäº†3ä¸ªå°ä»»åŠ¡:ä¸‹é™->å–/æ”¾æ£‹å­->ä¸Šå‡ï¼Œåªæœ‰åœ¨ä¸Šå‡çš„æ—¶å€™ä¼šå‘OK)
 		if (Serial_Check_Str(&Serial2 , "Down"))
 		{
-			// ¿ªÊ¼½øĞĞÆå×ÓÄÃÈ¡or·ÅÖÃ
-			Con_Task_Enqueue(Task_Down , 2000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Elec , 1000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Up	 , 2000 , 1 , 0 , 0) ;
+			// å¼€å§‹è¿›è¡Œæ£‹å­æ‹¿å–oræ”¾ç½®
+			Con_Task_Enqueue(Task_Down , Down_Tar_Angle , Down_Tol_Angle , 0 , 0) ;
+			Con_Task_Enqueue(Task_Elec , Elec_Wait , 0 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Up	 , Up_Tar_Angle , Up_Tol_Angle , 0 , 0) ;
 		}
-		// 3. BackÈÎÎñ
+		// 3. Backä»»åŠ¡
 		if (Serial_Check_Str(&Serial2 , "Back"))
 		{
-			// »Ø¼Ò
-			Con_Task_Enqueue(Task_Back , 3000 , 1 , 0 , 0) ;
+			// å›å®¶
+			Con_Task_Enqueue(Task_Back , Back_Tar_Angle , Back_Speed_MAX , Back_Acc , Back_Tol_Angle) ;
 		}
 	}
-	// OLEDÕ¹Ê¾
+	// OLEDå±•ç¤º
 	OLED_Printf(0,15,OLED_6X8,"Curr_Task:%d",Con_Task_CurrType()) ;
 	
-	// ÈÎÎñµ÷¶È
+	// ä»»åŠ¡è°ƒåº¦
 	Con_Task_Loop();
 }
 

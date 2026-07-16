@@ -63,7 +63,7 @@ void Stepper_PWM_Stop(Stepper_PWM_Typedef* pStepper);
 // 脉冲中断处理（每脉冲完成调用一次，在TIM12更新中断中调用）
 void Stepper_PWM_Pulse_Count(Stepper_PWM_Typedef* pStepper);
 
-// 限位配置与检查
+// 限位配置与检查  
 void Stepper_PWM_Limit_Config(Stepper_PWM_Typedef* pStepper, float Limit_Angle_Max, float Limit_Angle_Min);
 uint8_t Stepper_PWM_Limit_Check(Stepper_PWM_Typedef* pStepper, float target_speed);
 

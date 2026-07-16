@@ -1,10 +1,11 @@
 #include "Orange.h"
 
-// 1. x_real 2. y_real 3. x_tar 4. y_tar
-float x_real = 640.0f ;
-float y_real = 640.0f ;
-float x_tar  = 500.0f ;
-float y_tar  = 360.0f ;
+// 0: cmd 1. x_tar 2. y_tar 
+float x_tar  = 640.0f ;	// 1. x目标值
+float y_tar  = 360.0f ;	// 2. y目标值
+
+float x_real = 640.0f ;	// 当前值(因为两者之间的距离固定)
+float y_real = 360.0f ;	// 当前值:这两个值是不变的
 
 int angle_shift = 50  ;
 int offset      = 20  ;
@@ -23,10 +24,8 @@ void Oran_Update(void)
 		Oran_cmd = Serial_GetHexData(&Serial2 , 0) ;
 		if (Oran_cmd == 0)
 		{
-			x_real = (float)(Serial_GetHexData(&Serial2 , 1) == 0 ?  x_real :  Serial_GetHexData(&Serial2 , 1)) ;
-			y_real = (float)(Serial_GetHexData(&Serial2 , 2) == 0 ?  y_real :  Serial_GetHexData(&Serial2 , 2)) ;
-			x_tar  = (float)(Serial_GetHexData(&Serial2 , 3) == 0 ?  x_tar  :  Serial_GetHexData(&Serial2 , 3)) ;
-			y_tar  = (float)(Serial_GetHexData(&Serial2 , 4) == 0 ?  y_tar  :  Serial_GetHexData(&Serial2 , 4)) ;
+			x_tar  = (float)(Serial_GetHexData(&Serial2 , 1) == 0 ?  x_tar  :  Serial_GetHexData(&Serial2 , 1)) ;
+			y_tar  = (float)(Serial_GetHexData(&Serial2 , 2) == 0 ?  y_tar  :  Serial_GetHexData(&Serial2 , 2)) ;
 		}
 		else if (Oran_cmd == 1)
 		{
@@ -48,9 +47,3 @@ void Oran_Send_Data(int *Data)
 	if (Data == &black_s) {Serial_printf(&Serial2 , "@black_s:%d$#",black_s);}
 	if (Data == &black_v) {Serial_printf(&Serial2 , "@black_v:%d$#",black_v);}
 }
-
-
-
-
-
-

@@ -5,54 +5,54 @@ int Mode_5_Move ;
 void Con_Mode_5_Setup(void)
 {
     OLED_Clear();
-		// ÈÎÎñ¶ÓÁĞ³õÊ¼»¯
+		// ä»»åŠ¡é˜Ÿåˆ—åˆå§‹åŒ–
 		Con_Task_Init(Con_Mode_Table , TASK_COUNT) ;
-		// ´òÓ¡ÈÕÖ¾
+		// æ‰“å°æ—¥å¿—
 		Serial_printf(&Serial2 , "@Con_Mode_5:5$#");
 }
 
 void Con_Mode_5_Loop(void)
 {
 	OLED_Printf(0, 0, OLED_6X8, "=====Con_Mode_5=====") ;
-	// ¼àÌı´®¿Ú2(Ïã³ÈÅÉ)
+	// ç›‘å¬ä¸²å£2(é¦™æ©™æ´¾)
 	if (Serial_GetNewPackageFlag_ABC(&Serial2))
 	{
-		// 1. TarÈÎÎñ
+		// 1. Tarä»»åŠ¡
 		if (Serial_Check_Str(&Serial2 , "TarXY"))
 		{
-			// ¿ªÊ¼½øĞĞ(x,y)Î»ÖÃ¶¨Î»
-			Con_Task_Enqueue(Task_Tar_XY , 1000 , 1 , 0 , 0) ;
+			// å¼€å§‹è¿›è¡Œ(x,y)ä½ç½®å®šä½
+			Con_Task_Enqueue(Task_Tar_XY , Tar_XY_Tol_Distance , Tar_XY_Tol_Speed , 0 , 0) ;
 		}
-		// 2. DownÈÎÎñ(ÆäÊµÊÇ²ğ·Ö³ÉÁË3¸öĞ¡ÈÎÎñ:ÏÂ½µ->È¡/·ÅÆå×Ó->ÉÏÉı£¬Ö»ÓĞÔÚÉÏÉıµÄÊ±ºò»á·¢OK)
+		// 2. Downä»»åŠ¡(å…¶å®æ˜¯æ‹†åˆ†æˆäº†3ä¸ªå°ä»»åŠ¡:ä¸‹é™->å–/æ”¾æ£‹å­->ä¸Šå‡ï¼Œåªæœ‰åœ¨ä¸Šå‡çš„æ—¶å€™ä¼šå‘OK)
 		if (Serial_Check_Str(&Serial2 , "Down"))
 		{
-			// ¿ªÊ¼½øĞĞÆå×ÓÄÃÈ¡or·ÅÖÃ
-			Con_Task_Enqueue(Task_Down , 2000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Elec , 1000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Up	 , 2000 , 1 , 0 , 0) ;
+			// å¼€å§‹è¿›è¡Œæ£‹å­æ‹¿å–oræ”¾ç½®
+			Con_Task_Enqueue(Task_Down , Down_Tar_Angle , Down_Tol_Angle , 0 , 0) ;
+			Con_Task_Enqueue(Task_Elec , Elec_Wait , 0 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Up	 , Up_Tar_Angle , Up_Tol_Angle , 0 , 0) ;
 		}
-		// 3. BackÈÎÎñ
+		// 3. Backä»»åŠ¡
 		if (Serial_Check_Str(&Serial2 , "Back"))
 		{
-			// »Ø¼Ò
-			Con_Task_Enqueue(Task_Back , 3000 , 1 , 0 , 0) ;
+			// å›å®¶
+			Con_Task_Enqueue(Task_Back , Back_Tar_Angle , Back_Speed_MAX , Back_Acc , Back_Tol_Angle) ;
 		}
-		// 4. ´®¿Ú4½øĞĞLCD¸üĞÂ
+		// 4. ä¸²å£4è¿›è¡ŒLCDæ›´æ–°
 		if (Serial_SetIntData(&Serial2 , "Update" , "Update=%d" , &Mode_5_Move))
 		{
-			// ½âÎö
-			// 1. ±êÇ©Î»ÖÃ
-			uint8_t px = Mode_5_Move % 10 - 1;	// x=0~8,pxÎªµÚx¸öÆåÅÌ
-			// 2. ÑÕÉ«
-			uint8_t color = (Mode_5_Move / 10) % 10 == 0 ? 4 : 3;	// 0->ºÚÉ« 1->°×É« £¬ÔÚLCDÖĞºÚÉ«->4 °×É«->3
-			// ·¢»Ø¸øLCD
+			// è§£æ
+			// 1. æ ‡ç­¾ä½ç½®
+			uint8_t px = Mode_5_Move % 10 - 1;	// x=0~8,pxä¸ºç¬¬xä¸ªæ£‹ç›˜
+			// 2. é¢œè‰²
+			uint8_t color = (Mode_5_Move / 10) % 10 == 0 ? 4 : 3;	// 0->é»‘è‰² 1->ç™½è‰² ï¼Œåœ¨LCDä¸­é»‘è‰²->4 ç™½è‰²->3
+			// å‘å›ç»™LCD
 			Serial_printf(&Serial4 , "Mode5.p%d.pic=%d\xff\xff\xff",px,color) ;
 		}
 	}
-	// OLEDÕ¹Ê¾
+	// OLEDå±•ç¤º
 	OLED_Printf(0,15,OLED_6X8,"Curr_Task:%d",Con_Task_CurrType()) ;
 	
-	// ÈÎÎñµ÷¶È
+	// ä»»åŠ¡è°ƒåº¦
 	Con_Task_Loop();
 }
 

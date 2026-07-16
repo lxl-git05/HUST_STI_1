@@ -5,21 +5,36 @@
 
 /* ==================== 参数表（地址自动分配，mode放第1个）==================== */
 const AT_ParamItem s_AT_Params[] = {
-	// 模式存储
+		// 模式存储
     { AT_PARAM_I8(&curr_mode			, 1           )} ,   // addr=0,  int8_t,  default=0
-	// 云台PID
+		// 云台PID
     { AT_PARAM_F(&Stepper1.PID_Angle.Kp , 0.0f 		  )} ,
     { AT_PARAM_F(&Stepper1.PID_Angle.Ki , 0.0f 		  )} ,
     { AT_PARAM_F(&Stepper1.PID_Angle.Kd , 0.0f 		  )} ,
     { AT_PARAM_F(&Stepper2.PID_Angle.Kp , 0.0f 		  )} ,
     { AT_PARAM_F(&Stepper2.PID_Angle.Ki , 0.0f 		  )} ,
     { AT_PARAM_F(&Stepper2.PID_Angle.Kd , 0.0f 		  )} ,
-	// 香橙派数据
-	{ AT_PARAM_I16(&angle_shift			, 0          )} ,
-	{ AT_PARAM_I16(&offset				, 0          )} ,
-	{ AT_PARAM_I16(&black_h				, 0          )} ,
-	{ AT_PARAM_I16(&black_s				, 0          )} ,
-	{ AT_PARAM_I16(&black_v				, 0          )} ,
+		// 香橙派数据
+		{ AT_PARAM_I16(&angle_shift			, 0          )} ,
+		{ AT_PARAM_I16(&offset				, 0          )} ,
+		{ AT_PARAM_I16(&black_h				, 0          )} ,
+		{ AT_PARAM_I16(&black_s				, 0          )} ,
+		{ AT_PARAM_I16(&black_v				, 0          )} ,
+		// 各个任务的阈值
+//		{ AT_PARAM_F(&Tar_XY_Tol_Distance , 8.0f)},
+//		{ AT_PARAM_F(&Tar_XY_Tol_Speed	  , 5.0f)},
+//		
+//		{ AT_PARAM_F(&Down_Tar_Angle , 30)},
+//		{ AT_PARAM_F(&Down_Tol_Angle , 5 )},
+//		
+//		{ AT_PARAM_F(&Back_Tar_Angle , 30)},
+//		{ AT_PARAM_F(&Back_Speed_MAX , 60)},
+//		{ AT_PARAM_F(&Back_Acc       ,  0)},
+//		{ AT_PARAM_F(&Back_Tol_Angle ,  5)},
+//		
+//		{ AT_PARAM_F(&Elec_Wait	    ,1000)},
+//		{ AT_PARAM_F(&Up_Tar_Angle  ,  30)},
+//		{ AT_PARAM_F(&Up_Tol_Angle  ,   5)},
 };	
 
 int At_Size = sizeof(s_AT_Params)/sizeof(s_AT_Params[0]) ;
@@ -41,6 +56,19 @@ void Mode_1_Setup(void)
 	Param_Register("black_h",  &black_h,1,PARAM_INT16);
 	Param_Register("black_s",  &black_s,1,PARAM_INT16);
 	Param_Register("black_v",  &black_v,1,PARAM_INT16);
+	// 任务阈值
+//	Param_Register("Tar_XY_Tol_Distance",  &Tar_XY_Tol_Distance,1.0f,PARAM_FLOAT);
+//	Param_Register("Tar_XY_Tol_Speed",  &Tar_XY_Tol_Speed,1.0f,PARAM_FLOAT);
+//	Param_Register("Down_Tar_Angle",  &Down_Tar_Angle,0.5f,PARAM_FLOAT);
+//	Param_Register("Down_Tol_Angle",  &Down_Tol_Angle,0.5f,PARAM_FLOAT);
+//	Param_Register("Back_Tar_Angle",  &Back_Tar_Angle,1.0f,PARAM_FLOAT);
+//	Param_Register("Back_Speed_MAX",  &Back_Speed_MAX,1.0f,PARAM_FLOAT);
+//	Param_Register("Back_Acc",  &Back_Acc,1.0f,PARAM_FLOAT);
+//	Param_Register("Back_Tol_Angle",  &Back_Tol_Angle,0.5f,PARAM_FLOAT);
+//	Param_Register("Elec_Wait",  &Elec_Wait,1.0f,PARAM_FLOAT);
+//	Param_Register("Up_Tar_Angle",  &Up_Tar_Angle,1.0f,PARAM_FLOAT);
+//	Param_Register("Up_Tol_Angle",  &Up_Tol_Angle,1.0f,PARAM_FLOAT);
+
 
 }
 

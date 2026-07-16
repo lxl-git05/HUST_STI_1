@@ -12,8 +12,8 @@ void Stepper_Init(void)
 	PID_Init(&Stepper2.PID_Angle , 0.081f , 0.0f , 0.224f , 100.0f , -100.0f , 1000.0f) ;
 
 	// 软件限位配置
-	Stepper_PWM_Limit_Config(&Stepper1, 120.0f, -120.0f);  // 电机1 水平旋转 ±120°
-	Stepper_PWM_Limit_Config(&Stepper2, 50.0f,  -50.0f);   // 电机2 竖直旋转 ±50°
+//	Stepper_PWM_Limit_Config(&Stepper1, 120.0f, -120.0f);  // 电机1 水平旋转 ±120°
+//	Stepper_PWM_Limit_Config(&Stepper2, 50.0f,  -50.0f);   // 电机2 竖直旋转 ±50°
 }
 
 // 目标角度PID值更新
@@ -38,4 +38,14 @@ void Stepper_PID_Tick(uint32_t Gap_Time_ms)
 	Stepper_PWM_Speed_Set(&Stepper2 , Stepper2.PID_Angle.setPoint , Stepper2.Acc_Val) ;
 }
 
-
+// 检测是否到达目标位置
+bool Stepper_PID_Is_OK(Stepper_PWM_Typedef *pStepper , int Tolerance_Angle , int Tolerance_Speed) 
+{
+	if (pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now > -Tolerance_Angle && 
+			pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now <  Tolerance_Angle && 
+			pStepper->PID_Angle.setPoint < Tolerance_Speed && pStepper->PID_Angle.setPoint > -Tolerance_Speed)
+	{
+		return true ;
+	}
+	return false ;
+}

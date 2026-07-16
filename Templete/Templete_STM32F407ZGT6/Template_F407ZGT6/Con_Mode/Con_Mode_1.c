@@ -45,27 +45,27 @@ void Con_Mode_1_Loop(void)
 		}
 	}
 	// 监听串口2(香橙派)
-	if (Serial_GetNewPackageFlag_ABC(&Serial2))
+	if (Serial_GetNewPackageFlag_ABC(&Serial2) || 1)
 	{
 		// 1. Tar任务
-		if (Serial_Check_Str(&Serial2 , "TarXY"))
+		if (Serial_Check_Str(&Serial2 , "TarXY") || Key_Check(KEY_1 , KEY_SINGLE))
 		{
 			// 开始进行(x,y)位置定位
-			Con_Task_Enqueue(Task_Tar_XY , 1000 , 1 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Tar_XY , Tar_XY_Tol_Distance , Tar_XY_Tol_Speed , 0 , 0) ;
 		}
 		// 2. Down任务(其实是拆分成了3个小任务:下降->取/放棋子->上升，只有在上升的时候会发OK)
-		if (Serial_Check_Str(&Serial2 , "Down"))
+		if (Serial_Check_Str(&Serial2 , "Down") || Key_Check(KEY_2 , KEY_SINGLE) )
 		{
 			// 开始进行棋子拿取or放置
-			Con_Task_Enqueue(Task_Down , 2000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Elec , 1000 , 1 , 0 , 0) ;
-			Con_Task_Enqueue(Task_Up	 , 2000 , 1 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Down , Down_Tar_Angle , Down_Tol_Angle , 0 , 0) ;
+			Con_Task_Enqueue(Task_Elec , Elec_Wait , 0 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Up	 , Up_Tar_Angle , Up_Tol_Angle , 0 , 0) ;
 		}
 		// 3. Back任务
-		if (Serial_Check_Str(&Serial2 , "Back"))
+		if (Serial_Check_Str(&Serial2 , "Back") || Key_Check(KEY_3 , KEY_SINGLE) )
 		{
 			// 回家
-			Con_Task_Enqueue(Task_Back , 3000 , 1 , 0 , 0) ;
+			Con_Task_Enqueue(Task_Back , Back_Tar_Angle , Back_Speed_MAX , Back_Acc , Back_Tol_Angle) ;
 		}
 	}
 	// OLED展示

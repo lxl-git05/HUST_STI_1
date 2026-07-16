@@ -1,18 +1,44 @@
-#include "Control.h"
+#include "Allheader.h"
 
-// 任务注册地:比赛任务,没实现的暂时使用蜂鸣器延时任务替代
-// 1. 前往任务地点(x,y)
+// =========================== 业务逻辑中所有需要脱机调试的变量声明 ===========================
+// 1. Task_Tar_XY
+float Tar_XY_Tol_Distance = 8 ;	// 8个像素点
+float Tar_XY_Tol_Speed 	  = 5 ;	// 容忍速度5
+
+// 2. Task_Down
+float Down_Tar_Angle = 360 ;
+float Down_Tol_Angle = 5	;
+
+// 3. Task_Back
+float Back_Tar_Angle = 30 ;
+float Back_Speed_MAX = 60 ;
+float Back_Acc			 = 0 	;
+float Back_Tol_Angle = 5	;
+
+// 4. Task_Elec
+float Elec_Wait 		 = 1000 ;	// ms
+
+// 5. Task_Up
+float Up_Tar_Angle 	 = 0 ;
+float Up_Tol_Angle 	 = 5	;
+
+// =========================== 任务注册地:比赛任务,没实现的暂时使用蜂鸣器延时任务替代 ===========================
+// 任务：移动到目标(x,y)
+// Task_Tar_XY: p[0]=容忍差距位置 p[1]=容忍最小速度(视为停车的标准)
+
 void Task_Tar_XY_Setup(float p[4])
 {
+	// 实验代码
 	p[2] = HAL_GetTick() ;	// 开始计时
-	if (p[1] != 0)
-	{
-		Buzzer_ON() ;
-	}
-	else
-	{
-		Buzzer_OFF() ;
-	}
+//	if (p[1] != 0)
+//	{
+//		Buzzer_ON() ;
+//	}
+//	else
+//	{
+//		Buzzer_OFF() ;
+//	}
+	// 正式代码，目标值在Tick更新
 }
 
 void Task_Tar_XY_Run(float p[4])
@@ -22,9 +48,18 @@ void Task_Tar_XY_Run(float p[4])
 	
 bool Task_Tar_XY_IsExit(float p[4])
 {
-	if (HAL_GetTick() - p[2] > p[0])
+	// 实验代码
+//	if (HAL_GetTick() - p[2] > p[0])
+//	{
+//		Buzzer_OFF() ;
+//		return true ;
+//	}
+	// 正式代码
+	if (Stepper_PID_Is_OK(&Stepper1 , p[0] , p[1]) && Stepper_PID_Is_OK(&Stepper2 , p[0] , p[1]) && HAL_GetTick() - p[2] > 500)
 	{
-		Buzzer_OFF() ;
+		// 到达目标位置之后停止，进入下个模式
+		Stepper_PWM_Stop(&Stepper1) ;
+		Stepper_PWM_Stop(&Stepper2) ;
 		return true ;
 	}
 	return false ;
@@ -32,20 +67,25 @@ bool Task_Tar_XY_IsExit(float p[4])
 
 void Task_Tar_XY_Tick(float p[4])
 {
-	
+	Stepper_PID_Tick(20) ;
+	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
 }
-// 2. 向下取/放棋子
+// 2. 向下
+// Task_Down:p[0]=目标角度 p[1]=容忍完成偏差
 void Task_Down_Setup(float p[4])
 {
+	// 实验使用
 	p[2] = HAL_GetTick() ;	// 开始计时
-	if (p[1] != 0)
-	{
-		Buzzer_ON() ;
-	}
-	else
-	{
-		Buzzer_OFF() ;
-	}
+//	if (p[1] != 0)
+//	{
+//		Buzzer_ON() ;
+//	}
+//	else
+//	{
+//		Buzzer_OFF() ;
+//	}
+	// 正式代码
+	Motor_SetAngle(&Motor_A , p[0]) ;
 }
 
 void Task_Down_Run(float p[4])
@@ -55,9 +95,15 @@ void Task_Down_Run(float p[4])
 	
 bool Task_Down_IsExit(float p[4])
 {
-	if (HAL_GetTick() - p[2] > p[0])
+//	if (HAL_GetTick() - p[2] > p[0])
+//	{
+//		Buzzer_OFF() ;
+//		return true ;
+//	}
+	// 正式代码: 判断静止条件
+	if (Motor_Is_Angle(&Motor_A , p[0] , p[1]) && HAL_GetTick() - p[2] > 500)
 	{
-		Buzzer_OFF() ;
+		Motor_SetSpeed(&Motor_A , 0) ;
 		return true ;
 	}
 	return false ;
@@ -65,20 +111,25 @@ bool Task_Down_IsExit(float p[4])
 
 void Task_Down_Tick(float p[4])
 {
-	
+	// 正式代码
+	Motorx_Angle_Update_Tick(&Motor_A , 1) ;
 }
 // 3. 回到原点
+// Task_Back:p[0]=目标角度 p[1]=最大速度 p[2]=加速度 p[3]=容忍完成角度
 void Task_Back_Setup(float p[4])
 {
-	p[2] = HAL_GetTick() ;	// 开始计时
-	if (p[1] != 0)
-	{
-		Buzzer_ON() ;
-	}
-	else
-	{
-		Buzzer_OFF() ;
-	}
+//	p[2] = HAL_GetTick() ;	// 开始计时
+//	if (p[1] != 0)
+//	{
+//		Buzzer_ON() ;
+//	}
+//	else
+//	{
+//		Buzzer_OFF() ;
+//	}
+	// 正式代码
+	Stepper_PWM_Pos_Set_Abs(&Stepper1 , p[0] , p[1] , p[2] ) ;
+	Stepper_PWM_Pos_Set_Abs(&Stepper2 , p[0] , p[1] , p[2] ) ;
 }
 
 void Task_Back_Run(float p[4])
@@ -88,9 +139,10 @@ void Task_Back_Run(float p[4])
 	
 bool Task_Back_IsExit(float p[4])
 {
-	if (HAL_GetTick() - p[2] > p[0])
+	if (Stepper1.Pos_Now < p[3] && Stepper1.Pos_Now > -p[3] && Stepper2.Pos_Now < p[3] && Stepper2.Pos_Now > -p[3])
 	{
-		Buzzer_OFF() ;
+		Stepper_PWM_Stop(&Stepper1) ;
+		Stepper_PWM_Stop(&Stepper2) ;
 		return true ;
 	}
 	return false ;
@@ -134,14 +186,16 @@ bool Task_Elec_IsExit(float p[4])
 void Task_Up_Setup(float p[4])
 {
 	p[2] = HAL_GetTick() ;	// 开始计时
-	if (p[1] != 0)
-	{
-		Buzzer_ON() ;
-	}
-	else
-	{
-		Buzzer_OFF() ;
-	}
+//	if (p[1] != 0)
+//	{
+//		Buzzer_ON() ;
+//	}
+//	else
+//	{
+//		Buzzer_OFF() ;
+//	}
+	// 正式代码
+	Motor_SetAngle(&Motor_A , p[0]) ;
 }
 
 void Task_Up_Run(float p[4])
@@ -151,9 +205,15 @@ void Task_Up_Run(float p[4])
 	
 bool Task_Up_IsExit(float p[4])
 {
-	if (HAL_GetTick() - p[2] > p[0])
+//	if (HAL_GetTick() - p[2] > p[0])
+//	{
+//		Buzzer_OFF() ;
+//		return true ;
+//	}
+	// 正式代码: 判断静止条件
+	if (Motor_Is_Angle(&Motor_A , p[0] , p[1])  && HAL_GetTick() - p[2] > 500 )
 	{
-		Buzzer_OFF() ;
+		Motor_SetSpeed(&Motor_A , 0) ;
 		return true ;
 	}
 	return false ;
@@ -161,7 +221,8 @@ bool Task_Up_IsExit(float p[4])
 
 void Task_Up_Tick(float p[4])
 {
-	
+	// 正式代码
+	Motorx_Angle_Update_Tick(&Motor_A , 1) ;
 }
 
 // 任务注册地-测试任务
