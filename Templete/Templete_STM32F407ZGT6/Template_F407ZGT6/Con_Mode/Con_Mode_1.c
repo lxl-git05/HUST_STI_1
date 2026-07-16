@@ -13,7 +13,7 @@ void Con_Mode_1_Loop(void)
 
 void Con_Mode_1_Tick(void)
 {
-    
+	
 }
 
 void Con_Mode_1_Exit(void)

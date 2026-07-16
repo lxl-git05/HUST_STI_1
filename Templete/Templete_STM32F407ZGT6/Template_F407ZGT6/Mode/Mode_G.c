@@ -51,6 +51,14 @@ void Mode_G_Loop(void)
     {
         Mode_To_Next() ;
     }
+		// 进入比赛模式
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_1")){Mode_ChangeTo(Con_Mode_1);}
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_2")){Mode_ChangeTo(Con_Mode_2);}
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_3")){Mode_ChangeTo(Con_Mode_3);}
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_4")){Mode_ChangeTo(Con_Mode_4);}
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_5")){Mode_ChangeTo(Con_Mode_5);}
+		if (Serial_Check_Str(&Serial4 , "Con_Mode_6")){Mode_ChangeTo(Con_Mode_6);}
+
     // OLED展示
     if (curr_mode == Mode_Null)
     {
@@ -102,6 +110,8 @@ void Timer_20ms_Callback(void)
 			case Con_Mode_6 : Con_Mode_6_Tick() ; break;
 			case Mode_End  : break;
 	}
+	// 4. 电机PID_Tick
+	Motor_Speed_Update_Tick(20);
 }
 
 // ========================== 步进电机脉冲计数（重写MyTimer弱回调） ==========================

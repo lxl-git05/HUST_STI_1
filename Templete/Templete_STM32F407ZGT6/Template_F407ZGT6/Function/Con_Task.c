@@ -4,13 +4,19 @@
 #include <string.h>
 
 // ==================== 内部状态 ====================
-static Queue_Typedef                   Task_Queue;        // 任务队列
-static const Task_Descriptor_Typedef  *Task_Table;        // 任务描述表指针
-static int                             Task_Table_Size;   // 表大小
-static int                             Task_Curr = -1;    // 当前任务类型（-1=空闲）
-static int                             Task_Next = -1;    // 下一个任务类型
-static bool                            Task_SetupDone;    // 当前任务 Setup 是否已执行
-static float                           Task_Params[4];    // 当前任务参数
+Queue_Typedef                   Task_Queue;        // 任务队列
+const Task_Descriptor_Typedef  *Task_Table;        // 任务描述表指针
+int                             Task_Table_Size;   // 表大小
+int                             Task_Curr = -1;    // 当前任务类型（-1=空闲）
+int                             Task_Next = -1;    // 下一个任务类型
+bool                            Task_SetupDone;    // 当前任务 Setup 是否已执行
+float                           Task_Params[4];    // 当前任务参数
+uint32_t                        Task_StartTick;    // 当前任务启动时刻(ms)
+
+// 任务执行记录
+Task_Record_Typedef Task_Records[TASK_RECORD_MAX];
+int                 Task_Record_Count = 0;
+static int          Task_Exec_Index   = 0;   // 全局任务执行序号（每完成一个任务+1）
 
 // ==================== API 实现 ====================
 
@@ -23,6 +29,10 @@ void Con_Task_Init(const Task_Descriptor_Typedef *table, int size)
     Task_Curr       = -1;       // 终止当前任务
     Task_Next       = -1;
     Task_SetupDone  = false;
+
+#ifdef CON_TASK_RECORD_CLEAR_ON_INIT
+    Con_Task_RecordClear();     // 切 Mode 时自动清空记录，防止溢出
+#endif
     // Task_Params 下次出队时被 memcpy 覆盖，无需清零
 }
 
@@ -72,6 +82,13 @@ void Con_Task_Loop(void)
     if (Task_Curr != Task_Next && Task_Next != -1)
     {
         const Task_Descriptor_Typedef *desc = &Task_Table[Task_Next];
+
+        Task_StartTick = HAL_GetTick();                         // ★ 记录任务开始时刻
+
+#ifdef CON_TASK_LOG
+        Serial_printf(&Serial1, "[Task:%d Setup]\r\n", Task_Next);
+#endif
+
         if (desc->Setup) desc->Setup(Task_Params);
         Task_SetupDone = true;
         Task_Curr = Task_Next;
@@ -90,6 +107,21 @@ void Con_Task_Loop(void)
         const Task_Descriptor_Typedef *desc = &Task_Table[Task_Curr];
         if (desc->IsExit && desc->IsExit(Task_Params))
         {
+            // ★ 记录本次任务耗时
+            float elapsed_s = (HAL_GetTick() - Task_StartTick) / 1000.0f;
+            if (Task_Record_Count < TASK_RECORD_MAX)
+            {
+                Task_Exec_Index++;
+                Task_Records[Task_Record_Count].task_index = Task_Exec_Index;
+                Task_Records[Task_Record_Count].task_type  = (Task_Type)Task_Curr;
+                Task_Records[Task_Record_Count].time_s     = elapsed_s;
+                Task_Record_Count++;
+            }
+
+#ifdef CON_TASK_LOG
+            Serial_printf(&Serial1, "[Task:%d Exit Time:%.2fs]\r\n", Task_Curr, elapsed_s);
+#endif
+
             Task_Curr = -1;
             Task_Next = -1;
             Task_SetupDone = false;
@@ -124,4 +156,11 @@ int Con_Task_CurrType(void)
 int Con_Task_Remaining(void)
 {
     return Queue_Size(&Task_Queue);
+}
+
+// 清空任务记录
+void Con_Task_RecordClear(void)
+{
+    Task_Record_Count = 0;
+    Task_Exec_Index   = 0;
 }

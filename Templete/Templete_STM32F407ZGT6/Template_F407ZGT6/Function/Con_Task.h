@@ -6,12 +6,15 @@
 
 #include "Queue.h"
 
+// ==================== 日志开关 ====================
+ #define CON_TASK_LOG  // ★ 取消注释以开启任务日志（Serial1 输出）
+
 // ==================== 全局任务枚举（所有 Mode 共用） ====================
 typedef enum {
     TASK_NONE = 0,
     TASK_WAIT_TIME,       // 等待指定毫秒: p[0]=ms
-    TASK_MOTOR_SPEED,     // 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms(0=永久)
-    TASK_MOTOR_ANGLE,     // 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
+		TASK_Motor_Speed,			// 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms
+		TASK_Motor_Angle,			// 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
     // ... 后续按需追加
     TASK_COUNT             // ★ 枚举总数，必须放最后
 } Task_Type;
@@ -21,6 +24,16 @@ typedef void (*Task_SetupFunc)(float params[4]);     // 进入任务时调用一
 typedef void (*Task_RunFunc)  (float params[4]);     // 每帧主循环调用，可为 NULL
 typedef bool (*Task_ExitFunc) (float params[4]);     // 返回 true 则自动切换下一个任务
 typedef void (*Task_TickFunc) (float params[4]);     // 20ms 中断调用，可为 NULL
+
+// ==================== 任务执行记录（性能分析用） ====================
+#define TASK_RECORD_MAX 64              // 最多记录条数
+// #define CON_TASK_RECORD_CLEAR_ON_INIT  // ★ 取消注释：Con_Task_Init 时自动清空记录数组
+
+typedef struct {
+    int         task_index;     // 任务序号（第1条=1, 第2条=2 ...）
+    Task_Type   task_type;      // 任务枚举值
+    float       time_s;         // 本次执行耗时（秒）
+} Task_Record_Typedef;
 
 // ==================== 任务描述表（按 Task_Type 索引） ====================
 typedef struct {
@@ -55,5 +68,14 @@ int  Con_Task_CurrType(void);
 
 // 队列中剩余任务数
 int  Con_Task_Remaining(void);
+
+// ==================== 任务记录（性能分析） ====================
+
+// 任务执行记录数组（循环写入，供调试/分析读取）
+extern Task_Record_Typedef Task_Records[];
+extern int                  Task_Record_Count;
+
+// 清空任务记录
+void Con_Task_RecordClear(void);
 
 #endif

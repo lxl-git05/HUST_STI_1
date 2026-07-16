@@ -1591,6 +1591,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Con_Task.h</FilePath>
             </File>
+            <File>
+              <FileName>Control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Control.c</FilePath>
+            </File>
+            <File>
+              <FileName>Control.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Control.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

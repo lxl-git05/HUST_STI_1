@@ -27,6 +27,7 @@
 #include "at24c02_manager.h"
 #include "ParamEdit.h"
 #include "Queue.h"
+#include "Control.h"
 
 //// 硬件实现库
 #include "Con_Stepper.h"
