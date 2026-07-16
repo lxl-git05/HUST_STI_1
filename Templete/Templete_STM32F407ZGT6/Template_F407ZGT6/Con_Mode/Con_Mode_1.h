@@ -3,6 +3,8 @@
 
 #include "AllHeader.h"
 
+extern Task_Descriptor_Typedef Con_Mode_Table[TASK_COUNT] ;
+
 // ========================== 电机PID调参 ==========================
 // KEY_1单击切换Motor A/B，串口设置Kp/Ki/Kd/Angle
 

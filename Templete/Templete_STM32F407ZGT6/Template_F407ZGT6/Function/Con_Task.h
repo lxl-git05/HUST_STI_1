@@ -15,8 +15,14 @@ typedef enum {
     TASK_WAIT_TIME,       // 等待指定毫秒: p[0]=ms
 		TASK_Motor_Speed,			// 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms
 		TASK_Motor_Angle,			// 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
-    // ... 后续按需追加
-    TASK_COUNT             // ★ 枚举总数，必须放最后
+		// 比赛逻辑
+		Task_Tar_XY,					// 装置去到目标x,y位置
+		Task_Down,						// 装置下降
+		Task_Back,						// 装置回位
+		Task_Elec,						// 取/放棋子
+		Task_Up	 ,						// 装置上升
+		// ★ 枚举总数，必须放最后
+    TASK_COUNT             
 } Task_Type;
 
 // ==================== 任务回调函数类型 ====================

@@ -1,8 +1,168 @@
 #include "Control.h"
 
-// 任务注册地:比赛任务
+// 任务注册地:比赛任务,没实现的暂时使用蜂鸣器延时任务替代
+// 1. 前往任务地点(x,y)
+void Task_Tar_XY_Setup(float p[4])
+{
+	p[2] = HAL_GetTick() ;	// 开始计时
+	if (p[1] != 0)
+	{
+		Buzzer_ON() ;
+	}
+	else
+	{
+		Buzzer_OFF() ;
+	}
+}
 
+void Task_Tar_XY_Run(float p[4])
+{
+	
+}
+	
+bool Task_Tar_XY_IsExit(float p[4])
+{
+	if (HAL_GetTick() - p[2] > p[0])
+	{
+		Buzzer_OFF() ;
+		return true ;
+	}
+	return false ;
+}
 
+void Task_Tar_XY_Tick(float p[4])
+{
+	
+}
+// 2. 向下取/放棋子
+void Task_Down_Setup(float p[4])
+{
+	p[2] = HAL_GetTick() ;	// 开始计时
+	if (p[1] != 0)
+	{
+		Buzzer_ON() ;
+	}
+	else
+	{
+		Buzzer_OFF() ;
+	}
+}
+
+void Task_Down_Run(float p[4])
+{
+	
+}
+	
+bool Task_Down_IsExit(float p[4])
+{
+	if (HAL_GetTick() - p[2] > p[0])
+	{
+		Buzzer_OFF() ;
+		return true ;
+	}
+	return false ;
+}
+
+void Task_Down_Tick(float p[4])
+{
+	
+}
+// 3. 回到原点
+void Task_Back_Setup(float p[4])
+{
+	p[2] = HAL_GetTick() ;	// 开始计时
+	if (p[1] != 0)
+	{
+		Buzzer_ON() ;
+	}
+	else
+	{
+		Buzzer_OFF() ;
+	}
+}
+
+void Task_Back_Run(float p[4])
+{
+	
+}
+	
+bool Task_Back_IsExit(float p[4])
+{
+	if (HAL_GetTick() - p[2] > p[0])
+	{
+		Buzzer_OFF() ;
+		return true ;
+	}
+	return false ;
+}
+
+void Task_Back_Tick(float p[4])
+{
+	
+}
+
+// 4. 取/放棋子
+// Task_Elec: p[0]=等待时间(ms)
+void Task_Elec_Setup(float p[4])
+{
+	// 开始计时
+	p[1] = HAL_GetTick() ;	
+	// 直接开启蜂鸣器，指示正在取/放棋子
+	Buzzer_ON() ;					
+	// 开始取/放
+	if (MyGPIO_ReadPin(&MyGPIO_Elec))	// 正在吸附->那就放下
+	{
+		MyGPIO_WritePin(&MyGPIO_Elec , 0) ;
+	}
+	else	// 为0，也就是没在吸附,那就开吸
+	{
+		MyGPIO_WritePin(&MyGPIO_Elec , 1) ;
+	}
+}
+
+bool Task_Elec_IsExit(float p[4])
+{
+	if (HAL_GetTick() - p[1] > p[0])
+	{
+		Buzzer_OFF() ;
+		return true ;
+	}
+	return false ;
+}
+// 5. 上升
+// Task_Up: p[0]为上升角度 p[1]为容忍角度误差
+void Task_Up_Setup(float p[4])
+{
+	p[2] = HAL_GetTick() ;	// 开始计时
+	if (p[1] != 0)
+	{
+		Buzzer_ON() ;
+	}
+	else
+	{
+		Buzzer_OFF() ;
+	}
+}
+
+void Task_Up_Run(float p[4])
+{
+	
+}
+	
+bool Task_Up_IsExit(float p[4])
+{
+	if (HAL_GetTick() - p[2] > p[0])
+	{
+		Buzzer_OFF() ;
+		return true ;
+	}
+	return false ;
+}
+
+void Task_Up_Tick(float p[4])
+{
+	
+}
 
 // 任务注册地-测试任务
 // 1. 任务1：等待3s，然后Exit
