@@ -103,6 +103,7 @@ bool Task_Down_IsExit(float p[4])
 	// 正式代码: 判断静止条件
 	if (Motor_Is_Angle(&Motor_A , p[0] , p[1]) && HAL_GetTick() - p[2] > 500)
 	{
+		Serial_printf(&Serial2 , "@OK:4$#") ;
 		Motor_SetSpeed(&Motor_A , 0) ;
 		return true ;
 	}
@@ -143,6 +144,7 @@ bool Task_Back_IsExit(float p[4])
 	{
 		Stepper_PWM_Stop(&Stepper1) ;
 		Stepper_PWM_Stop(&Stepper2) ;
+		Serial_printf(&Serial2 , "@OK:6$#") ;
 		return true ;
 	}
 	return false ;
@@ -213,6 +215,7 @@ bool Task_Up_IsExit(float p[4])
 	// 正式代码: 判断静止条件
 	if (Motor_Is_Angle(&Motor_A , p[0] , p[1])  && HAL_GetTick() - p[2] > 500 )
 	{
+		Serial_printf(&Serial2 , "@OK:5$#") ;
 		Motor_SetSpeed(&Motor_A , 0) ;
 		return true ;
 	}
