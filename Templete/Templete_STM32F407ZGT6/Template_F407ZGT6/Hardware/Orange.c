@@ -1,11 +1,12 @@
 #include "Orange.h"
 
 // 0: cmd 1. x_tar 2. y_tar 
-float x_tar  = 640.0f ;	// 1. x目标值
-float y_tar  = 360.0f ;	// 2. y目标值
-
-float x_real = 640.0f ;	// 当前值(因为两者之间的距离固定)
-float y_real = 360.0f ;	// 当前值:这两个值是不变的
+float x_tar  		= 0 ;	// 1. x目标值
+float y_tar  		= 0 ;	// 2. y目标值
+float x_real  	= 0 ;	// 3. x真实值(在本题用不上)
+float y_real  	= 0 ;	// 4. y真实值(在本题用不上)
+float x_change	= 0 ;	// 坐标映射点
+float y_change	= 0 ;	// 坐标映射点
 
 int angle_shift = 50  ;
 int offset      = 20  ;
@@ -13,7 +14,20 @@ int black_h     = 20  ;
 int black_s     = 255 ;
 int black_v     = 100 ;
 
-uint8_t Oran_cmd = 0 ;	// 0 -> 正常数据 1-> 调试模式数据
+int Oran_Check_XY[6] = {0} ;
+float Oran_X_A = -3;	
+float Oran_X_B = 2850;	
+float Oran_Y_A = 2.889;	
+float Oran_Y_B = 160;	
+
+uint8_t Oran_cmd = 0 ;	// 0 -> 正常数据 1-> 调试模式数据 2->坐标标定数据(3组点)
+
+// 坐标映射
+void Oran_XY_Change(void)
+{
+	x_change = x_tar * Oran_X_A + Oran_X_B ;
+	y_change = y_tar * Oran_Y_A + Oran_Y_B ;
+}
 
 // 香橙派数据更新,在Mode_G实现20ms固定更新
 void Oran_Update(void)
@@ -34,6 +48,15 @@ void Oran_Update(void)
 			black_h     = Serial_GetHexData(&Serial2 , 3) ;
 			black_s     = Serial_GetHexData(&Serial2 , 4) ;
 			black_v     = Serial_GetHexData(&Serial2 , 5) ;
+		}
+		else if (Oran_cmd == 2)
+		{
+			Oran_Check_XY[0] = Serial_GetHexData(&Serial2 , 1) ;
+			Oran_Check_XY[1] = Serial_GetHexData(&Serial2 , 2) ;
+			Oran_Check_XY[2] = Serial_GetHexData(&Serial2 , 3) ;
+			Oran_Check_XY[3] = Serial_GetHexData(&Serial2 , 4) ;
+			Oran_Check_XY[4] = Serial_GetHexData(&Serial2 , 5) ;
+			Oran_Check_XY[5] = Serial_GetHexData(&Serial2 , 6) ;
 		}
 	}
 }

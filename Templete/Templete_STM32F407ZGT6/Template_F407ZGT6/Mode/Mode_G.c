@@ -15,6 +15,7 @@ void Mode_G_Setup(void)
     Initial_Timer() ;
     // ★ PARAM_FORCE：手动推送代码默认值到 AT24C02
     // 修改 C 默认值后，取消注释、改值、烧录一次，再重新注释
+	
     // PARAM_FORCE(curr_mode, Mode_1);
     // PARAM_FORCE(Stepper1.PID_Angle.Kp, 0.217f);
     // PARAM_FORCE(Stepper1.PID_Angle.Ki, 0.0f);
@@ -28,17 +29,15 @@ void Mode_G_Setup(void)
     // PARAM_FORCE(black_s, 255);
     // PARAM_FORCE(black_v, 100);
 	
-    // PARAM_FORCE(&Tar_XY_Tol_Distance , 8.0f);
-    // PARAM_FORCE(&Tar_XY_Tol_Speed	  , 5.0f);
+		// 位置标定参数
+//		PARAM_FORCE(Oran_X_A , -3);
+//		PARAM_FORCE(Oran_X_B , 2850);
+//		PARAM_FORCE(Oran_Y_A , 2.889);
+//		PARAM_FORCE(Oran_Y_B , 160);
+		
     // PARAM_FORCE(&Down_Tar_Angle , 30.0f);
     // PARAM_FORCE(&Down_Tol_Angle , 5.0f);
-    // PARAM_FORCE(&Back_Tar_Angle , 30.0f);
-    // PARAM_FORCE(&Back_Speed_MAX , 60.0f);
-		// PARAM_FORCE(&Back_Acc , 0.0f);
-    // PARAM_FORCE(&Back_Tol_Angle , 5.0f);
     // PARAM_FORCE(&Elec_Wait , 1000.0f);
-    // PARAM_FORCE(&Up_Tar_Angle , 30.0f);
-    // PARAM_FORCE(&Up_Tol_Angle , 5.0f);
 
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode

@@ -1,9 +1,9 @@
 #include "Allheader.h"
 
-// =========================== ÒµÎñÂß¼­ÖĞËùÓĞĞèÒªÍÑ»úµ÷ÊÔµÄ±äÁ¿ÉùÃ÷ ===========================
+// =========================== ä¸šåŠ¡é€»è¾‘ä¸­æ‰€æœ‰éœ€è¦è„±æœºè°ƒè¯•çš„å˜é‡å£°æ˜ ===========================
 // 1. Task_Tar_XY
-float Tar_XY_Tol_Distance = 8 ;	// 8¸öÏñËØµã
-float Tar_XY_Tol_Speed 	  = 5 ;	// ÈİÈÌËÙ¶È5
+float Tar_XY_Tol_Distance = 8 ;	// 8ä¸ªåƒç´ ç‚¹
+float Tar_XY_Tol_Speed 	  = 5 ;	// å®¹å¿é€Ÿåº¦5
 float Tar_XY_Ratio_X			= 1.0f ;	
 float Tar_XY_Ratio_Y			= 1.0f ;	
 
@@ -24,17 +24,18 @@ float Elec_Wait 		 = 1000 ;	// ms
 float Up_Tar_Angle 	 = 0 ;
 float Up_Tol_Angle 	 = 5	;
 
-// =========================== ÈÎÎñ×¢²áµØ:±ÈÈüÈÎÎñ,Ã»ÊµÏÖµÄÔİÊ±Ê¹ÓÃ·äÃùÆ÷ÑÓÊ±ÈÎÎñÌæ´ú ===========================
-// 1. ÈÎÎñ£ºÒÆ¶¯µ½Ä¿±ê(x,y)
+// =========================== ä»»åŠ¡æ³¨å†Œåœ°:æ¯”èµ›ä»»åŠ¡,æ²¡å®ç°çš„æš‚æ—¶ä½¿ç”¨èœ‚é¸£å™¨å»¶æ—¶ä»»åŠ¡æ›¿ä»£ ===========================
+// 1. ä»»åŠ¡ï¼šç§»åŠ¨åˆ°ç›®æ ‡(x,y)
 // Task_Tar_XY: 
 
 void Task_Tar_XY_Setup(float p[4])
 {
-	// ¿ªÊ¼¼ÆÊ±
+	// å¼€å§‹è®¡æ—¶
 	p[2] = HAL_GetTick() ;	
-	// ÕıÊ½´úÂë£¬Ä¿±êÖµÔÚTick¸üĞÂ
-	Stepper_PWM_Pos_Set_Abs(&Stepper1 , -x_tar * Tar_XY_Ratio_X , 400 , 200) ;	// x·½Ïò·´ÁË£¬¼Ó¸ö¸ººÅ
-	Stepper_PWM_Pos_Set_Abs(&Stepper2 ,  y_tar * Tar_XY_Ratio_Y , 400 , 200) ;
+	// æ­£å¼ä»£ç ï¼Œç›®æ ‡å€¼åœ¨Tickæ›´æ–°
+	Oran_XY_Change() ;	// åæ ‡æ˜ å°„
+	Stepper_PWM_Pos_Set_Abs(&Stepper1 , -x_change , 400 , 200) ;	// xæ–¹å‘åäº†ï¼ŒåŠ ä¸ªè´Ÿå·
+	Stepper_PWM_Pos_Set_Abs(&Stepper2 ,  y_change , 400 , 200) ;
 }
 
 void Task_Tar_XY_Run(float p[4])
@@ -44,10 +45,10 @@ void Task_Tar_XY_Run(float p[4])
 	
 bool Task_Tar_XY_IsExit(float p[4])
 {
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	if (Stepper_PWM_Is_Angle() && HAL_GetTick() - p[2] > 500)
 	{
-		// µ½´ïÄ¿±êÎ»ÖÃÖ®ºóÍ£Ö¹£¬½øÈëÏÂ¸öÄ£Ê½
+		// åˆ°è¾¾ç›®æ ‡ä½ç½®ä¹‹ååœæ­¢ï¼Œè¿›å…¥ä¸‹ä¸ªæ¨¡å¼
 		Stepper_PWM_Stop(&Stepper1) ;
 		Stepper_PWM_Stop(&Stepper2) ;
 		return true ;
@@ -60,12 +61,12 @@ void Task_Tar_XY_Tick(float p[4])
 //	Stepper_PID_Tick(20) ;
 	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
 }
-// 2. ÏòÏÂ
-// Task_Down:p[0]=Ä¿±ê½Ç¶È p[1]=ÈİÈÌÍê³ÉÆ«²î
+// 2. å‘ä¸‹
+// Task_Down:p[0]=ç›®æ ‡è§’åº¦ p[1]=å®¹å¿å®Œæˆåå·®
 void Task_Down_Setup(float p[4])
 {
-	// ÊµÑéÊ¹ÓÃ
-	p[2] = HAL_GetTick() ;	// ¿ªÊ¼¼ÆÊ±
+	// å®éªŒä½¿ç”¨
+	p[2] = HAL_GetTick() ;	// å¼€å§‹è®¡æ—¶
 //	if (p[1] != 0)
 //	{
 //		Buzzer_ON() ;
@@ -74,7 +75,7 @@ void Task_Down_Setup(float p[4])
 //	{
 //		Buzzer_OFF() ;
 //	}
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	Motor_SetAngle(&Motor_A , p[0]) ;
 }
 
@@ -90,7 +91,7 @@ bool Task_Down_IsExit(float p[4])
 //		Buzzer_OFF() ;
 //		return true ;
 //	}
-	// ÕıÊ½´úÂë: ÅĞ¶Ï¾²Ö¹Ìõ¼ş
+	// æ­£å¼ä»£ç : åˆ¤æ–­é™æ­¢æ¡ä»¶
 	if (Motor_Is_Angle(&Motor_A , p[0] , p[1]) && HAL_GetTick() - p[2] > 500)
 	{
 		Serial_printf(&Serial2 , "@OK:4$#") ;
@@ -102,16 +103,16 @@ bool Task_Down_IsExit(float p[4])
 
 void Task_Down_Tick(float p[4])
 {
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	Motorx_Angle_Update_Tick(&Motor_A , 1) ;
 }
-// 3. »Øµ½Ô­µã
+// 3. å›åˆ°åŸç‚¹
 // Task_Back:
 void Task_Back_Setup(float p[4])
 {
-	// ¿ªÊ¼¼ÆÊ±
+	// å¼€å§‹è®¡æ—¶
 	p[2] = HAL_GetTick() ;	
-	// ÕıÊ½´úÂë£¬Ä¿±êÖµÔÚTick¸üĞÂ
+	// æ­£å¼ä»£ç ï¼Œç›®æ ‡å€¼åœ¨Tickæ›´æ–°
 	Stepper_PWM_Pos_Set_Abs(&Stepper1 , 0 , 400 , 200) ;
 	Stepper_PWM_Pos_Set_Abs(&Stepper2 , 0 , 400 , 200) ;
 	
@@ -124,10 +125,10 @@ void Task_Back_Run(float p[4])
 	
 bool Task_Back_IsExit(float p[4])
 {
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	if (Stepper_PWM_Is_Angle() && HAL_GetTick() - p[2] > 500)
 	{
-		// µ½´ïÄ¿±êÎ»ÖÃÖ®ºóÍ£Ö¹£¬½øÈëÏÂ¸öÄ£Ê½
+		// åˆ°è¾¾ç›®æ ‡ä½ç½®ä¹‹ååœæ­¢ï¼Œè¿›å…¥ä¸‹ä¸ªæ¨¡å¼
 		Stepper_PWM_Stop(&Stepper1) ;
 		Stepper_PWM_Stop(&Stepper2) ;
 		Serial_printf(&Serial2 , "@OK:6$#") ;
@@ -141,20 +142,20 @@ void Task_Back_Tick(float p[4])
 	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
 }
 
-// 4. È¡/·ÅÆå×Ó
-// Task_Elec: p[0]=µÈ´ıÊ±¼ä(ms)
+// 4. å–/æ”¾æ£‹å­
+// Task_Elec: p[0]=ç­‰å¾…æ—¶é—´(ms)
 void Task_Elec_Setup(float p[4])
 {
-	// ¿ªÊ¼¼ÆÊ±
+	// å¼€å§‹è®¡æ—¶
 	p[1] = HAL_GetTick() ;	
-	// Ö±½Ó¿ªÆô·äÃùÆ÷£¬Ö¸Ê¾ÕıÔÚÈ¡/·ÅÆå×Ó
+	// ç›´æ¥å¼€å¯èœ‚é¸£å™¨ï¼ŒæŒ‡ç¤ºæ­£åœ¨å–/æ”¾æ£‹å­
 	Buzzer_ON() ;					
-	// ¿ªÊ¼È¡/·Å
-	if (MyGPIO_ReadPin(&MyGPIO_Elec))	// ÕıÔÚÎü¸½->ÄÇ¾Í·ÅÏÂ
+	// å¼€å§‹å–/æ”¾
+	if (MyGPIO_ReadPin(&MyGPIO_Elec))	// æ­£åœ¨å¸é™„->é‚£å°±æ”¾ä¸‹
 	{
 		MyGPIO_WritePin(&MyGPIO_Elec , 0) ;
 	}
-	else	// Îª0£¬Ò²¾ÍÊÇÃ»ÔÚÎü¸½,ÄÇ¾Í¿ªÎü
+	else	// ä¸º0ï¼Œä¹Ÿå°±æ˜¯æ²¡åœ¨å¸é™„,é‚£å°±å¼€å¸
 	{
 		MyGPIO_WritePin(&MyGPIO_Elec , 1) ;
 	}
@@ -169,11 +170,11 @@ bool Task_Elec_IsExit(float p[4])
 	}
 	return false ;
 }
-// 5. ÉÏÉı
-// Task_Up: p[0]ÎªÉÏÉı½Ç¶È p[1]ÎªÈİÈÌ½Ç¶ÈÎó²î
+// 5. ä¸Šå‡
+// Task_Up: p[0]ä¸ºä¸Šå‡è§’åº¦ p[1]ä¸ºå®¹å¿è§’åº¦è¯¯å·®
 void Task_Up_Setup(float p[4])
 {
-	p[2] = HAL_GetTick() ;	// ¿ªÊ¼¼ÆÊ±
+	p[2] = HAL_GetTick() ;	// å¼€å§‹è®¡æ—¶
 //	if (p[1] != 0)
 //	{
 //		Buzzer_ON() ;
@@ -182,7 +183,7 @@ void Task_Up_Setup(float p[4])
 //	{
 //		Buzzer_OFF() ;
 //	}
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	Motor_SetAngle(&Motor_A , p[0]) ;
 }
 
@@ -198,7 +199,7 @@ bool Task_Up_IsExit(float p[4])
 //		Buzzer_OFF() ;
 //		return true ;
 //	}
-	// ÕıÊ½´úÂë: ÅĞ¶Ï¾²Ö¹Ìõ¼ş
+	// æ­£å¼ä»£ç : åˆ¤æ–­é™æ­¢æ¡ä»¶
 	if (Motor_Is_Angle(&Motor_A , p[0] , p[1])  && HAL_GetTick() - p[2] > 500 )
 	{
 		Serial_printf(&Serial2 , "@OK:5$#") ;
@@ -210,16 +211,16 @@ bool Task_Up_IsExit(float p[4])
 
 void Task_Up_Tick(float p[4])
 {
-	// ÕıÊ½´úÂë
+	// æ­£å¼ä»£ç 
 	Motorx_Angle_Update_Tick(&Motor_A , 1) ;
 }
 
-// ÈÎÎñ×¢²áµØ-²âÊÔÈÎÎñ
-// 1. ÈÎÎñ1£ºµÈ´ı3s£¬È»ºóExit
-// TASK_WAIT_TIME: p[0]=µÈ´ıÊ±¼ä(ms) p[1]=ÊÇ·ñÔÚÈÎÎñÖĞ¿ªÆô·äÃùÆ÷
+// ä»»åŠ¡æ³¨å†Œåœ°-æµ‹è¯•ä»»åŠ¡
+// 1. ä»»åŠ¡1ï¼šç­‰å¾…3sï¼Œç„¶åExit
+// TASK_WAIT_TIME: p[0]=ç­‰å¾…æ—¶é—´(ms) p[1]=æ˜¯å¦åœ¨ä»»åŠ¡ä¸­å¼€å¯èœ‚é¸£å™¨
 void Task_Wait_Time_Setup(float p[4])
 {
-	p[2] = HAL_GetTick() ;	// ¿ªÊ¼¼ÆÊ±
+	p[2] = HAL_GetTick() ;	// å¼€å§‹è®¡æ—¶
 	Buzzer_ON() ;
 }
 	
@@ -233,28 +234,28 @@ bool Task_Wait_Time_IsExit(float p[4])
 	return false ;
 }
 
-// 2. ÈÎÎñ2: µç»úĞı×ªÒ»¶ÎÊ±¼äÖ®ºóÍ£Ö¹,Exit
-// TASK_Motor_Speed: p[0]=ËÙ¶Èrpm, p[1]=³ÖĞøÊ±¼äms
+// 2. ä»»åŠ¡2: ç”µæœºæ—‹è½¬ä¸€æ®µæ—¶é—´ä¹‹ååœæ­¢,Exit
+// TASK_Motor_Speed: p[0]=é€Ÿåº¦rpm, p[1]=æŒç»­æ—¶é—´ms
 void Task_Motor_Speed_Setup(float p[4])
 {
     Motor_SetSpeed(&Motor_A, p[0]);
-    p[2] = HAL_GetTick();  // ¼ÇÂ¼¿ªÊ¼Ê±¼ä´Á
+    p[2] = HAL_GetTick();  // è®°å½•å¼€å§‹æ—¶é—´æˆ³
 }
 
 bool Task_Motor_Speed_IsExit(float p[4])
 {
-    if (p[1] <= 0) return false;                 // 0=ÓÀ¾ÃÔËĞĞ
+    if (p[1] <= 0) return false;                 // 0=æ°¸ä¹…è¿è¡Œ
 		if ((HAL_GetTick() - p[2]) >= p[1])
 		{
-			// Í£³µ
+			// åœè½¦
 			Motor_SetSpeed(&Motor_A , 0) ;
-			return true;       // ³¬Ê±ÍË³ö
+			return true;       // è¶…æ—¶é€€å‡º
 		}
     return false ;
 }
 
-// 3. ÈÎÎñ3:µç»úĞı×ªÌØ¶¨½Ç¶È,Ğı×ªÍê³ÉÖ®ºóÍ£Ö¹,Exit 
-// TASK_Motor_Angle:p[0]ÎªĞı×ª½Ç¶È p[1]ÎªÈİÈÌ½Ç¶ÈÎó²î
+// 3. ä»»åŠ¡3:ç”µæœºæ—‹è½¬ç‰¹å®šè§’åº¦,æ—‹è½¬å®Œæˆä¹‹ååœæ­¢,Exit 
+// TASK_Motor_Angle:p[0]ä¸ºæ—‹è½¬è§’åº¦ p[1]ä¸ºå®¹å¿è§’åº¦è¯¯å·®
 void Task_Motor_Angle_Setup(float p[4])
 {
 	Motor_SetAngle(&Motor_A , p[0]) ;
@@ -262,7 +263,7 @@ void Task_Motor_Angle_Setup(float p[4])
 
 bool Task_Motor_Angle_IsExit(float p[4])
 {
-	// ÅĞ¶Ï¾²Ö¹Ìõ¼ş
+	// åˆ¤æ–­é™æ­¢æ¡ä»¶
 	if (Motor_Is_Angle(&Motor_A , p[0] , p[1]))
 	{
 		Motor_SetSpeed(&Motor_A , 0) ;

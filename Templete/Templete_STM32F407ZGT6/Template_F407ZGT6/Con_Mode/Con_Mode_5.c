@@ -21,7 +21,7 @@ void Con_Mode_5_Loop(void)
 		if (Serial_Check_Str(&Serial2 , "TarXY"))
 		{
 			// 开始进行(x,y)位置定位
-			Con_Task_Enqueue(Task_Tar_XY , Tar_XY_Tol_Distance , Tar_XY_Tol_Speed , 0 , 0) ;
+			Con_Task_Enqueue(Task_Tar_XY , 0, 0, 0 , 0) ;
 		}
 		// 2. Down任务(其实是拆分成了3个小任务:下降->取/放棋子->上升，只有在上升的时候会发OK)
 		if (Serial_Check_Str(&Serial2 , "Down"))

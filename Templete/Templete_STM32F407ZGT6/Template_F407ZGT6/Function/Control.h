@@ -5,8 +5,6 @@
 
 // =========================== 业务逻辑中所有需要脱机调试的变量声明 ===========================
 // 1. Task_Tar_XY
-extern float Tar_XY_Tol_Distance  ;	// 8个像素点
-extern float Tar_XY_Tol_Speed 	  ;	// 容忍速度5
 
 // 2. Task_Down
 extern float Down_Tar_Angle ;
@@ -28,7 +26,7 @@ extern float Up_Tol_Angle 	 ;
 // =========================== 任务函数 ===========================
 
 // 1. 移动xy：前往任务地点(x,y)
-// Task_Tar_XY: p[0]=容忍差距位置 p[1]=容忍最小速度(视为停车的标准)
+// Task_Tar_XY:
 void Task_Tar_XY_Setup(float p[4]) ;
 void Task_Tar_XY_Run(float p[4]) ;
 bool Task_Tar_XY_IsExit(float p[4]) ;
