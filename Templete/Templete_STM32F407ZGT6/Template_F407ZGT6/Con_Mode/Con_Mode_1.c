@@ -4,6 +4,7 @@
 // 书写任务注册表
 Task_Descriptor_Typedef Con_Mode_Table[TASK_COUNT] =
 {
+	[TASK_WAIT_TIME]   = {.Setup = Task_Wait_Time_Setup, .IsExit = Task_Wait_Time_IsExit},
 	[TASK_Motor_Speed] = {.Setup = Task_Motor_Speed_Setup, .IsExit = Task_Motor_Speed_IsExit},
 	[TASK_Motor_Angle] = {.Setup = Task_Motor_Angle_Setup, .IsExit = Task_Motor_Angle_IsExit , 
 												.Tick  = Task_Motor_Angle_Tick},

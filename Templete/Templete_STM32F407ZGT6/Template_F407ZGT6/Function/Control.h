@@ -40,7 +40,7 @@ void Task_Down_Run(float p[4]) ;
 bool Task_Down_IsExit(float p[4]) ;
 void Task_Down_Tick(float p[4]) ;
 // 3. 回到原点
-// Task_Back:p[0]=目标角度 p[1]=最大速度 p[2]=加速度 p[3]=容忍完成角度
+// Task_Back:p[0]=目标角度 p[1]=最大速度 p[2]=加速度
 void Task_Back_Setup(float p[4]) ;
 void Task_Back_Run(float p[4]) ;
 bool Task_Back_IsExit(float p[4]) ;
@@ -57,7 +57,7 @@ bool Task_Up_IsExit(float p[4]) ;
 void Task_Up_Tick(float p[4]) ;
 
 // 任务注册地-测试任务
-// 1. 任务1：等待3s，然后Exit
+// 1. 任务1：等待xs，然后Exit
 // TASK_WAIT_TIME: p[0]=等待时间(ms) p[1]=是否在任务中开启蜂鸣器
 void Task_Wait_Time_Setup(float p[4]) ;
 bool Task_Wait_Time_IsExit(float p[4]) ;

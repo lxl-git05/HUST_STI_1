@@ -44,3 +44,10 @@
 | gpio.c | ./Template_F407ZGT6/Core/Src/gpio.c | 修改 | PD14/PD15 在 MX_GPIO_Init 开头写 LOW，修复复位期间电机B误转 |
 | Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | Motorx_Angle_Update_Tick 去 static 使其可外部调用 |
 | Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | 位置环+速度环双模式PID调参（KEY_1切电机，KEY_2切环类型） |
+
+## 2026-07-21 14:30 | 实现 Stepper_PWM_Is_Angle 到位检测函数
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_PWM.h | ./Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 新增 Stepper_PWM_Is_Angle(void) 和 Stepper_PWM_Is_Angle_Stepper(pStepper) 声明 |
+| Stepper_PWM.c | ./Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 实现角度到达检测：速度≈0 + 角度≈Pos_TargetAngle 双条件判断，容差 1.5×pulse_angle |

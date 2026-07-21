@@ -4,6 +4,8 @@
 // 1. Task_Tar_XY
 float Tar_XY_Tol_Distance = 8 ;	// 8个像素点
 float Tar_XY_Tol_Speed 	  = 5 ;	// 容忍速度5
+float Tar_XY_Ratio_X			= 1.0f ;	
+float Tar_XY_Ratio_Y			= 1.0f ;	
 
 // 2. Task_Down
 float Down_Tar_Angle = 360 ;
@@ -23,22 +25,16 @@ float Up_Tar_Angle 	 = 0 ;
 float Up_Tol_Angle 	 = 5	;
 
 // =========================== 任务注册地:比赛任务,没实现的暂时使用蜂鸣器延时任务替代 ===========================
-// 任务：移动到目标(x,y)
-// Task_Tar_XY: p[0]=容忍差距位置 p[1]=容忍最小速度(视为停车的标准)
+// 1. 任务：移动到目标(x,y)
+// Task_Tar_XY: 
 
 void Task_Tar_XY_Setup(float p[4])
 {
-	// 实验代码
-	p[2] = HAL_GetTick() ;	// 开始计时
-//	if (p[1] != 0)
-//	{
-//		Buzzer_ON() ;
-//	}
-//	else
-//	{
-//		Buzzer_OFF() ;
-//	}
+	// 开始计时
+	p[2] = HAL_GetTick() ;	
 	// 正式代码，目标值在Tick更新
+	Stepper_PWM_Pos_Set_Abs(&Stepper1 , -x_tar * Tar_XY_Ratio_X , 400 , 200) ;	// x方向反了，加个负号
+	Stepper_PWM_Pos_Set_Abs(&Stepper2 ,  y_tar * Tar_XY_Ratio_Y , 400 , 200) ;
 }
 
 void Task_Tar_XY_Run(float p[4])
@@ -48,14 +44,8 @@ void Task_Tar_XY_Run(float p[4])
 	
 bool Task_Tar_XY_IsExit(float p[4])
 {
-	// 实验代码
-//	if (HAL_GetTick() - p[2] > p[0])
-//	{
-//		Buzzer_OFF() ;
-//		return true ;
-//	}
 	// 正式代码
-	if (Stepper_PID_Is_OK(&Stepper1 , p[0] , p[1]) && Stepper_PID_Is_OK(&Stepper2 , p[0] , p[1]) && HAL_GetTick() - p[2] > 500)
+	if (Stepper_PWM_Is_Angle() && HAL_GetTick() - p[2] > 500)
 	{
 		// 到达目标位置之后停止，进入下个模式
 		Stepper_PWM_Stop(&Stepper1) ;
@@ -67,7 +57,7 @@ bool Task_Tar_XY_IsExit(float p[4])
 
 void Task_Tar_XY_Tick(float p[4])
 {
-	Stepper_PID_Tick(20) ;
+//	Stepper_PID_Tick(20) ;
 	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
 }
 // 2. 向下
@@ -116,21 +106,15 @@ void Task_Down_Tick(float p[4])
 	Motorx_Angle_Update_Tick(&Motor_A , 1) ;
 }
 // 3. 回到原点
-// Task_Back:p[0]=目标角度 p[1]=最大速度 p[2]=加速度 p[3]=容忍完成角度
+// Task_Back:
 void Task_Back_Setup(float p[4])
 {
-//	p[2] = HAL_GetTick() ;	// 开始计时
-//	if (p[1] != 0)
-//	{
-//		Buzzer_ON() ;
-//	}
-//	else
-//	{
-//		Buzzer_OFF() ;
-//	}
-	// 正式代码
-	Stepper_PWM_Pos_Set_Abs(&Stepper1 , p[0] , p[1] , p[2] ) ;
-	Stepper_PWM_Pos_Set_Abs(&Stepper2 , p[0] , p[1] , p[2] ) ;
+	// 开始计时
+	p[2] = HAL_GetTick() ;	
+	// 正式代码，目标值在Tick更新
+	Stepper_PWM_Pos_Set_Abs(&Stepper1 , 0 , 400 , 200) ;
+	Stepper_PWM_Pos_Set_Abs(&Stepper2 , 0 , 400 , 200) ;
+	
 }
 
 void Task_Back_Run(float p[4])
@@ -140,8 +124,10 @@ void Task_Back_Run(float p[4])
 	
 bool Task_Back_IsExit(float p[4])
 {
-	if (Stepper1.Pos_Now < p[3] && Stepper1.Pos_Now > -p[3] && Stepper2.Pos_Now < p[3] && Stepper2.Pos_Now > -p[3])
+	// 正式代码
+	if (Stepper_PWM_Is_Angle() && HAL_GetTick() - p[2] > 500)
 	{
+		// 到达目标位置之后停止，进入下个模式
 		Stepper_PWM_Stop(&Stepper1) ;
 		Stepper_PWM_Stop(&Stepper2) ;
 		Serial_printf(&Serial2 , "@OK:6$#") ;
@@ -152,7 +138,7 @@ bool Task_Back_IsExit(float p[4])
 
 void Task_Back_Tick(float p[4])
 {
-	
+	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",Stepper1.PID_Angle.goalPoint ,Stepper1.PID_Angle.realPoint_Now ,Stepper1.PID_Angle.setPoint );
 }
 
 // 4. 取/放棋子
@@ -234,14 +220,7 @@ void Task_Up_Tick(float p[4])
 void Task_Wait_Time_Setup(float p[4])
 {
 	p[2] = HAL_GetTick() ;	// 开始计时
-	if (p[1] != 0)
-	{
-		Buzzer_ON() ;
-	}
-	else
-	{
-		Buzzer_OFF() ;
-	}
+	Buzzer_ON() ;
 }
 	
 bool Task_Wait_Time_IsExit(float p[4])

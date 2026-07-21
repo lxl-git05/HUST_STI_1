@@ -80,4 +80,8 @@ void Stepper_PWM_Pos_Set_Rel(Stepper_PWM_Typedef* pStepper, float relative_angle
 // 位置模式1ms Tick（速度ramp + 阶段切换）
 void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper);
 
+// 角度到达检测（速度≈0 且 角度≈目标）
+bool Stepper_PWM_Is_Angle(void);                                        // 双电机同时判定
+bool Stepper_PWM_Is_Angle_Stepper(const Stepper_PWM_Typedef* pStepper); // 单电机判定
+
 #endif
