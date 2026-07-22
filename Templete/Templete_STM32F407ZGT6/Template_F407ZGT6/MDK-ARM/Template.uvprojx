@@ -1456,6 +1456,36 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Motor.h</FilePath>
             </File>
+            <File>
+              <FileName>Y8_Driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Y8_Driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>Y8_Driver.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Y8_Driver.h</FilePath>
+            </File>
+            <File>
+              <FileName>ICM_42688_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\ICM_42688_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM_42688_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\ICM_42688_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\MPU6050_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\MPU6050_base.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1600,6 +1630,16 @@
               <FileName>Control.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Function\Control.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\MPU6050_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\MPU6050_Angle.h</FilePath>
             </File>
           </Files>
         </Group>

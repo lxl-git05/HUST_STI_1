@@ -34,6 +34,7 @@
 #include "Con_Motor.h"
 #include "Param_AT24C02.h"
 #include "Con_Task.h"
+#include "MPU6050_Angle.h"
 
 // Mode库
 #include "Mode_G.h"
