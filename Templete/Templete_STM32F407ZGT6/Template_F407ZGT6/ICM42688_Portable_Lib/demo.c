@@ -35,8 +35,8 @@ void Mode_2_Tick(void)
 //		Timer_Counter_Begin() ;
     ICM42688_Mahony_Update_Tick();
 //		Timer_Counter_End() ;
-    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f\r\n",
-                  ICM_Mahony_Real.roll, ICM_Mahony_Real.pitch, ICM_Mahony_Real.yaw,ICM_Yaw_Abs_Get());
+    Serial_printf(&Serial1, "%.2f,%.2f,%.2f\r\n",
+                  ICM_Mahony_Real.roll, ICM_Mahony_Real.pitch, ICM_Mahony_Real.yaw);
 }
 
 void Mode_2_Exit(void)

@@ -1656,6 +1656,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Imu_Types.h</FilePath>
             </File>
+            <File>
+              <FileName>ICM42688_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\ICM42688_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\ICM42688_Mahony.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

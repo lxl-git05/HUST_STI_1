@@ -37,6 +37,7 @@
 #include "Imu_Types.h"
 #include "MPU6050_Angle.h"
 #include "ICM42688_Angle.h"
+#include "ICM42688_Mahony.h"
 
 // Mode库
 #include "Mode_G.h"

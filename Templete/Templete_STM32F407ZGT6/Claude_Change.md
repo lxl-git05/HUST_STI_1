@@ -51,3 +51,21 @@
 |--------|----------------------|----------|------|
 | Stepper_PWM.h | ./Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 新增 Stepper_PWM_Is_Angle(void) 和 Stepper_PWM_Is_Angle_Stepper(pStepper) 声明 |
 | Stepper_PWM.c | ./Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 实现角度到达检测：速度≈0 + 角度≈Pos_TargetAngle 双条件判断，容差 1.5×pulse_angle |
+
+## 2026-07-23 16:30 | ICM42688 互补滤波增强——倾斜下 yaw 漂移削弱
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| ICM42688_Angle.h | ./Template_F407ZGT6/Function/ICM42688_Angle.h | 修改 | 新增加速度幅值门控宏、静止检测与零偏学习宏、DEG2RAD/RAD2DEG 宏、调试查询函数声明 |
+| ICM42688_Angle.c | ./Template_F407ZGT6/Function/ICM42688_Angle.c | 修改 | 三项改进：(1)世界坐标系yaw投影(欧拉运动学方程) (2)加速度幅值门控(二次曲线动态权重) (3)静止检测+零偏自动学习 |
+| Mode_2.c | ./Template_F407ZGT6/Mode/Mode_2.c | 修改 | ICM42688 改进互补滤波测试代码：OLED显示Roll/Pitch/Yaw + 串口CSV输出 |
+
+## 2026-07-23 17:00 | ICM42688 寄存器修复 + Mahony AHRS 新库
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| ICM_42688_base.c | ./Template_F407ZGT6/Hardware/ICM_42688_base.c | 修改 | ★ 紧急修复：量程寄存器位值反转，ICM42688的FS_SEL编码与MPU6050相反(000=最大量程)，原来照搬MPU导致所有读数减半 |
+| ICM42688_Mahony.h | ./Template_F407ZGT6/Function/ICM42688_Mahony.h | 新增 | Mahony AHRS 头文件：Kp=5.12/Ki=0.001/halfT=0.010s 参数宏 + API声明 |
+| ICM42688_Mahony.c | ./Template_F407ZGT6/Function/ICM42688_Mahony.c | 新增 | Mahony AHRS 实现：四元数+PI重力修正，Auto-cal 500样本标定，atan2欧拉角(roll/yaw ±180°,pitch ±90°)，<100μs/次 |
+| AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | Function 区新增 #include "ICM42688_Mahony.h" |
+| Mode_2.c | ./Template_F407ZGT6/Mode/Mode_2.c | 修改 | 切换到 Mahony AHRS 测试：ICM42688_Mahony_Init() + ICM42688_Mahony_Update_Tick() |
