@@ -425,3 +425,58 @@ Mode_G_Setup() 启动:
 | 关闭 ParamEdit UI | `Mode_1_Loop()` 注释掉 `Param_Loop()` |
 | 关闭 PARAM_FORCE | 确保所有行已注释 |
 
+---
+
+## ICM42688 驱动移植（2026-07-22）
+
+### 硬件
+
+| 参数 | 值 |
+|------|-----|
+| I2C 总线 | I2C1 (`hi2c1`), PB6(SCL) + PB7(SDA), 100kHz, AF_OD |
+| I2C 地址 | **0x68** (AD0=GND), HAL格式 0xD0 |
+| WHO_AM_I | 0x47 |
+| 与 MPU6050 关系 | **共用 I2C1 总线**，通过不同从机地址区分 |
+
+### 文件清单
+
+| 文件 | 状态 | 说明 |
+|------|------|------|
+| `Hardware/ICM_42688_base.h` | ✅ 完成 | 头文件，API模仿MPU6050_base |
+| `Hardware/ICM_42688_base.c` | ✅ 完成 | 底层I2C驱动，含I2C恢复 |
+| `Function/ICM42688_Angle.h` | ⬜ 待编写 | Angle层头文件（下次任务） |
+| `Function/ICM42688_Angle.c` | ⬜ 待编写 | Angle层实现（Mahony AHRS） |
+| `Mode/Mode_2.c` | ✅ 测试中 | I2C扫描 + 数据打印测试 |
+
+### ICM_42688_base API
+
+```
+ICM42688_Init()                          // 复位→配置±4g/1kHz→±500dps/1kHz→低噪声
+ICM42688_WriteReg(addr, data)
+ICM42688_ReadReg(addr) → uint8_t
+ICM42688_GetData(*accX/Y/Z, *gyroX/Y/Z) // 读12字节原始ADC
+ICM42688_GetID() → uint8_t              // WHO_AM_I，期望0x47
+ICM42688_Update_Data()                  // 读+灵敏度转换→ICM_Raw_Data
+```
+
+### ICM42688_Angle 设计方向
+
+- **算法**：Mahony AHRS（四元数 + PI修正），参考 DAIMXA `angle.c`
+- **API风格**：模仿 `Function/MPU6050_Angle.h` 的三个Typedef和函数签名
+- **输出**：roll/pitch/yaw + 校准后加速度
+- **启动标定**：自动采样gyro offset，确保静态零漂为0
+- **动态→静态**：Mahony PI控制器天然具备加速度计修正陀螺漂移的能力
+
+### ICM42688 vs MPU6050 关键差异
+
+| 寄存器 | MPU6050 | ICM42688 |
+|--------|---------|----------|
+| PWR_MGMT | 0x6B | **0x4E** |
+| ACCEL_CONFIG | 0x1C | **0x50** |
+| GYRO_CONFIG | 0x1B | **0x4F** |
+| 数据起始 | 0x3B | **0x1F** |
+| 数据长度 | 14B (Acc+Tmp+Gyro) | **12B (Acc+Gyro)** |
+| WHO_AM_I | 0x68 | **0x47** |
+| 噪声(加速度) | 400 μg/√Hz | **70 μg/√Hz** ✨ |
+| 初始化 | 简单唤醒 | **复位→延时→配置→低噪声** |
+

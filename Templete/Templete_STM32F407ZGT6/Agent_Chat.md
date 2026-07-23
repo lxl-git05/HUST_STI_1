@@ -147,9 +147,14 @@ typedef Hanger_Status_Typedef QueueData_Typedef;	// 将void*替换成需要的�
 
 
 
+# 3. ICM42688移植
 
+首先D:\github\HUST_STI\HUST_STI_1\Templete\Templete_STM32F407ZGT6\Template_F407ZGT6\Hardware工程的MPU6050的实现逻辑，由于ICM42688和MPU6050的引脚基本一样，都是使用I2C驱动，我打算使用同样的硬件I2C进行驱动，那么首先你需要
 
-
++ [ ] 读取D:\github\HUST_STI\HUST_STI_1\Templete\Templete_STM32F407ZGT6\Template_F407ZGT6\Hardware工程，明确只在Mode2和ICM_42688_base.c / .h里面进行代码编写
++ [ ] 读取示例文件，进行代码编写计划
++ [ ] 只使用硬件IIC即可，IIC和MPU6050共用
++ [ ] 模仿MPU6050的base驱动，并且采用名字和API基本相同的数据结构和函数，编写底层驱动
 
 
 

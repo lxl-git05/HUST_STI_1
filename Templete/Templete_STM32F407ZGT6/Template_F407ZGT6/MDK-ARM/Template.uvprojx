@@ -1641,6 +1641,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\MPU6050_Angle.h</FilePath>
             </File>
+            <File>
+              <FileName>ICM42688_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\ICM42688_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\ICM42688_Angle.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
