@@ -1,41 +1,46 @@
-// ========================== 业务逻辑模式 ==========================
-#include "Mode_6.h"
 #include "AllHeader.h"
 
-extern float Tar_XY_Ratio_X ;
-extern float Tar_XY_Ratio_Y ;
-float Speed_X = 400;
-float Speed_Y = 400;
-float Acc = 200 ;
+//#define IS_ICM 1
+
+// ========================== ICM42688 互补滤波角度测试 ==========================
 
 void Mode_6_Setup(void)
 {
-    OLED_Clear();
-		x_tar = 500 ;
-		y_tar = 800 ;
+	// 初始化
+#ifdef IS_ICM
+	ICM42688_Angle_Init();
+//	ICM42688_Data_Error_Check(1000) ;
+#else
+	MPU6050_Angle_Init() ;
+//	MPU6050_Data_Error_Check(1000) ;
+#endif
 }
 
 void Mode_6_Loop(void)
 {
-	OLED_Printf(0, 0, OLED_6X8, "=====Mode_6=====") ;	
-	if (Key_Check(KEY_1 , KEY_SINGLE))
-	{
-		Stepper_PWM_Pos_Set_Abs(&Stepper1 , -x_tar * Tar_XY_Ratio_X , Speed_X , Acc) ;	// x方向反了，加个负号
-		Stepper_PWM_Pos_Set_Abs(&Stepper2 ,  y_tar * Tar_XY_Ratio_Y , Speed_Y , Acc) ;
-	}
-	if (Key_Check(KEY_2 , KEY_SINGLE))
-	{
-		Stepper_PWM_Pos_Set_Abs(&Stepper1 , 0 , Speed_X , Acc) ;
-		Stepper_PWM_Pos_Set_Abs(&Stepper2 , 0 , Speed_Y , Acc) ;
-	}
+#ifdef IS_ICM
+	OLED_Printf(0, 12, OLED_6X8, "R:%.1f", ICM_Real.roll);
+	OLED_Printf(0, 24, OLED_6X8, "P:%.1f", ICM_Real.pitch);
+	OLED_Printf(0, 36, OLED_6X8, "Y:%.1f", ICM_Real.yaw);
+#else
+	OLED_Printf(0, 12, OLED_6X8, "R:%.1f", MPU_Real.roll);
+	OLED_Printf(0, 24, OLED_6X8, "P:%.1f", MPU_Real.pitch);
+	OLED_Printf(0, 36, OLED_6X8, "Y:%.1f", MPU_Real.yaw);
+#endif
 }
 
 void Mode_6_Tick(void)
 {
-	Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f\n",Stepper1.Pos_Now , Stepper1.Speed_Now,Stepper2.Pos_Now , Stepper2.Speed_Now);
+#ifdef IS_ICM
+	ICM42688_Angle_Update_Tick();
+	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\r\n", ICM_Real.roll, ICM_Real.pitch, ICM_Real.yaw);
+#else
+	MPU6050_Angle_Update_Tick() ;
+	Serial_printf(&Serial1, "%.2f,%.2f,%.2f\r\n", MPU_Real.roll, MPU_Real.pitch, MPU_Real.yaw);
+#endif
 }
-
 
 void Mode_6_Exit(void)
 {
+
 }

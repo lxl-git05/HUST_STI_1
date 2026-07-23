@@ -14,13 +14,13 @@ void ICM42688_Angle_Init(void)
 {
     ICM42688_Init();
 
-    // 零偏清零
-    ICM_Offset.AccErrorX = 0.0f;
-    ICM_Offset.AccErrorY = 0.0f;
-    ICM_Offset.AccErrorZ = 0.0f;
-    ICM_Offset.GyroErrorX = 0.0f;
-    ICM_Offset.GyroErrorY = 0.0f;
-    ICM_Offset.GyroErrorZ = 0.0f;
+    // 零偏误差配置
+    ICM_Offset.AccErrorX =  0.0477302261f;
+    ICM_Offset.AccErrorY = -0.0052581788;
+    ICM_Offset.AccErrorZ = -0.496570051f;
+    ICM_Offset.GyroErrorX = 0.0411145799f;
+    ICM_Offset.GyroErrorY = 0.126367226f;
+    ICM_Offset.GyroErrorZ = 0.0512673371f;
 
     // 角度清零
     gyroAngleX = 0.0f;

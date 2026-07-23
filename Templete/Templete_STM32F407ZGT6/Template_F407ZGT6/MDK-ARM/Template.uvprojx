@@ -1651,6 +1651,11 @@
               <FileType>5</FileType>
               <FilePath>..\Function\ICM42688_Angle.h</FilePath>
             </File>
+            <File>
+              <FileName>Imu_Types.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Imu_Types.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
