@@ -1666,6 +1666,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\ICM42688_Mahony.h</FilePath>
             </File>
+            <File>
+              <FileName>MPU6050_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\MPU6050_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\MPU6050_Mahony.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
