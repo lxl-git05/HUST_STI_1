@@ -427,212 +427,110 @@ Mode_G_Setup() 启动:
 
 ---
 
-## ICM-42688 陀螺仪完整驱动（2026-07-23 完成）
+## IMU 陀螺仪完整体系（2026-07-24 统一）
 
-### ⚠️ 移植关键：FS_SEL 编码陷阱
+### ★ 统一 API 层：IMU.h / IMU.c
 
-ICM-42688 的量程选择位 **与 MPU6050 完全相反**：
-
-| FS_SEL | ICM-42688 含义 |
-|--------|---------------|
-| 000 | ±2000°/s / ±16g (最大) |
-| 001 | ±1000°/s / ±8g |
-| 010 | ±500°/s / ±4g |
-| 011 | ±250°/s / ±2g (最小) |
-
-**已修复**（`ICM_42688_base.c` 中位值定义已反转）。移植到其他芯片时不要照搬 MPU6050 的位值。
-
-### 当前配置
-
-| 参数 | 值 |
-|------|-----|
-| I2C | I2C1, PB6/PB7, 0x68(AD0=GND), 100kHz |
-| 加速度计 | ±4g, 1000Hz ODR, 低噪声模式 |
-| 陀螺仪 | ±500°/s, 1000Hz ODR, 低噪声模式 |
-| 软件 Tick | 20ms (50Hz) |
-| 当前使用 | **Mahony AHRS** (ICM42688_Mahony.c) |
-
-### 文件清单（全部完成 ✅）
-
-| 文件 | 层 | 说明 |
-|------|-----|------|
-| `Hardware/ICM_42688_base.h` | 驱动 | 寄存器地址、量程宏、`ICM42688_Raw_Data` 结构体 |
-| `Hardware/ICM_42688_base.c` | 驱动 | I2C 读写、初始化、灵敏度转换（唯一需移植的文件） |
-| `Function/Imu_Types.h` | 共用 | `ImuReal_Typedef`(roll/pitch/yaw) 等通用类型 |
-| `Function/ICM42688_Angle.h` | 滤波A | 互补滤波 (0.98 gyro+0.02 accel) |
-| `Function/ICM42688_Angle.c` | 滤波A | 互补滤波实现，yaw 纯积分会漂移 |
-| `Function/ICM42688_Mahony.h` | **滤波B★** | Mahony AHRS 参数 + API |
-| `Function/ICM42688_Mahony.c` | **滤波B★** | 四元数+PI重力修正，无死锁，yaw 准确 |
-| `ICM42688_Portable_Lib/` | 打包 | 跨芯片可移植库包（含完整 README） |
-
-### Mahony AHRS API（当前主力，Mode_2 使用）
+上层代码只调 `IMU_*` API，一行宏切换传感器。定义在 `Function/IMU.h`。
 
 ```c
-// ===== 初始化 =====
-void ICM42688_Mahony_Init(uint8_t doCalib);
-//   doCalib=1: 自动采样1000次标定陀螺零偏（需静止）
-//   doCalib=0: 跳过标定，使用 ICM_Mahony_GyroBiasX/Y/Z 当前值
-
-// ===== 20ms Tick =====
-void ICM42688_Mahony_Update_Tick(void);           // 读数据→Mahony解算→输出，约 1.4ms
-
-// ===== 校准 =====
-void ICM42688_Mahony_Calibrate(int samples);      // 运行时重标定
-
-// ===== 零偏变量（extern，改写后 Init(0) 生效） =====
-extern float ICM_Mahony_GyroBiasX;  // °/s
-extern float ICM_Mahony_GyroBiasY;
-extern float ICM_Mahony_GyroBiasZ;
-
-// ===== 输出 =====
-extern ImuReal_Typedef ICM_Mahony_Real;  // .roll(±180°), .pitch(±90°), .yaw(±180°)
-
-// ===== 绝对累计偏航角（无跳变，可超360°） =====
-float ICM_Yaw_Abs_Get(void);          // 顺时针持续增大
-void  ICM_Yaw_Abs_Reset(void);        // 归零（不影响姿态）
+// IMU.h 顶部，一行决定传感器:
+//#define IMU_USE_MPU6050    // 取消注释→MPU6050，注释掉→ICM42688
 ```
 
-### Mahony 参数（ICM42688_Mahony.h）
+**完整 API**:
 
-```c
-#define MAHONY_KP       5.12f    // PI 比例增益
-#define MAHONY_KI       0.001f   // PI 积分增益
-#define MAHONY_HALF_T   0.010f   // 半采样周期 (20ms/2)
-#define MAHONY_CALIB_SAMPLES  1000
+| 函数/宏 | 类型 | 说明 |
+|---------|------|------|
+| `IMU_Mahony_Init(doCalib)` | 宏 | 初始化，1=自动标定，0=跳过 |
+| `IMU_Mahony_Update_Tick()` | 宏 | 20ms Tick：读数据→Mahony解算 |
+| `IMU_Mahony_Calibrate(n)` | 宏 | 运行时重标定（角度归零） |
+| `IMU_Yaw_Abs_Get()` | 宏 | 绝对累计偏航角（顺时针增大，无跳变，可超360°） |
+| `IMU_Yaw_Abs_Reset()` | 宏 | yaw_abs 归零（不影响姿态） |
+| `IMU_Mahony_Real` | 宏 | `ImuReal_Typedef` 输出 (.roll/.pitch/.yaw) |
+| `IMU_Mahony_GyroBiasX/Y/Z` | 宏 | 零偏变量（extern，可直接读写） |
+| `IMU_Turn_Yaw_Is_Ok(target)` | **实函数** | 偏航到位检测，默认死区 ±3° |
+| `IMU_Turn_Yaw_Is_Ok_Ex(target, db)` | **实函数** | 偏航到位检测，自定义死区 |
+
+### 宏映射表
+
+| 统一 API | 默认 (ICM42688) | `#define IMU_USE_MPU6050` |
+|----------|-----------------|------------------------|
+| `IMU_Mahony_Init(n)` | `ICM42688_Mahony_Init(n)` | `MPU6050_Mahony_Init(n)` |
+| `IMU_Mahony_Update_Tick()` | `ICM42688_Mahony_Update_Tick()` | `MPU6050_Mahony_Update_Tick()` |
+| `IMU_Mahony_Calibrate(n)` | `ICM42688_Mahony_Calibrate(n)` | `MPU6050_Mahony_Calibrate(n)` |
+| `IMU_Yaw_Abs_Get()` | `ICM_Yaw_Abs_Get()` | `MPU_Yaw_Abs_Get()` |
+| `IMU_Yaw_Abs_Reset()` | `ICM_Yaw_Abs_Reset()` | `MPU_Yaw_Abs_Reset()` |
+| `IMU_Mahony_Real` | `ICM_Mahony_Real` | `MPU_Mahony_Real` |
+
+### 文件架构
+
+```
+IMU_Portable_Lib/          ← 可移植库包（含 15 个文件 + README）
+├── IMU.h / IMU.c          ← ★ 统一 API 层（含类型定义 + 宏 + Turn_Yaw）
+├── ICM_42688_base.h/c     ← ICM 驱动（需适配 I2C）
+├── ICM42688_Angle.h/c     ← ICM 互补滤波
+├── ICM42688_Mahony.h/c    ← ICM Mahony ★
+├── MPU6050_base.h/c       ← MPU 驱动（需适配 I2C）
+├── MPU6050_Angle.h/c      ← MPU 互补滤波
+├── MPU6050_Mahony.h/c     ← MPU Mahony ★
+├── demo.c                 ← Mode_2 完整示例
+└── README.md              ← 本文档
+
+Function/                  ← 工程内编译路径
+├── IMU.h / IMU.c          ← 统一 API（含类型定义 + 宏 + Turn_Yaw）
+├── ICM42688_Angle.h/c
+├── ICM42688_Mahony.h/c
+├── MPU6050_Angle.h/c
+└── MPU6050_Mahony.h/c
+
+Hardware/                  ← 驱动层工程路径
+├── ICM_42688_base.h/c
+└── MPU6050_base.h/c
 ```
 
-### 基础驱动 API
+### 各传感器当前配置
+
+| 参数 | ICM-42688 | MPU6050 |
+|------|-----------|---------|
+| I2C | I2C1, PB6/PB7, 0x68 | I2C1, 0xD0 |
+| 加速度计 | ±4g, 1000Hz, 低噪声 | ±2g, DLPF=5 |
+| 陀螺仪 | ±500°/s, 1000Hz | ±250°/s |
+| 噪声(加速度) | 70 μg/√Hz ✨ | 400 μg/√Hz |
+| Mahony KP/KI | 5.12 / 0.001 | 5.12 / 0.001 |
+| Tick 周期 | 20ms | 20ms |
+
+### ⚠️ ICM-42688 FS_SEL 编码陷阱
+
+ICM-42688 量程位与 MPU6050 **完全相反**。`ICM_42688_base.c` 已修正。
+
+| FS_SEL | MPU6050 | ICM-42688 |
+|--------|---------|-----------|
+| 000 | ±250°/s (最小) | **±2000°/s (最大)** |
+| 011 | ±2000°/s (最大) | **±250°/s (最小)** |
+
+### 典型使用
 
 ```c
-void    ICM42688_Init(void);                    // 硬件复位+配置寄存器
-uint8_t ICM42688_GetID(void);                   // 返回 0x47
-void    ICM42688_Update_Data(void);             // 读12B→ICM_Raw_Data (g,°/s)
-void    ICM42688_WriteReg(uint8_t addr, uint8_t data);
-uint8_t ICM42688_ReadReg(uint8_t addr);
-```
+#include "IMU.h"   // 一行，自动包含对应传感器的 Mahony
 
-### 典型使用（Mode_2.c 模式）
-
-```c
 void Mode_2_Setup(void) {
-    ICM42688_Mahony_Init(0);   // 0=用已校准的bias快速启动
+    IMU_Mahony_Init(1);         // 1=自动标定（需静止）
+    IMU_Yaw_Abs_Reset();
 }
 void Mode_2_Tick(void) {
-    ICM42688_Mahony_Update_Tick();
-    Serial_printf(&Serial1, "%.2f,%.2f,%.2f\r\n",
-                  ICM_Mahony_Real.roll, ICM_Mahony_Real.pitch, ICM_Mahony_Real.yaw);
+    IMU_Mahony_Update_Tick();   // 读数据→Mahony解算
 }
 void Mode_2_Loop(void) {
     OLED_Printf(0,0,OLED_6X8,"R:%.1f P:%.1f Y:%.1f",
-                ICM_Mahony_Real.roll, ICM_Mahony_Real.pitch, ICM_Mahony_Real.yaw);
+        IMU_Mahony_Real.roll, IMU_Mahony_Real.pitch, IMU_Mahony_Real.yaw);
+    if (IMU_Turn_Yaw_Is_Ok(90.0f))     // 转到 90° 了？
+        LED_On();
 }
 ```
 
 ### 跨芯片移植
 
-仅需修改 `ICM_42688_base.c` 中 ~30行 I2C 读写和延时函数，其余 8 个文件零改动。
-完整移植指南见 `ICM42688_Portable_Lib/README.md` §9。
-
-### ICM42688 vs MPU6050 寄存器差异
-
-| 寄存器 | MPU6050 | ICM42688 |
-|--------|---------|----------|
-| PWR_MGMT | 0x6B | **0x4E** |
-| ACCEL_CONFIG | 0x1C | **0x50** |
-| GYRO_CONFIG | 0x1B | **0x4F** |
-| 数据起始 | 0x3B | **0x1F** |
-| 数据长度 | 14B (Acc+Tmp+Gyro) | **12B (Acc+Gyro)** |
-| WHO_AM_I | 0x68 | **0x47** |
-| 噪声(加速度) | 400 μg/√Hz | **70 μg/√Hz** ✨ |
-| FS_SEL编码 | 0=最小量程 | **0=最大量程** ⚠️ |
-
----
-
-## MPU6050 Mahony AHRS 滤波（2026-07-23 新增）
-
-从 ICM42688_Mahony 移植，算法完全相同（四元数 + PI 重力修正），仅底层驱动不同。
-
-### 文件
-
-| 文件 | 层 | 说明 |
-|------|-----|------|
-| `Hardware/MPU6050_base.h/c` | 驱动（已有） | I2C 读写、寄存器配置、`MPU_Raw_Data` (g, °/s) |
-| `Function/MPU6050_Mahony.h` | 滤波 | Mahony AHRS 参数 + API |
-| `Function/MPU6050_Mahony.c` | 滤波 | 四元数+PI重力修正，无死锁，yaw 准确 |
-
-### Mahony 参数（MPU6050_Mahony.h）
-
-```c
-#define MPU_MAHONY_KP       5.12f    // PI 比例增益
-#define MPU_MAHONY_KI       0.001f   // PI 积分增益
-#define MPU_MAHONY_HALF_T   0.010f   // 半采样周期 (20ms/2)
-#define MPU_MAHONY_CALIB_SAMPLES  1000
-```
-
-### API
-
-```c
-// ===== 初始化 =====
-void MPU6050_Mahony_Init(uint8_t doCalib);
-//   doCalib=1: 自动采样1000次标定陀螺零偏（需静止）
-//   doCalib=0: 跳过标定，使用 MPU_Mahony_GyroBiasX/Y/Z 当前值
-
-// ===== 20ms Tick =====
-void MPU6050_Mahony_Update_Tick(void);     // 读数据→Mahony解算→输出
-
-// ===== 校准 =====
-void MPU6050_Mahony_Calibrate(int samples); // 运行时重标定
-
-// ===== 零偏变量（extern，改写后 Init(0) 生效） =====
-extern float MPU_Mahony_GyroBiasX;  // °/s
-extern float MPU_Mahony_GyroBiasY;
-extern float MPU_Mahony_GyroBiasZ;
-
-// ===== 输出 =====
-extern ImuReal_Typedef MPU_Mahony_Real;  // .roll(±180°), .pitch(±90°), .yaw(±180°)
-
-// ===== 绝对累计偏航角（无跳变，可超360°） =====
-float MPU_Yaw_Abs_Get(void);          // 顺时针持续增大
-void  MPU_Yaw_Abs_Reset(void);        // 归零（不影响姿态）
-```
-
-### 典型使用
-
-```c
-void Mode_2_Setup(void) {
-    MPU6050_Mahony_Init(1);   // 1=自动标定零偏（需静止）
-}
-void Mode_2_Tick(void) {
-    MPU6050_Mahony_Update_Tick();
-    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f\r\n",
-                  MPU_Mahony_Real.roll, MPU_Mahony_Real.pitch,
-                  MPU_Mahony_Real.yaw, MPU_Yaw_Abs_Get());
-}
-void Mode_2_Loop(void) {
-    OLED_Printf(0,0,OLED_6X8,"MPU R:%.1f", MPU_Mahony_Real.roll);
-    OLED_Printf(0,12,OLED_6X8,"P:%.1f", MPU_Mahony_Real.pitch);
-    OLED_Printf(0,24,OLED_6X8,"Y:%.1f", MPU_Mahony_Real.yaw);
-}
-```
-
-### Mode_2 切换
-
-`Mode_2.c` 顶部有 `#define MPU6050_MAHONY_TEST` 宏开关：
-- **注释掉**（默认）→ ICM42688 Mahony 测试
-- **取消注释** → MPU6050 Mahony 测试
-
-两个 IMU 均挂 I2C1 地址 0x68，物理上只能二选一。
-
-### MPU6050 当前量程配置（MPU6050_base.c）
-
-| 参数 | 值 |
-|------|-----|
-| I2C | I2C1, 0xD0, 100kHz |
-| 加速度计 | ±2g, DLPF=5 (10Hz) |
-| 陀螺仪 | ±250°/s |
-| 灵敏度(Accel) | 16384 LSB/g |
-| 灵敏度(Gyro) | 131 LSB/(°/s) |
-
-> 注意：MPU6050 当前量程 ±2g/±250°/s 比 ICM42688 的 ±4g/±500°/s 更精细，但满量程更小。
-> 高动态应用可能需要改大 `ACCEL_RANGE` 和 `GYRO_RANGE`。
+仅需修改 `*_base.c` 中 ~30 行 I2C 读写+延时。滤波层和 IMU 统一层 **零改动**。
+完整移植指南见 `IMU_Portable_Lib/README.md` §11。
 

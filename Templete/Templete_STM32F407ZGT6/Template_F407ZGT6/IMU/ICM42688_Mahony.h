@@ -2,7 +2,7 @@
 #define __ICM42688_MAHONY_H
 
 #include "ICM_42688_base.h"
-#include "Imu_Types.h"
+#include "IMU.h"
 
 // ==================== Mahony AHRS 参数 ====================
 // 参考 DAIMXA angle.c，适配 ICM-42688 (20ms Tick, 低噪声 70μg/√Hz)

@@ -180,7 +180,18 @@ typedef Hanger_Status_Typedef QueueData_Typedef;	// 将void*替换成需要的�
 
 目前本ICM的yaw是顺时针从0减小到-180，然后突变到+180，然后减小到0，我希望还能有一个yaw_abs，只能使用 float ICM_Yaw_Abs_Get()获得，其在每次yaw更新的时候也进行更新，但是顺时针就是一直增大，然后无突变，也就是可以超过180度甚至是360度，即绝对旋转角度（从初始开始）
 
++++
 
+根据当前的MPU6050和ICM42688的M算法，创立一个IMU.c / .h库，内部使用宏定义确定是使用MPU6050还是ICM，引出的函数包括API：
+
+- IMU_Mahony_Update_Tick
+- IMU_Mahony_Calibrate
+- IMU_Yaw_Abs_Get
+- IMU_Yaw_Abs_Reset
+- IMU_Turn_Yaw_Is_Ok_Ex
+- IMU_Turn_Yaw_Is_Ok
+
+然后在Mode2写个简单demo例程，完成之后在D:\github\HUST_STI\HUST_STI_1\Templete\Templete_STM32F407ZGT6\Template_F407ZGT6\IMU_Portable_Lib修改的Readme包含MPU和ICM以及联合宏定义库，实现完整陀螺仪体系
 
 
 
