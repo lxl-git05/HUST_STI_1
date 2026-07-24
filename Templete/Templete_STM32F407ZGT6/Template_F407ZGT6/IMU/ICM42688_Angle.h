@@ -2,7 +2,7 @@
 #define __ICM42688_ANGLE_H
 
 #include "ICM_42688_base.h"
-#include "Imu_Types.h"
+#include "IMU.h"
 
 // ==================== 互补滤波系数 ====================
 #define ICM_COMP_GYRO   0.98f   // 陀螺仪权重

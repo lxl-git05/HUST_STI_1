@@ -69,7 +69,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, AT_SCL_Pin|AT_SDA_Pin|Motor_A_IN2_Pin|Laser_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, Y8_Addr_0_Pin|Y8_Addr_1_Pin|Y8_Addr_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, Y8_Addr_0_Pin|Y8_CLK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, Buzzer_Pin|RGB_R_Pin|RGB_G_Pin|RGB_Y_Pin, GPIO_PIN_RESET);
@@ -108,8 +108,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : KEY2_Pin EC11_Key_Pin KEY3_Pin */
-  GPIO_InitStruct.Pin = KEY2_Pin|EC11_Key_Pin|KEY3_Pin;
+  /*Configure GPIO pins : KEY2_Pin EC11_Key_Pin KEY3_Pin Y8_DAT_Pin */
+  GPIO_InitStruct.Pin = KEY2_Pin|EC11_Key_Pin|KEY3_Pin|Y8_DAT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
@@ -128,18 +128,25 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Y8_Addr_0_Pin Y8_Addr_1_Pin Y8_Addr_2_Pin */
-  GPIO_InitStruct.Pin = Y8_Addr_0_Pin|Y8_Addr_1_Pin|Y8_Addr_2_Pin;
+  /*Configure GPIO pin : Y8_Addr_0_Pin */
+  GPIO_InitStruct.Pin = Y8_Addr_0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+  HAL_GPIO_Init(Y8_Addr_0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Err_Pin */
   GPIO_InitStruct.Pin = Err_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Err_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Y8_CLK_Pin */
+  GPIO_InitStruct.Pin = Y8_CLK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(Y8_CLK_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Buzzer_Pin RGB_R_Pin RGB_G_Pin RGB_Y_Pin */
   GPIO_InitStruct.Pin = Buzzer_Pin|RGB_R_Pin|RGB_G_Pin|RGB_Y_Pin;

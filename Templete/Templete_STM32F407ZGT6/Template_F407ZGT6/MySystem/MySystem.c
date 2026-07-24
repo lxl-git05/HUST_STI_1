@@ -28,9 +28,11 @@ MyGPIO_Typedef MyGPIO_Stepper2_Dir = {Stepper_Dir2_GPIO_Port , Stepper_Dir2_Pin}
 
 MyGPIO_Typedef MyGPIO_Elec         = {Elec_GPIO_Port , Elec_Pin} ;
 
-MyGPIO_Typedef MyGPIO_Y8_Addr0     = {Y8_Addr_0_GPIO_Port , Y8_Addr_0_Pin} ;
-MyGPIO_Typedef MyGPIO_Y8_Addr1     = {Y8_Addr_1_GPIO_Port , Y8_Addr_1_Pin} ;
-MyGPIO_Typedef MyGPIO_Y8_Addr2     = {Y8_Addr_2_GPIO_Port , Y8_Addr_2_Pin} ;
+//MyGPIO_Typedef MyGPIO_Y8_Addr0     = {Y8_Addr_0_GPIO_Port , Y8_Addr_0_Pin} ;
+//MyGPIO_Typedef MyGPIO_Y8_Addr1     = {Y8_Addr_1_GPIO_Port , Y8_Addr_1_Pin} ;
+//MyGPIO_Typedef MyGPIO_Y8_Addr2     = {Y8_Addr_2_GPIO_Port , Y8_Addr_2_Pin} ;
+MyGPIO_Typedef MYGPIO_Y8_CLK			 = {Y8_CLK_GPIO_Port , Y8_CLK_Pin} ;
+MyGPIO_Typedef MYGPIO_Y8_DAT			 = {Y8_DAT_GPIO_Port , Y8_DAT_Pin} ;
 
 // ====================================================================
 // PWM 实例定义 — 换芯片时只需修改 htim / Channel / Compare_Max / Compare_Min

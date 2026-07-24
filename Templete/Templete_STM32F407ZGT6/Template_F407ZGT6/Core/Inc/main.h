@@ -103,10 +103,10 @@ void Error_Handler(void);
 #define Y8_Addr_0_GPIO_Port GPIOF
 #define Err_Pin GPIO_PIN_12
 #define Err_GPIO_Port GPIOF
-#define Y8_Addr_1_Pin GPIO_PIN_13
-#define Y8_Addr_1_GPIO_Port GPIOF
-#define Y8_Addr_2_Pin GPIO_PIN_15
-#define Y8_Addr_2_GPIO_Port GPIOF
+#define Y8_DAT_Pin GPIO_PIN_13
+#define Y8_DAT_GPIO_Port GPIOF
+#define Y8_CLK_Pin GPIO_PIN_15
+#define Y8_CLK_GPIO_Port GPIOF
 #define Buzzer_Pin GPIO_PIN_1
 #define Buzzer_GPIO_Port GPIOG
 #define Elec_Pin GPIO_PIN_11

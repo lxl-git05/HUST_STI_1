@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Mode;../Top;../MySystem;../Hardware;../Software;../Tools;../Function;..\Con_Mode</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Mode;../Top;../MySystem;../Hardware;../Software;../Tools;../Function;../Con_Mode;../IMU</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1466,26 +1466,6 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Y8_Driver.h</FilePath>
             </File>
-            <File>
-              <FileName>ICM_42688_base.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\ICM_42688_base.c</FilePath>
-            </File>
-            <File>
-              <FileName>ICM_42688_base.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\ICM_42688_base.h</FilePath>
-            </File>
-            <File>
-              <FileName>MPU6050_base.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\MPU6050_base.c</FilePath>
-            </File>
-            <File>
-              <FileName>MPU6050_base.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\MPU6050_base.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1631,51 +1611,6 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Control.h</FilePath>
             </File>
-            <File>
-              <FileName>MPU6050_Angle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Function\MPU6050_Angle.c</FilePath>
-            </File>
-            <File>
-              <FileName>MPU6050_Angle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Function\MPU6050_Angle.h</FilePath>
-            </File>
-            <File>
-              <FileName>ICM42688_Angle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Function\ICM42688_Angle.c</FilePath>
-            </File>
-            <File>
-              <FileName>ICM42688_Angle.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Function\ICM42688_Angle.h</FilePath>
-            </File>
-            <File>
-              <FileName>Imu_Types.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Function\Imu_Types.h</FilePath>
-            </File>
-            <File>
-              <FileName>ICM42688_Mahony.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Function\ICM42688_Mahony.c</FilePath>
-            </File>
-            <File>
-              <FileName>ICM42688_Mahony.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Function\ICM42688_Mahony.h</FilePath>
-            </File>
-            <File>
-              <FileName>MPU6050_Mahony.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Function\MPU6050_Mahony.c</FilePath>
-            </File>
-            <File>
-              <FileName>MPU6050_Mahony.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Function\MPU6050_Mahony.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1740,6 +1675,81 @@
               <FileName>Con_Mode_6.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Con_Mode\Con_Mode_6.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>IMU</GroupName>
+          <Files>
+            <File>
+              <FileName>ICM_42688_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM_42688_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM_42688_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM_42688_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM42688_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM42688_Angle.h</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM42688_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM42688_Mahony.h</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\IMU.c</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\IMU.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_Angle.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_Mahony.h</FilePath>
             </File>
           </Files>
         </Group>

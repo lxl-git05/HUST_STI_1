@@ -1,7 +1,7 @@
 #ifndef __MPU6050_ANGLE_H
 #define __MPU6050_ANGLE_H
 
-#include "Imu_Types.h"
+#include "IMU.h"
 #include "MPU6050_base.h"
 
 // 预先给定的MPU6050零漂值
@@ -19,7 +19,7 @@
 #define STILL_REQUIRED_CNT          100               // 连续100次满足才确认静止（可调 50~150）
 #define OFFSET_LEARNING_RATE 				0.005f	  // 零漂自校准趋近率
 
-// 引出参数 (ImuOffset_Typedef / ImuCali_Typedef / ImuReal_Typedef 定义在 Imu_Types.h)
+// 引出参数 (ImuOffset_Typedef / ImuCali_Typedef / ImuReal_Typedef 定义在 IMU.h)
 extern ImuOffset_Typedef  MPU_Offset;			// 误差纠正参数
 extern ImuCali_Typedef	  MPU_Cali	 ;			// 纠正后的数据
 extern ImuReal_Typedef 	  MPU_Real  ;			// 最终的确定角度

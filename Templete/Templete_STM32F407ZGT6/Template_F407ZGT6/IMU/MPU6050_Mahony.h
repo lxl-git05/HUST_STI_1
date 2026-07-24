@@ -2,7 +2,7 @@
 #define __MPU6050_MAHONY_H
 
 #include "MPU6050_base.h"
-#include "Imu_Types.h"
+#include "IMU.h"
 
 // ==================== Mahony AHRS 参数 ====================
 // 适配 MPU6050 (20ms Tick, 噪声 ~400μg/√Hz)
