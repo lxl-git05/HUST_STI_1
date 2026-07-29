@@ -24,7 +24,11 @@
 #define Y8U_GAIN_LO       80.0f  // 偏移 < 80: 直道 Kp
 #define Y8U_GAIN_HI      200.0f  // 偏移 > 200: 大弯 Kp（中间线性过渡）
 
-extern Pid_Typedef Y8U_PID;
+extern Pid_Typedef   Y8U_PID;
+
+// 基础速度访问（内部 static，仅通过 getter/setter 操作）
+void  Y8U_SetSpeed(float speed);
+float Y8U_GetSpeed(void);
 
 // 得到相对中心的偏移（已×SCALE + EWMA 平滑，丢线维持）
 float Y8U_GetOffset(void);

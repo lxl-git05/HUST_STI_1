@@ -1,9 +1,11 @@
 #include "Y8_Track.h"
 #include "Con_Motor.h"
 
-extern float Track_Base_Speed;
-
 Pid_Typedef Y8U_PID;
+static float Track_Base_Speed = 0;          // 内部 static，外部通过 getter/setter 访问
+
+void  Y8U_SetSpeed(float speed) { Track_Base_Speed = speed; }
+float Y8U_GetSpeed(void)        { return Track_Base_Speed; }
 
 // ============== 得到相对中心的偏移（×SCALE + EWMA）==============
 float Y8U_GetOffset(void)

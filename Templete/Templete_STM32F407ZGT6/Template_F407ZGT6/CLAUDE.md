@@ -558,3 +558,104 @@ void Mode_2_Loop(void) {
 仅需修改 `*_base.c` 中 ~30 行 I2C 读写+延时。滤波层和 IMU 统一层 **零改动**。
 完整移植指南见 `IMU_Portable_Lib/README.md` §11。
 
+---
+
+## Y8U 寻迹系统（替代旧 Y8_Driver）
+
+### 层次结构
+
+```
+Y8_USART（底层驱动）              Y8_Track（上层逻辑）
+  USART3 DMA+Idle                  Track_Base_Speed (rpm)
+  $A/D 协议解析                   Y8U_PID (变增益)
+  Y8U_ADC[8] / Y8U_Digital[8]     Y8U_GetOffset() → 偏移×100
+                                   Y8U_PID_Update() → 差速电机
+```
+
+### 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `Hardware/Y8_USART.h/c` | USART3 DMA+Idle 接收 + `$A,x1:4096,...#` 状态机解析 |
+| `Hardware/Y8_Track.h/c` | 重心法偏移(7通道) + EWMA(α=0.80) + 变增益PID + Track_Base_Speed |
+| `Function/Serial_porting.c` | `HAL_UARTEx_RxEventCallback` 中 USART3→Y8U_DMA_RxCallback 分发 |
+
+### Y8U_GetOffset() 算法
+
+```
+ADC[0~6] (排除故障通道7)
+  → 阈值230筛选 (>230 = 压线)
+  → 重心法: pos = Σ(i×weight) / Σweight
+  → 偏移 = (pos - 3.0) × 100     // 3.0=中心索引
+  → EWMA = 0.2×历史 + 0.8×当前
+  → 丢线时维持上次平滑值
+```
+
+### 变增益 PID
+
+| 场景 | 偏移范围 | Kp |
+|------|---------|-----|
+| 直道 | \|offset\| < 80 | 0.12 |
+| 过渡 | 80 ~ 200 | 0.12→0.30 线性 |
+| 大弯 | \|offset\| > 200 | 0.30 |
+
+- Ki=0, Kd=0.5, Out=±50
+- Goal=0（目标居中）
+- PID 输出直接差速：`Motor_A = base - set, Motor_B = base + set`
+
+### 宏参数（Y8_Track.h）
+
+| 宏 | 值 | 说明 |
+|----|-----|------|
+| `Y8U_VALID_COUNT` | 7 | 有效通道 0~6 |
+| `Y8U_THRESHOLD` | 230 | 白底~200, 设230卡在白底之上 |
+| `Y8U_SCALE` | 100.0f | 偏移放大倍率 |
+| `Y8U_EWMA_ALPHA` | 0.80f | EWMA 平滑系数 |
+| `Y8U_KP_BASE` | 0.12f | 直道 Kp |
+| `Y8U_KP_HIGH` | 0.30f | 大弯 Kp |
+| `Y8U_GAIN_LO` | 80.0f | 变增益下限 |
+| `Y8U_GAIN_HI` | 200.0f | 变增益上限 |
+
+### 传感器特性（亚博智能小车）
+
+| 场景 | ADC |
+|------|-----|
+| 白底 | ~200 |
+| 近线 | 300-400 |
+| 压线 | 700-1300+ |
+| 悬空 | 3000+ |
+| **通道 7** | **硬件故障，废弃** |
+
+### 串口
+
+| 串口 | 用途 |
+|------|------|
+| USART3 (PB10/PB11, 115200) | 模块通信：`$0,1,0#` 请求模拟型 |
+| Serial1 (PA9/PA10) | 调试：CSV 输出 `Goal,Real,Set` + ABC 在线调参 `Kp=0.15` |
+
+### API 速查
+
+```c
+// 初始化（AllHeader.c Initial_ALL 中调用）
+Y8U_PID_Init();
+
+// 20ms Tick 中调用（自动完成：读偏移→PID→电机输出）
+Y8U_PID_Update();
+
+// 获取当前偏移（已×100 + EWMA）
+float offset = Y8U_GetOffset();  // ±300, 0=居中
+
+// 基础速度
+Track_Base_Speed = 100.0f;       // rpm
+```
+
+### 与旧 Y8_Driver 对比
+
+| | 旧 Y8_Driver（已删除）| 新 Y8U |
+|----|-------------------|---|
+| 通信 | GPIO PF13/PF15 双线同步 | USART3 DMA+Idle |
+| 数据 | 8位二值 | 12位 ADC |
+| 定位 | atan2 角度 | 重心法×100 |
+| PID | 固定 Kp + IMU 融合限幅 | 变增益 Kp |
+| 通道 7 | 正常使用 | 废弃（硬件故障）|
+

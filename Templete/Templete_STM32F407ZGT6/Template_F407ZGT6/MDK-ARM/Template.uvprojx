@@ -1457,16 +1457,6 @@
               <FilePath>..\Hardware\Motor.h</FilePath>
             </File>
             <File>
-              <FileName>Y8_Driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Hardware\Y8_Driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>Y8_Driver.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Hardware\Y8_Driver.h</FilePath>
-            </File>
-            <File>
               <FileName>Y8_USART.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\Y8_USART.c</FilePath>

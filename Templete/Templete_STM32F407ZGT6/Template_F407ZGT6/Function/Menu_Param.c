@@ -4,7 +4,6 @@
 // Serial1: Kp/Ki/Kd/Goal 修改PID, Speed/Pos/Stop 控制步进
 #include "AllHeader.h"
 #include "Menu_Param.h"
-#include "Y8_Driver.h"
 
 // ==================== 菜单显示名（用于OLED）====================
 typedef struct {
@@ -271,8 +270,8 @@ static uint8_t s_y8_mode = 1;  // 0=8路展示, 1=PID巡线跟踪
 
 void Tune_Y8_Track_Setup(float p[4])
 {
-    PID_Track.goalPoint = 0.0f;     // 巡线目标：居中（角度偏移=0）
-    PID_Param_Reset(&PID_Track);     // 清零历史积分+误差
+    Y8U_PID.goalPoint = 0.0f;       // 巡线目标：居中（偏移=0）
+    PID_Param_Reset(&Y8U_PID);       // 清零历史积分+误差
     s_y8_mode = 1;                   // 默认进入巡线模式
 }
 
@@ -289,20 +288,19 @@ void Tune_Y8_Track_Run(float p[4])
         }
         else
         {
-            PID_Param_Reset(&PID_Track); // 切到巡线：清积分重新开始
+            PID_Param_Reset(&Y8U_PID);   // 切到巡线：清积分重新开始
         }
     }
 
     if (s_y8_mode == 0)
     {
-        // ========== 展示模式: 8路传感器原始状态 ==========
-        OLED_Printf(0, 0, OLED_6X8, "Y8 Display       ");
-        // 8路二进制 (1=白/0=黑)
-        OLED_Printf(0, 16, OLED_8X16, "%d%d%d%d%d%d%d%d",
-            Y8_Data[0], Y8_Data[1], Y8_Data[2], Y8_Data[3],
-            Y8_Data[4], Y8_Data[5], Y8_Data[6], Y8_Data[7]);
-        // 滤波后角度
-        OLED_Printf(0, 40, OLED_6X8, "Angle:%.1f deg   ", Y8_Bias);
+        // ========== 展示模式: 8路ADC + 偏移 ==========
+        OLED_Printf(0, 0, OLED_6X8, "Y8U Display      ");
+        OLED_Printf(0, 8, OLED_6X8, "1:%-4u 2:%-4u 3:%-4u 4:%-4u",
+            Y8U_ADC[0], Y8U_ADC[1], Y8U_ADC[2], Y8U_ADC[3]);
+        OLED_Printf(0, 16, OLED_6X8, "5:%-4u 6:%-4u 7:%-4u 8:%-4u",
+            Y8U_ADC[4], Y8U_ADC[5], Y8U_ADC[6], Y8U_ADC[7]);
+        OLED_Printf(0, 32, OLED_6X8, "Offset: %+.1f      ", Y8U_GetOffset());
         OLED_Printf(0, 50, OLED_6X8, "K2:Track  L:Back ");
     }
     else
@@ -310,13 +308,13 @@ void Tune_Y8_Track_Run(float p[4])
         // ========== 巡线模式: Serial1 ABC调参 + OLED PID六行显示 ==========
         if (Serial_GetNewPackageFlag_ABC(&Serial1))
         {
-            Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &PID_Track.Kp);
-            Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &PID_Track.Ki);
-            Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &PID_Track.Kd);
+            Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &Y8U_PID.Kp);
+            Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &Y8U_PID.Ki);
+            Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &Y8U_PID.Kd);
         }
-        OLED_ShowPID("Y8", "Track", &PID_Track);
+        OLED_ShowPID("Y8U", "Track", &Y8U_PID);
         // 覆盖末行：保留Set值 + 模式切换提示
-        OLED_Printf(0, 50, OLED_6X8, "Set:%.1f K2:Displ", PID_Track.setPoint);
+        OLED_Printf(0, 50, OLED_6X8, "Set:%.1f K2:Displ", Y8U_PID.setPoint);
     }
 }
 
@@ -324,16 +322,15 @@ void Tune_Y8_Track_Tick(float p[4])
 {
     if (s_y8_mode == 0)
     {
-        // 展示模式: 只读传感器，不控电机
-        Y8_Data_Update();
+        // 展示模式: 只读传感器（DMA 自动更新），不控电机
     }
     else
     {
-        // 巡线模式: 传感器→滤波→PID→Motor差速
-        Y8_PID_Update();
+        // 巡线模式: 偏移→PID→Motor差速
+        Y8U_PID_Update();
         // Serial1 CSV 输出（同其他PID任务格式: goal,real,set）
         Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
-            PID_Track.goalPoint, PID_Track.realPoint_Now, PID_Track.setPoint);
+            Y8U_PID.goalPoint, Y8U_PID.realPoint_Now, Y8U_PID.setPoint);
     }
 }
 
