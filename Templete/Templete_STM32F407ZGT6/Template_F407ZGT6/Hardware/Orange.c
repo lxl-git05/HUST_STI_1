@@ -1,34 +1,17 @@
+// Orange 模块 — 初始化与通信更新
 #include "Orange.h"
+#include "AllHeader.h"
 
-// 0: cmd 1. x_tar 2. y_tar 
-float x_tar  		= 0 ;	// 1. x目标值
-float y_tar  		= 0 ;	// 2. y目标值
-float x_real  	= 0 ;	// 3. x真实值(在本题用不上)
-float y_real  	= 0 ;	// 4. y真实值(在本题用不上)
-float x_change	= 0 ;	// 坐标映射点
-float y_change	= 0 ;	// 坐标映射点
+uint8_t Oran_cmd = 0 ;	// 0. 指令模式
+int Oran_real = 0 ;			// 偏差
 
-int angle_shift = 50  ;
-int offset      = 20  ;
-int black_h     = 20  ;
-int black_s     = 255 ;
-int black_v     = 100 ;
-
-int Oran_Check_XY[6] = {0} ;
-int Oran_Param[6] ;	// 香橙派通信参数（Menu_Param 调参用）
-float Oran_X_A = -3;	
-float Oran_X_B = 2850;	
-float Oran_Y_A = 2.889;	
-float Oran_Y_B = 160;	
-
-uint8_t Oran_cmd = 0 ;	// 0 -> 正常数据 1-> 调试模式数据 2->坐标标定数据(3组点)
-
-// 坐标映射
-void Oran_XY_Change(void)
-{
-	x_change = x_tar * Oran_X_A + Oran_X_B ;
-	y_change = y_tar * Oran_Y_A + Oran_Y_B ;
-}
+// Orange通信脱机阈值调节:暂时设置6个
+int Oran_Param[6] ;
+/*
+串口Orange通信解析帧意义:
+	Oran_cmd：模式，0为工作模式
+	
+*/
 
 // 香橙派数据更新,在Mode_G实现20ms固定更新
 void Oran_Update(void)
@@ -36,38 +19,81 @@ void Oran_Update(void)
 	// 读取Serial2的消息
 	if (Serial_GetNewPackageFlag_HEX(&Serial2))
 	{
+		// 第0位是cmd!!!所以后续都必须从1开始
 		Oran_cmd = Serial_GetHexData(&Serial2 , 0) ;
+		// 钢球识别模式
 		if (Oran_cmd == 0)
 		{
-			x_tar  = (float)(Serial_GetHexData(&Serial2 , 1) == 0 ?  x_tar  :  Serial_GetHexData(&Serial2 , 1)) ;
-			y_tar  = (float)(Serial_GetHexData(&Serial2 , 2) == 0 ?  y_tar  :  Serial_GetHexData(&Serial2 , 2)) ;
+			
 		}
+		// 
 		else if (Oran_cmd == 1)
 		{
-			angle_shift = Serial_GetHexData(&Serial2 , 1) ;
-			offset      = Serial_GetHexData(&Serial2 , 2) ;
-			black_h     = Serial_GetHexData(&Serial2 , 3) ;
-			black_s     = Serial_GetHexData(&Serial2 , 4) ;
-			black_v     = Serial_GetHexData(&Serial2 , 5) ;
+			Oran_Param[0] = Serial_GetHexData(&Serial2 , 1) ;
+			Oran_Param[1] = Serial_GetHexData(&Serial2 , 2) ;
+			Oran_Param[2] = Serial_GetHexData(&Serial2 , 3) ;
+			Oran_Param[3] = Serial_GetHexData(&Serial2 , 4) ;
+			Oran_Param[4] = Serial_GetHexData(&Serial2 , 5) ;
+			Oran_Param[5] = Serial_GetHexData(&Serial2 , 6) ;
 		}
-		else if (Oran_cmd == 2)
-		{
-			Oran_Check_XY[0] = Serial_GetHexData(&Serial2 , 1) ;
-			Oran_Check_XY[1] = Serial_GetHexData(&Serial2 , 2) ;
-			Oran_Check_XY[2] = Serial_GetHexData(&Serial2 , 3) ;
-			Oran_Check_XY[3] = Serial_GetHexData(&Serial2 , 4) ;
-			Oran_Check_XY[4] = Serial_GetHexData(&Serial2 , 5) ;
-			Oran_Check_XY[5] = Serial_GetHexData(&Serial2 , 6) ;
-		}
+
 	}
 }
 
-// 调阈值处理
-void Oran_Send_Data(int *Data)
+// 香橙派处理
+void Oran_Send_Data(int* Data) 
 {
-	if (Data == &angle_shift) {Serial_printf(&Serial2 , "@angle_shift:%d$#",angle_shift);}
-	if (Data == &offset)  {Serial_printf(&Serial2 , "@offset:%d$#",offset) ;}
-	if (Data == &black_h) {Serial_printf(&Serial2 , "@black_h:%d$#",black_h);}
-	if (Data == &black_s) {Serial_printf(&Serial2 , "@black_s:%d$#",black_s);}
-	if (Data == &black_v) {Serial_printf(&Serial2 , "@black_v:%d$#",black_v);}
+	if (Data == &Oran_Param[0]) {Serial_printf(&Serial2 , "@Oran_Param_1:%d$#",Oran_Param[0]);}
+	if (Data == &Oran_Param[1]) {Serial_printf(&Serial2 , "@Oran_Param_2:%d$#",Oran_Param[1]);}
+	if (Data == &Oran_Param[2]) {Serial_printf(&Serial2 , "@Oran_Param_3:%d$#",Oran_Param[2]);}
+	if (Data == &Oran_Param[3]) {Serial_printf(&Serial2 , "@Oran_Param_4:%d$#",Oran_Param[3]);}
+	if (Data == &Oran_Param[4]) {Serial_printf(&Serial2 , "@Oran_Param_5:%d$#",Oran_Param[4]);}
+	if (Data == &Oran_Param[5]) {Serial_printf(&Serial2 , "@Oran_Param_6:%d$#",Oran_Param[5]);}
 }
+
+// ======================= 香橙派寻迹PID =======================
+// (外环: X: 小车的左右速度+-,保持中心 Y: 小车的主速度,去往目标位置  内环: 速度环)
+//Pid_Typedef PID_Oran_X ;
+//Pid_Typedef PID_Oran_Y ;
+//#define Oran_XY_X_Check ( -1)	// X纠正方向
+//#define Oran_XY_Y_Check (  1)	// Y纠正方向
+
+
+//void Oran_PID_Func_X(void)
+//{
+//	if (PID_Oran_X.realPoint_Now < 40 && PID_Oran_X.realPoint_Now > -40)
+//	{
+//		PID_Oran_X.Kp = 0.3f; 
+//	}
+//	else 
+//	{
+//		PID_Oran_X.Kp = 0.649f ;
+//	}
+//}
+
+//void Oran_XY_Init(void)
+//{
+//	// 最大内环速度为 200 rpm/min
+//	// 目标都是偏差为0
+//	PID_Init(&PID_Oran_X, 0.649f, 0.0f, 5.635f, 10, -10, 400) ;
+//	PID_Init(&PID_Oran_Y, 1.0f, 0.0f, 7.2f, 10, -10, 140) ;
+//	PID_Oran_X.d_filter = 0.3f ;	// 不完全微分
+//	PID_Oran_X.PID_Func = Oran_PID_Func_X ;
+//	
+//}
+
+//void Oran_XY_PID_Update(void)
+//{
+//	// 1. 香橙派更新数据,得到Real值:这个是全局任务，直接放在Mode_G
+//	// Oran_Update() ;
+//	// 2. PID数据更新:real更新 goal为0 set需要求
+//	PID_Oran_X.realPoint_Now = x_real ;
+//	PID_Oran_Y.realPoint_Now = y_real ;
+//	// 3. PID计算
+//	PID_Update(&PID_Oran_X, PID_Oran_X.realPoint_Now) ;
+//	PID_Update(&PID_Oran_Y, PID_Oran_Y.realPoint_Now) ;
+//	// 4. 内环驱动: Y为主速度 X为偏移速度
+//	Motor_SetSpeed(&Motor_A, PID_Oran_Y.setPoint * Oran_XY_Y_Check + PID_Oran_X.setPoint * Oran_XY_X_Check) ;
+//	Motor_SetSpeed(&Motor_B, PID_Oran_Y.setPoint * Oran_XY_Y_Check - PID_Oran_X.setPoint * Oran_XY_X_Check) ;
+//}
+

@@ -448,7 +448,11 @@ Mode_G_Setup() 启动:
 | `IMU_Yaw_Abs_Get()` | 宏 | 绝对累计偏航角（顺时针增大，无跳变，可超360°） |
 | `IMU_Yaw_Abs_Reset()` | 宏 | yaw_abs 归零（不影响姿态） |
 | `IMU_Mahony_Real` | 宏 | `ImuReal_Typedef` 输出 (.roll/.pitch/.yaw) |
-| `IMU_Mahony_GyroBiasX/Y/Z` | 宏 | 零偏变量（extern，可直接读写） |
+| `IMU_Mahony_GyroBiasX/Y/Z` | 宏 | 陀螺零偏（extern，可直接读写） |
+| `IMU_Mahony_AccBiasX/Y/Z` | 宏 | **加速度零偏**（extern，对标 GyroBias） |
+| `IMU_Yaw_Gyro_Get()` | **实函数** | Z轴角速度绝对值 (°/s) |
+| `IMU_Get_Ax()` | **实函数** | **世界系水平加速度X (g)**，重力已消 |
+| `IMU_Get_Ay()` | **实函数** | **世界系水平加速度Y (g)**，重力已消 |
 | `IMU_Turn_Yaw_Is_Ok(target)` | **实函数** | 偏航到位检测，默认死区 ±3° |
 | `IMU_Turn_Yaw_Is_Ok_Ex(target, db)` | **实函数** | 偏航到位检测，自定义死区 |
 
@@ -462,6 +466,8 @@ Mode_G_Setup() 启动:
 | `IMU_Yaw_Abs_Get()` | `ICM_Yaw_Abs_Get()` | `MPU_Yaw_Abs_Get()` |
 | `IMU_Yaw_Abs_Reset()` | `ICM_Yaw_Abs_Reset()` | `MPU_Yaw_Abs_Reset()` |
 | `IMU_Mahony_Real` | `ICM_Mahony_Real` | `MPU_Mahony_Real` |
+| `IMU_Mahony_GyroBiasX/Y/Z` | `ICM_Mahony_GyroBiasX/Y/Z` | `MPU_Mahony_GyroBiasX/Y/Z` |
+| `IMU_Mahony_AccBiasX/Y/Z` | `ICM_Mahony_AccBiasX/Y/Z` | `MPU_Mahony_AccBiasX/Y/Z` |
 
 ### 文件架构
 
@@ -528,6 +534,24 @@ void Mode_2_Loop(void) {
         LED_On();
 }
 ```
+
+### 加速度零偏系统 (AccBias)
+
+对标 GyroBias 的完整 8 环节：定义→extern→宏→AT24C02 注册→Init 标定→标定后保存→Update 应用→ParamEdit。
+
+- **AT24C02 地址**: 13~24（GyroBias 之后），每项 4B float，共 12B
+- **标定约束**: 设备必须水平放置（Z 轴朝天），`bias = mean − [0,0,1]`
+- **Init 时序**: `IMU_Mahony_Init(0)` → `Param_AT24C02_Init()` 恢复 → `Initial_Timer()` 启动，首 tick 前已就位
+- AccBias 与 GyroBias 在 `IMU_Mahony_Calibrate()` 中一次性标定，`TUNE_GYRO_CAL` 菜单一次性保存 6 项
+
+### IMU_Get_Ax/Ay vs Mahony_Real.AccX
+
+| | `IMU_Mahony_Real.AccX` | `IMU_Get_Ax()` |
+|---|---|---|
+| 坐标系 | 机体 | 世界 |
+| 量纲 | 方向余弦 [-1,1] | g |
+| 含重力 | ✅ | ❌ 已消 |
+| 用途 | 极少（= sin(pitch) 近似） | 速度估计、碰撞检测、倾补控制 |
 
 ### 跨芯片移植
 

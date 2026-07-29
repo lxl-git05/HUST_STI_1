@@ -16,11 +16,6 @@ typedef enum {
     // === F407 云台任务 ===
     TASK_Motor_Speed,       // 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms
     TASK_Motor_Angle,       // 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
-    Task_Tar_XY,            // 装置去到目标x,y位置
-    Task_Down,              // 装置下降
-    Task_Back,              // 装置回位
-    Task_Elec,              // 取/放棋子
-    Task_Up,                // 装置上升
     // === MSPM0 小车任务 ===
     TASK_MOTOR_A_ANGLE,     // 电机A角度控制: p[0]=目标角度°, p[1]=容差°
     TASK_MOTOR_B_ANGLE,     // 电机B角度控制: p[0]=目标角度°, p[1]=容差°

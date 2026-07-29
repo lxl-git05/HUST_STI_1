@@ -27,6 +27,8 @@ extern float Y8_Bias;
 
 extern Pid_Typedef PID_Track ;
 
+extern float Track_Base_Speed ;
+
 // 数据更新: 读取8路传感器并展开到 Y8_Data[8]
 // ★ 应在中断中调用以保证实时性 (如Timer_20ms_Callback)
 void Y8_Data_Update(void);

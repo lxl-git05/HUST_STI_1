@@ -165,6 +165,8 @@ float Y8_Angle_Bias_Get(uint16_t cnt)
 // Y8巡线初始化
 Pid_Typedef PID_Track ;
 #define PID_Track_Dir (-1)
+float Track_Base_Speed = 0 ;
+
 void Y8_Init(void)
 {
 	// 硬件初始化
@@ -181,8 +183,8 @@ void Y8_PID_Update(void)
 	// PID计算:更新真实值(目标值是0)
 	PID_Update(&PID_Track , Y8_Bias) ;
 	// 配置速度
-	Motor_SetSpeed(&Motor_A , PID_Track.setPoint * (PID_Track_Dir)) ;
-	Motor_SetSpeed(&Motor_B , PID_Track.setPoint *(-PID_Track_Dir)) ;
+	Motor_SetSpeed(&Motor_A , Track_Base_Speed + PID_Track.setPoint * (PID_Track_Dir)) ;
+	Motor_SetSpeed(&Motor_B , Track_Base_Speed + PID_Track.setPoint *(-PID_Track_Dir)) ;
 }
 
 

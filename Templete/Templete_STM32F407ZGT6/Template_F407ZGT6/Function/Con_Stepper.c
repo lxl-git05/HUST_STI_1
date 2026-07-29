@@ -20,36 +20,36 @@ void Stepper_Init(void)
 //	Stepper_PWM_Limit_Config(&Stepper2, 50.0f,  -50.0f);   // 电机2 竖直旋转 ±50°
 }
 
-// 目标角度PID值更新
-void Stepper_PID_Tick(uint32_t Gap_Time_ms)
-{
-	// ========= 电机1 =========
-	// 得到真实值和目标值(香橙派发送来的x,y数据)
-	Stepper1.PID_Angle.realPoint_Now = x_real;
-	Stepper1.PID_Angle.goalPoint     = x_tar ;
-	// 计算PID,得到预设值
-	PID_Update(&Stepper1.PID_Angle , Stepper1.PID_Angle.realPoint_Now) ;
-	// 输出预设角度
-	Stepper_PWM_Speed_Set(&Stepper1 , -Stepper1.PID_Angle.setPoint , Stepper1.Acc_Val) ;
+//// 目标角度PID值更新
+//void Stepper_PID_Tick(uint32_t Gap_Time_ms)
+//{
+//	// ========= 电机1 =========
+//	// 得到真实值和目标值(香橙派发送来的x,y数据)
+//	Stepper1.PID_Angle.realPoint_Now = x_real;
+//	Stepper1.PID_Angle.goalPoint     = x_tar ;
+//	// 计算PID,得到预设值
+//	PID_Update(&Stepper1.PID_Angle , Stepper1.PID_Angle.realPoint_Now) ;
+//	// 输出预设角度
+//	Stepper_PWM_Speed_Set(&Stepper1 , -Stepper1.PID_Angle.setPoint , Stepper1.Acc_Val) ;
 
-	// ========= 电机2 =========
-	// 得到真实值和目标值(香橙派发送来的x,y数据)
-	Stepper2.PID_Angle.realPoint_Now = y_real ;
-	Stepper2.PID_Angle.goalPoint     = y_tar ;
-	// 计算PID,得到预设值
-	PID_Update(&Stepper2.PID_Angle , Stepper2.PID_Angle.realPoint_Now) ;
-	// 输出预设角度
-	Stepper_PWM_Speed_Set(&Stepper2 , Stepper2.PID_Angle.setPoint , Stepper2.Acc_Val) ;
-}
+//	// ========= 电机2 =========
+//	// 得到真实值和目标值(香橙派发送来的x,y数据)
+//	Stepper2.PID_Angle.realPoint_Now = y_real ;
+//	Stepper2.PID_Angle.goalPoint     = y_tar ;
+//	// 计算PID,得到预设值
+//	PID_Update(&Stepper2.PID_Angle , Stepper2.PID_Angle.realPoint_Now) ;
+//	// 输出预设角度
+//	Stepper_PWM_Speed_Set(&Stepper2 , Stepper2.PID_Angle.setPoint , Stepper2.Acc_Val) ;
+//}
 
-// 检测是否到达目标位置
-bool Stepper_PID_Is_OK(Stepper_PWM_Typedef *pStepper , int Tolerance_Angle , int Tolerance_Speed) 
-{
-	if (pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now > -Tolerance_Angle && 
-			pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now <  Tolerance_Angle && 
-			pStepper->PID_Angle.setPoint < Tolerance_Speed && pStepper->PID_Angle.setPoint > -Tolerance_Speed)
-	{
-		return true ;
-	}
-	return false ;
-}
+//// 检测是否到达目标位置
+//bool Stepper_PID_Is_OK(Stepper_PWM_Typedef *pStepper , int Tolerance_Angle , int Tolerance_Speed) 
+//{
+//	if (pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now > -Tolerance_Angle && 
+//			pStepper->PID_Angle.goalPoint - pStepper->PID_Angle.realPoint_Now <  Tolerance_Angle && 
+//			pStepper->PID_Angle.setPoint < Tolerance_Speed && pStepper->PID_Angle.setPoint > -Tolerance_Speed)
+//	{
+//		return true ;
+//	}
+//	return false ;
+//}
