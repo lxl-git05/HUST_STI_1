@@ -38,6 +38,7 @@
 #include "Con_Task.h"
 #include "Menu_Param.h"
 #include "Match.h"
+#include "Y8_USART.h"
 
 // Mode库
 #include "Mode_G.h"

@@ -111,10 +111,6 @@ void Error_Handler(void);
 #define Buzzer_GPIO_Port GPIOG
 #define Elec_Pin GPIO_PIN_11
 #define Elec_GPIO_Port GPIOE
-#define Stp1_Rst_Pin GPIO_PIN_10
-#define Stp1_Rst_GPIO_Port GPIOB
-#define Stp1_Err_Pin GPIO_PIN_11
-#define Stp1_Err_GPIO_Port GPIOB
 #define Stepper_Stp2_Pin GPIO_PIN_14
 #define Stepper_Stp2_GPIO_Port GPIOB
 #define Stepper_Dir2_Pin GPIO_PIN_15

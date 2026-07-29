@@ -78,9 +78,6 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(Elec_GPIO_Port, Elec_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Stp1_Rst_GPIO_Port, Stp1_Rst_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, Stepper_Dir2_Pin|LED0_Pin|OLED_SCL_Pin|OLED_SDA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -155,18 +152,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Stp1_Rst_Pin Stepper_Dir2_Pin LED0_Pin */
-  GPIO_InitStruct.Pin = Stp1_Rst_Pin|Stepper_Dir2_Pin|LED0_Pin;
+  /*Configure GPIO pins : Stepper_Dir2_Pin LED0_Pin */
+  GPIO_InitStruct.Pin = Stepper_Dir2_Pin|LED0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Stp1_Err_Pin */
-  GPIO_InitStruct.Pin = Stp1_Err_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Stp1_Err_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PD10 LCD_CS_Pin LCD_DC_Pin LCD_BLK_Pin */
   GPIO_InitStruct.Pin = GPIO_PIN_10|LCD_CS_Pin|LCD_DC_Pin|LCD_BLK_Pin;
