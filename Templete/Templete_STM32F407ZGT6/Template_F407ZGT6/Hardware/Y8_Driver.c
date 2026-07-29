@@ -2,11 +2,12 @@
 #include <math.h>
 #include <string.h>
 #include "Con_Motor.h"
+#include "IMU.h"
 
 // Y8寻迹: 1为空 0为有
 #define Y8_Get 0	// 包含寻迹点
 #define Y8_Nul 1	// 没有寻迹到
-#define Y8_Length 130	// Y8到中心的Y偏移(cm)
+#define Y8_Length 132.5f	// Y8到中心的Y偏移(cm)
 #define Y8_FILTER_WIN 5	// 中值滤波窗口大小
 
 uint8_t Y8_Data[8]  		 = {0};
@@ -161,13 +162,55 @@ float Y8_Angle_Bias_Get(uint16_t cnt)
 		filtered_angle = raw_angle;		// 窗口未满, 直接用原始值
 	}
 
-	// ==================== 阶段5: EWMA 平滑 + 死区 → 更新全局并返回 ====================
+	// ==================== 阶段5: EWMA + 自适应丢线衰减 + 死区 → 更新全局并返回 ====================
+	// 核心: 丢线首帧快照角度+角速度→决定保持时长, 超时才衰减
+	//   中心振荡: 小角度+低角速 → 短保持 → 快速衰减打破振荡
+	//   S弯脱线: 大角度+高角速 → 长保持 → 维持转向等线回来
 	static float ewma_bias = 0.0f;
-	#define Y8_EWMA_ALPHA  0.35f    // S弯跟不上就往上加，抖就往下减
-	#define Y8_DEADBAND    2.7f     // 死区(°): 略高于最内圈传感器2.64°，刚好消振不浪费
+	static uint8_t loss_ticks  = 0;  // 连续丢线计数 (1 tick = 20ms)
+	static uint8_t hold_ticks  = 3;  // 本次丢线的允许保持时长 (首帧快照后不变)
+
+	#define Y8_EWMA_ALPHA   0.45f  // S弯跟不上就往上加，抖就往下减
+	#define Y8_LOSS_HOLD_MIN  3    // 最小保持 60ms (噪声免疫)
+	#define Y8_LOSS_HOLD_MAX 30    // 最大保持 500ms (S弯极限)
+	#define Y8_LOSS_DECAY    0.85f // 超时后每 tick 衰减 15%
+	#define Y8_DEADBAND      2.7f  // 死区(°): 略高于最内圈传感器2.64°
+
+	// 丢线计数 + 首帧快照自适应保持时长
+	if (cnt_line > 0)
+	{
+		loss_ticks = 0;     // 有线→清零
+	}
+	else
+	{
+		if (loss_ticks == 0)  // 刚丢线首帧: 快照当前角度+角速度, 一次性决定 hold_ticks
+		{
+			float abs_ang = (last_valid_angle < 0.0f) ? -last_valid_angle : last_valid_angle;
+			float gyro    = IMU_Yaw_Gyro_Get();   // Z轴角速度绝对值 (°/s)
+			int h = (int)(Y8_LOSS_HOLD_MIN + abs_ang * 0.5f + gyro * 0.3f);
+			if (h < Y8_LOSS_HOLD_MIN) h = Y8_LOSS_HOLD_MIN;
+			if (h > Y8_LOSS_HOLD_MAX) h = Y8_LOSS_HOLD_MAX;
+			hold_ticks = (uint8_t)h;
+		}
+		loss_ticks++;
+	}
+
+	// EWMA 平滑 (有线帧正常更新; 丢线帧 filtered_angle 冻结在最后一个中位数, EWMA 自然维持)
 	ewma_bias += (filtered_angle - ewma_bias) * Y8_EWMA_ALPHA;
-	if (ewma_bias > -Y8_DEADBAND && ewma_bias < Y8_DEADBAND)
-		ewma_bias = 0.0f;
+
+	// 自适应丢线衰减: 超时后逐步拉回直行, 只在大角度/高角速时长时间保持
+	if (cnt_line == 0 && loss_ticks > hold_ticks)
+		ewma_bias *= Y8_LOSS_DECAY;
+
+	// 软死区 (smoothstep): 消除硬死区的阶跃响应
+	//   中心→DEADBAND: 输出≈0 (噪声免疫)
+	//   DEADBAND→2×DEADBAND: 连续递增, 无阶跃 (直道不抖)
+	//   >2×DEADBAND: 全增益 (正常PID控制)
+	float abs_b = (ewma_bias < 0.0f) ? -ewma_bias : ewma_bias;
+	if (abs_b < Y8_DEADBAND * 2.0f) {
+		float t = abs_b / (Y8_DEADBAND * 2.0f);    // 0(中心) → 1(2×死区)
+		ewma_bias *= t * t * (3.0f - 2.0f * t);     // smoothstep: C²连续
+	}
 	Y8_Bias = ewma_bias;
 	return Y8_Bias;
 }
@@ -183,7 +226,7 @@ void Y8_Init(void)
 	// 硬件初始化
 	Y8_Drive_Init() ;
 	// PID初始化
-	PID_Init(&PID_Track , 0.0f , 0.0f , 0.0f , 40 , -40 , 1000) ;
+	PID_Init(&PID_Track , 4.52f , 0.0f , 5.0f , 60 , -60 , 1000) ;
 }
 
 // Y8巡线更新 + 巡线
@@ -193,6 +236,38 @@ void Y8_PID_Update(void)
 	// PID计算:更新真实值(目标值是0)
 	PID_Track.realPoint_Now = Y8_Angle_Bias_Get(10) ;
 	PID_Update(&PID_Track , PID_Track.realPoint_Now) ;
+
+	// 输出限幅: IMU角速度融合, 区分"直道漂移"和"弯道转向"
+	//   角速度<5°/s  → 直道模式: 立方限幅(中心3rpm, 极柔和)
+	//   角速度5~20°/s → 过渡区: 平滑混合直道/弯道限幅
+	//   角速度>20°/s → 弯道模式: 全权限60rpm, 不限制
+	//   limit_straight = 3 + 57×(angle/15°)³
+	{
+		float abs_b = (Y8_Bias < 0.0f) ? -Y8_Bias : Y8_Bias;
+		float gyro   = IMU_Yaw_Gyro_Get();
+
+		// 直道限幅 (立方曲线, 中心几乎不动作)
+		float t = abs_b / 15.0f;
+		if (t > 1.0f) t = 1.0f;
+		float limit_straight = 3.0f + 37.0f * t * t * t;
+
+		// 弯道限幅 (全权限)
+		float limit_curve = 40.0f;
+
+		// 角速度→混合系数 (smoothstep, 无跳变)
+		float blend;
+		if (gyro < 5.0f)           blend = 0.0f;   // 纯直道
+		else if (gyro > 20.0f)     blend = 1.0f;   // 纯弯道
+		else {
+			float bt = (gyro - 5.0f) / 15.0f;
+			blend = bt * bt * (3.0f - 2.0f * bt);  // smoothstep
+		}
+
+		float limit = limit_straight + (limit_curve - limit_straight) * blend;
+		if (PID_Track.setPoint >  limit) PID_Track.setPoint =  limit;
+		if (PID_Track.setPoint < -limit) PID_Track.setPoint = -limit;
+	}
+
 	// 配置速度
 	Motor_SetSpeed(&Motor_A , Track_Base_Speed + PID_Track.setPoint * (PID_Track_Dir)) ;
 	Motor_SetSpeed(&Motor_B , Track_Base_Speed + PID_Track.setPoint *(-PID_Track_Dir)) ;

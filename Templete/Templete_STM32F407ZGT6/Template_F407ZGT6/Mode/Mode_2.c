@@ -17,11 +17,11 @@ void Mode_2_Loop(void)
 			Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &PID_Track.Kd);
 			Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &PID_Track.goalPoint);
 	}
-	// 8路二进制 (1=白/0=黑)
+	//
 	OLED_Printf(0, 16, OLED_8X16, "%d%d%d%d%d%d%d%d",
 			Y8_Data[0], Y8_Data[1], Y8_Data[2], Y8_Data[3],
 			Y8_Data[4], Y8_Data[5], Y8_Data[6], Y8_Data[7]);
-	// 滤波后角度
+	//
 	OLED_Printf(0, 40, OLED_6X8, "Angle:%.1f deg   ", Y8_Bias);
 	if (Key_Check(KEY_1,KEY_SINGLE))
 	{
@@ -35,7 +35,7 @@ void Mode_2_Loop(void)
 		}
 		else
 		{
-			Track_Base_Speed = 60 ;
+			Track_Base_Speed = 100 ;
 		}
 	}
 }
@@ -48,7 +48,7 @@ void Mode_2_Tick(void)
 		Track_Base_Speed = 0 ;
 	}
 	Y8_PID_Update() ;
-	Serial_printf(&Serial1 , "%.2f,%.2f,%.2f,%.2f\n",PID_Track.goalPoint,PID_Track.realPoint_Now,PID_Track.setPoint,Y8_Bias) ;
+	Serial_printf(&Serial1 , "%.2f,%.2f,%.2f,%.2f\n",PID_Track.goalPoint,PID_Track.realPoint_Now,PID_Track.setPoint,IMU_Yaw_Abs_Get()) ;
 }
 
 void Mode_2_Exit(void)
