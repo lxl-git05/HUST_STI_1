@@ -21,6 +21,11 @@ extern float ICM_Mahony_GyroBiasX;	// 陀螺X零偏 (°/s)
 extern float ICM_Mahony_GyroBiasY;	// 陀螺Y零偏 (°/s)
 extern float ICM_Mahony_GyroBiasZ;	// 陀螺Z零偏 (°/s)
 
+// ==================== 【加速度零偏（extern，可供 AT24C02 读写）】 ====================
+extern float ICM_Mahony_AccBiasX;	// 加速度X零偏 (g)
+extern float ICM_Mahony_AccBiasY;	// 加速度Y零偏 (g)
+extern float ICM_Mahony_AccBiasZ;	// 加速度Z零偏 (g)
+
 // ==================== API ====================
 // doCalib=1: 自动标定零偏（原地采样 MAHONY_CALIB_SAMPLES 次）
 // doCalib=0: 跳过标定，使用 ICM_Mahony_GyroBiasX/Y/Z 当前值（直接填的 0.0f 或 AT24C02 恢复值）

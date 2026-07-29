@@ -8,6 +8,7 @@ void Initial_ALL(void)
 	RGB_Init() ;
 	Buzzer_Init() ;																	// Buzzer初始化
 	Elec_Init() ;																	// 电磁阀初始化
+	IMU_Mahony_Init(0) ;														// 陀螺仪初始化
 
 	// Software
 	Serial_Init();																// 串口初始化

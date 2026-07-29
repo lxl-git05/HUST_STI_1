@@ -19,6 +19,11 @@ float ICM_Mahony_GyroBiasX = -0.00227481127f;
 float ICM_Mahony_GyroBiasY = 0.208900467f;
 float ICM_Mahony_GyroBiasZ = 0.0901221409f;
 
+// ==================== 【加速度零偏 (g) —— extern，供 AT24C02 读写 和手动编写】 ====================
+float ICM_Mahony_AccBiasX = 0.0f;
+float ICM_Mahony_AccBiasY = 0.0f;
+float ICM_Mahony_AccBiasZ = 0.0f;
+
 // ==================== 角度转换常量 ====================
 static const float DEG2RAD = 0.01745329252f;   // PI / 180
 static const float RAD2DEG = 57.2957795131f;   // 180 / PI
@@ -30,10 +35,11 @@ void ICM42688_Mahony_Init(uint8_t doCalib)
 {
     ICM42688_Init();
 
-    // --- 条件标定陀螺零偏 ---
+    // --- 条件标定陀螺零偏 + 加速度零偏 ---
     if (doCalib)
     {
         float sum_gx = 0.0f, sum_gy = 0.0f, sum_gz = 0.0f;
+        float sum_ax = 0.0f, sum_ay = 0.0f, sum_az = 0.0f;
 
         for (int i = 0; i < MAHONY_CALIB_SAMPLES; i++)
         {
@@ -41,14 +47,22 @@ void ICM42688_Mahony_Init(uint8_t doCalib)
             sum_gx += ICM_Raw_Data.GX;
             sum_gy += ICM_Raw_Data.GY;
             sum_gz += ICM_Raw_Data.GZ;
+            sum_ax += ICM_Raw_Data.AX;
+            sum_ay += ICM_Raw_Data.AY;
+            sum_az += ICM_Raw_Data.AZ;
         }
 
         ICM_Mahony_GyroBiasX = sum_gx / MAHONY_CALIB_SAMPLES;
         ICM_Mahony_GyroBiasY = sum_gy / MAHONY_CALIB_SAMPLES;
         ICM_Mahony_GyroBiasZ = sum_gz / MAHONY_CALIB_SAMPLES;
+
+        // 加速度零偏：设备水平放置，期望值 [0, 0, 1] g
+        ICM_Mahony_AccBiasX = sum_ax / MAHONY_CALIB_SAMPLES;
+        ICM_Mahony_AccBiasY = sum_ay / MAHONY_CALIB_SAMPLES;
+        ICM_Mahony_AccBiasZ = sum_az / MAHONY_CALIB_SAMPLES - 1.0f;
     }
-    // doCalib=0 时直接使用 ICM_Mahony_GyroBiasX/Y/Z 现有值
-    //   → 来自 #define 默认值 或 AT24C02 恢复值（用户自行在 Init 前写入）
+    // doCalib=0 时直接使用各偏置现有值
+    //   → 来自默认值 或 AT24C02 恢复值（用户自行在 Init 前写入）
 
     // --- 四元数复位 ---
     q0 = 1.0f;  q1 = 0.0f;  q2 = 0.0f;  q3 = 0.0f;
@@ -76,6 +90,7 @@ void ICM42688_Mahony_Calibrate(int samples)
         samples = MAHONY_CALIB_SAMPLES;
 
     float sum_gx = 0.0f, sum_gy = 0.0f, sum_gz = 0.0f;
+    float sum_ax = 0.0f, sum_ay = 0.0f, sum_az = 0.0f;
 
     for (int i = 0; i < samples; i++)
     {
@@ -83,11 +98,19 @@ void ICM42688_Mahony_Calibrate(int samples)
         sum_gx += ICM_Raw_Data.GX;
         sum_gy += ICM_Raw_Data.GY;
         sum_gz += ICM_Raw_Data.GZ;
+        sum_ax += ICM_Raw_Data.AX;
+        sum_ay += ICM_Raw_Data.AY;
+        sum_az += ICM_Raw_Data.AZ;
     }
 
     ICM_Mahony_GyroBiasX = sum_gx / samples;
     ICM_Mahony_GyroBiasY = sum_gy / samples;
     ICM_Mahony_GyroBiasZ = sum_gz / samples;
+
+    // 加速度零偏：设备水平放置，期望值 [0, 0, 1] g
+    ICM_Mahony_AccBiasX = sum_ax / samples;
+    ICM_Mahony_AccBiasY = sum_ay / samples;
+    ICM_Mahony_AccBiasZ = sum_az / samples - 1.0f;
 
     // 标定后重置角度
     q0 = 1.0f;  q1 = 0.0f;  q2 = 0.0f;  q3 = 0.0f;
@@ -111,10 +134,10 @@ static void ICM42688_Mahony_Update(float dt)
     float gy = (ICM_Raw_Data.GY - ICM_Mahony_GyroBiasY) * DEG2RAD;
     float gz = (ICM_Raw_Data.GZ - ICM_Mahony_GyroBiasZ) * DEG2RAD;
 
-    // ---- 2. 加速度归一化 ----
-    float ax = ICM_Raw_Data.AX;
-    float ay = ICM_Raw_Data.AY;
-    float az = ICM_Raw_Data.AZ;
+    // ---- 2. 加速度去零偏 + 归一化 ----
+    float ax = ICM_Raw_Data.AX - ICM_Mahony_AccBiasX;
+    float ay = ICM_Raw_Data.AY - ICM_Mahony_AccBiasY;
+    float az = ICM_Raw_Data.AZ - ICM_Mahony_AccBiasZ;
     recipNorm = ax * ax + ay * ay + az * az;
     if (recipNorm < 1e-12f) return;
     recipNorm = 1.0f / sqrtf(recipNorm);

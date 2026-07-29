@@ -174,14 +174,17 @@ void Tune_Gyro_Cal_Setup(float p[4])
 {
     s_cal_state = 0;
     OLED_Clear();
-    OLED_Printf(0, 0, OLED_6X8, "Gyro Bias:");
+    OLED_Printf(0, 0, OLED_6X8, "IMU Calib:");
 }
 void Tune_Gyro_Cal_Run(float p[4])
 {
-    // 展示当前bias三大参数
-    OLED_Printf(0, 10, OLED_6X8, "Bx:%.4f        ", IMU_Mahony_GyroBiasX);
-    OLED_Printf(0, 20, OLED_6X8, "By:%.4f        ", IMU_Mahony_GyroBiasY);
-    OLED_Printf(0, 30, OLED_6X8, "Bz:%.4f        ", IMU_Mahony_GyroBiasZ);
+    // 展示当前陀螺+加速度零偏（6个参数，紧凑双列布局）
+    OLED_Printf(0, 10, OLED_6X8, "GX:%.4f AX:%.4f",
+        IMU_Mahony_GyroBiasX, IMU_Mahony_AccBiasX);
+    OLED_Printf(0, 20, OLED_6X8, "GY:%.4f AY:%.4f",
+        IMU_Mahony_GyroBiasY, IMU_Mahony_AccBiasY);
+    OLED_Printf(0, 30, OLED_6X8, "GZ:%.4f AZ:%.4f",
+        IMU_Mahony_GyroBiasZ, IMU_Mahony_AccBiasZ);
 
     if (s_cal_state == 0)
     {
@@ -204,11 +207,14 @@ void Tune_Gyro_Cal_Run(float p[4])
             IMU_Mahony_Calibrate(1000);
             Timer_EnableIRQ();
 
-            Timer_DisableIRQ();
+            // 保存陀螺零偏
             Param_AT24C02_Write(&IMU_Mahony_GyroBiasX);
             Param_AT24C02_Write(&IMU_Mahony_GyroBiasY);
             Param_AT24C02_Write(&IMU_Mahony_GyroBiasZ);
-            Timer_EnableIRQ();
+            // 保存加速度零偏
+            Param_AT24C02_Write(&IMU_Mahony_AccBiasX);
+            Param_AT24C02_Write(&IMU_Mahony_AccBiasY);
+            Param_AT24C02_Write(&IMU_Mahony_AccBiasZ);
 
             OLED_Printf(0, 40, OLED_6X8, "IMU_OK!        ");
             s_cal_state = 0;
@@ -218,8 +224,9 @@ void Tune_Gyro_Cal_Run(float p[4])
 bool Tune_Gyro_Cal_IsExit(float p[4]) { return (s_cal_state == 2); }
 void Tune_Gyro_Cal_Tick(float p[4])
 {
-    Serial_printf(&Serial1, "%.4f,%.4f,%.4f\n",
-        IMU_Mahony_GyroBiasX, IMU_Mahony_GyroBiasY, IMU_Mahony_GyroBiasZ);
+    Serial_printf(&Serial1, "%.4f,%.4f,%.4f,  %.4f,%.4f,%.4f\n",
+        IMU_Mahony_GyroBiasX, IMU_Mahony_GyroBiasY, IMU_Mahony_GyroBiasZ,
+        IMU_Mahony_AccBiasX, IMU_Mahony_AccBiasY, IMU_Mahony_AccBiasZ);
 }
 
 // ==================== TUNE_STEPPER_S1 / S2 ====================

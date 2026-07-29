@@ -64,6 +64,10 @@ typedef struct
     #define IMU_Mahony_GyroBiasY         MPU_Mahony_GyroBiasY
     #define IMU_Mahony_GyroBiasZ         MPU_Mahony_GyroBiasZ
 
+    #define IMU_Mahony_AccBiasX          MPU_Mahony_AccBiasX
+    #define IMU_Mahony_AccBiasY          MPU_Mahony_AccBiasY
+    #define IMU_Mahony_AccBiasZ          MPU_Mahony_AccBiasZ
+
 #else   // 默认: ICM42688
 
     #include "ICM42688_Mahony.h"
@@ -78,6 +82,10 @@ typedef struct
     #define IMU_Mahony_GyroBiasX         ICM_Mahony_GyroBiasX
     #define IMU_Mahony_GyroBiasY         ICM_Mahony_GyroBiasY
     #define IMU_Mahony_GyroBiasZ         ICM_Mahony_GyroBiasZ
+
+    #define IMU_Mahony_AccBiasX          ICM_Mahony_AccBiasX
+    #define IMU_Mahony_AccBiasY          ICM_Mahony_AccBiasY
+    #define IMU_Mahony_AccBiasZ          ICM_Mahony_AccBiasZ
 
 #endif
 
@@ -95,5 +103,11 @@ uint8_t IMU_Turn_Yaw_Is_Ok(float target);
 // 获取当前校准后的Z轴角速度绝对值 (°/s)
 // 用于旋转任务退出前的稳定确认（防止机械回弹误判）
 float IMU_Yaw_Gyro_Get(void);
+
+// 获取世界坐标系下的水平加速度 (g)
+// 将机体加速度旋转到世界系，自动消除重力分量（重力仅在Z轴）
+// 可用于速度估计、碰撞检测、姿态控制等
+float IMU_Get_Ax(void);		// 世界系X轴水平加速度 (g)
+float IMU_Get_Ay(void);		// 世界系Y轴水平加速度 (g)
 
 #endif

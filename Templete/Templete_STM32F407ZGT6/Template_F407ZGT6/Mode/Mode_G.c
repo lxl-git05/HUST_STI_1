@@ -15,29 +15,12 @@ void Mode_G_Setup(void)
     Initial_Timer() ;
     // ★ PARAM_FORCE：手动推送代码默认值到 AT24C02
     // 修改 C 默认值后，取消注释、改值、烧录一次，再重新注释
-	
-    // PARAM_FORCE(curr_mode, Mode_1);
-    // PARAM_FORCE(Stepper1.PID_Angle.Kp, 0.217f);
-    // PARAM_FORCE(Stepper1.PID_Angle.Ki, 0.0f);
-    // PARAM_FORCE(Stepper1.PID_Angle.Kd, 0.829f);
-    // PARAM_FORCE(Stepper2.PID_Angle.Kp, 0.081f);
-    // PARAM_FORCE(Stepper2.PID_Angle.Ki, 0.0f);
-    // PARAM_FORCE(Stepper2.PID_Angle.Kd, 0.224f);
-    // PARAM_FORCE(angle_shift, 50);
-    // PARAM_FORCE(offset, 20);
-    // PARAM_FORCE(black_h, 20);
-    // PARAM_FORCE(black_s, 255);
-    // PARAM_FORCE(black_v, 100);
-	
-		// 位置标定参数
-//		PARAM_FORCE(Oran_X_A , -3);
-//		PARAM_FORCE(Oran_X_B , 2850);
-//		PARAM_FORCE(Oran_Y_A , 2.889);
-//		PARAM_FORCE(Oran_Y_B , 160);
-		
-    // PARAM_FORCE(&Down_Tar_Angle , 30.0f);
-    // PARAM_FORCE(&Down_Tol_Angle , 5.0f);
-    // PARAM_FORCE(&Elec_Wait , 1000.0f);
+//		PARAM_FORCE(IMU_Mahony_GyroBiasX, -9.26840305f);
+//    PARAM_FORCE(IMU_Mahony_GyroBiasY, 0.428176761f);
+//    PARAM_FORCE(IMU_Mahony_GyroBiasZ, -1.27142811f);
+//    PARAM_FORCE(IMU_Mahony_AccBiasX, 0.0f);
+//    PARAM_FORCE(IMU_Mahony_AccBiasY, 0.0f);
+//    PARAM_FORCE(IMU_Mahony_AccBiasZ, 0.0f);
 
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode
@@ -99,6 +82,8 @@ void Timer_1ms_Callback(void)
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
+    // 0. IMU 陀螺仪姿态更新（20ms Mahony 解算）
+    IMU_Mahony_Update_Tick();
     // 1. 香橙派更新
     Oran_Update() ;
     // 2. Con_Task 通用 Tick（无任务时自动跳过）

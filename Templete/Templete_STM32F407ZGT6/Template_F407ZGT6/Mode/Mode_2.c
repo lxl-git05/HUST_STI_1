@@ -12,7 +12,7 @@ void Mode_2_Loop(void)
 
 void Mode_2_Tick(void)
 {
-   
+   Serial_printf(&Serial1 , "%.2f,%.2f\n",IMU_Get_Ax() , IMU_Get_Ay()) ;
 }
 
 void Mode_2_Exit(void)

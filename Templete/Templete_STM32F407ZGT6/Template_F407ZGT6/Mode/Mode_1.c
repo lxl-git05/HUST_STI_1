@@ -8,7 +8,13 @@ const AT_ParamItem s_AT_Params[] = {
 		// 模式存储
     { AT_PARAM_I8(&curr_mode			, 1           )} ,   // addr=0,  int8_t,  default=0
 		// 云台PID
-    
+    // 陀螺仪的M滤波6个参数（陀螺+加速度零偏）
+    { AT_PARAM_F(&IMU_Mahony_GyroBiasX	   , -9.26840305f  )} ,
+    { AT_PARAM_F(&IMU_Mahony_GyroBiasY	   , 0.428176761f  )} ,
+    { AT_PARAM_F(&IMU_Mahony_GyroBiasZ	   , -1.27142811f  )} ,
+    { AT_PARAM_F(&IMU_Mahony_AccBiasX	   , 0.0f           )} ,
+    { AT_PARAM_F(&IMU_Mahony_AccBiasY	   , 0.0f           )} ,
+    { AT_PARAM_F(&IMU_Mahony_AccBiasZ	   , 0.0f           )} ,
 		// 香橙派数据
 		
 		// 各个任务的阈值
@@ -24,6 +30,12 @@ void Mode_1_Setup(void)
 	Param_Init();
 	// Param_Register 内会自动检测 AT 关联并载入已存值
 	Param_Register("curr_mode",&curr_mode,1,PARAM_INT8);
+	Param_Register("IMU_GX",&IMU_Mahony_GyroBiasX,0.01f,PARAM_FLOAT);
+	Param_Register("IMU_GY",&IMU_Mahony_GyroBiasY,0.01f,PARAM_FLOAT);
+	Param_Register("IMU_GZ",&IMU_Mahony_GyroBiasZ,0.01f,PARAM_FLOAT);
+	Param_Register("IMU_AX",&IMU_Mahony_AccBiasX,0.001f,PARAM_FLOAT);
+	Param_Register("IMU_AY",&IMU_Mahony_AccBiasY,0.001f,PARAM_FLOAT);
+	Param_Register("IMU_AZ",&IMU_Mahony_AccBiasZ,0.001f,PARAM_FLOAT);
 }
 
 void Mode_1_Loop(void)

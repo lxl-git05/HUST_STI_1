@@ -1,3 +1,51 @@
+## 2026-07-29 | MSPM0→F407 移植 P5（项目清理）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| IMU_Portable_Lib/ | ./Template_F407ZGT6/IMU_Portable_Lib/ | 删除 | 与 IMU/ 目录内容重复，删除整个目录 |
+
+## 2026-07-29 | 新增 IMU_Get_Ax() / IMU_Get_Ay() 水平加速度接口
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| IMU.h | ./Template_F407ZGT6/IMU/IMU.h | 修改 | 新增 IMU_Get_Ax() / IMU_Get_Ay() 声明 |
+| IMU.c | ./Template_F407ZGT6/IMU/IMU.c | 修改 | 新增世界系水平加速度实现（机体→世界旋转，自动消重力） |
+
+## 2026-07-29 | 新增加速度零偏校准（AccBias），对标陀螺零偏
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| ICM42688_Mahony.h | ./Template_F407ZGT6/IMU/ICM42688_Mahony.h | 修改 | 新增 ICM_Mahony_AccBiasX/Y/Z extern 声明 |
+| ICM42688_Mahony.c | ./Template_F407ZGT6/IMU/ICM42688_Mahony.c | 修改 | 变量定义、Init/Calibrate 标定、Update 中减去零偏 |
+| MPU6050_Mahony.h | ./Template_F407ZGT6/IMU/MPU6050_Mahony.h | 修改 | 新增 MPU_Mahony_AccBiasX/Y/Z extern 声明 |
+| MPU6050_Mahony.c | ./Template_F407ZGT6/IMU/MPU6050_Mahony.c | 修改 | 对标 ICM42688 的同构修改 |
+| IMU.h | ./Template_F407ZGT6/IMU/IMU.h | 修改 | 新增 IMU_Mahony_AccBiasX/Y/Z 统一宏（两个分支） |
+| IMU.c | ./Template_F407ZGT6/IMU/IMU.c | 修改 | IMU_Get_Ax/Ay 中减去零偏后再做世界系旋转 |
+
+## 2026-07-29 | AccBias 接入 AT24C02 持久化 + Menu_Param 标定 + Mode_1 注册
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_1.c | ./Template_F407ZGT6/Mode/Mode_1.c | 修改 | s_AT_Params 新增 AccBias 三项；Mode_1_Setup 新增 Param_Register |
+| Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | 新增 AccBias 的 PARAM_FORCE 注释桩 |
+| Menu_Param.c | ./Template_F407ZGT6/Function/Menu_Param.c | 修改 | TUNE_GYRO_CAL 扩展为双列显示(GX/AX, GY/AY, GZ/AZ)，标定后同时保存6个零偏 |
+| Task.h | ./Template_F407ZGT6/Software/Task.h | 删除 | 已弃用模块，无源码引用 |
+| Task.c | ./Template_F407ZGT6/Software/Task.c | 删除 | 已弃用模块，无源码引用 |
+
+## 2026-07-29 | MSPM0→F407 移植 P3（系统集成）+ P2 编译修复 + Straight方向修正
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_20ms_Callback 添加 IMU_Mahony_Update_Tick() 调用 |
+| Serial_porting.h | ./Template_F407ZGT6/Function/Serial_porting.h | 修改 | 添加 Serial_send_string/SendBytes/Send_HEX_Package/Clear_ABC/PrintDebug 声明 |
+| Serial_porting.c | ./Template_F407ZGT6/Function/Serial_porting.c | 修改 | 实现5个新API（HAL阻塞发送 + HEX帧封装 + ABC清空 + 调试打印） |
+| Con_Stepper.c | ./Template_F407ZGT6/Function/Con_Stepper.c | 修改 | Stepper_Init 添加 EN 引脚使能 |
+| AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | 移除 Function 段重复的 IMU.h include（用户已移至 Hardware 段） |
+| MyTimer.c | ./Template_F407ZGT6/MySystem/MyTimer.c | 修改 | 修复 Timer_DisableIRQ/EnableIRQ 被错误插入在 HAL_TIM_PeriodElapsedCallback 函数体内的编译错误 |
+| MyEncoder.h | ./Template_F407ZGT6/MySystem/MyEncoder.h | 修改 | 添加 MyEncoder_Total_Cnt_Clear() 声明 |
+| MyEncoder.c | ./Template_F407ZGT6/MySystem/MyEncoder.c | 修改 | 添加 MyEncoder_Total_Cnt_Clear() 实现 |
+| Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | PID_Car_Straight_Tick 修正：dist_A 用 Motor_A_Pos_Dir 纠正编码器方向，去掉手动取反，输出端用 Pos_Dir 宏统一适配 |
+
 ## 2026-07-29 08:48 | MSPM0→F407 移植 P2（Con_Motor + Control + Menu_Param + Match）
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
