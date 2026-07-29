@@ -77,7 +77,7 @@ void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...)
 }
 
 // ========== HEX协议 ==========
-
+#include "Timer_Counter.h"
 // ============== HEX协议：解析 ==============
 // 帧格式：[0xFF][0xAA][LEN][D1_H][D1_L][D1_CK][D2_H][D2_L][D2_CK]...[0x55][0xFE]
 static void Serial_Parse_HEX(Serial_Typedef *pSerial, uint16_t Size)
@@ -113,6 +113,7 @@ static void Serial_Parse_HEX(Serial_Typedef *pSerial, uint16_t Size)
     }
 
     pSerial->HEX_Data.len = LEN;
+//		Timer_Counter_Func() ;
     pSerial->HEX_Data.frame_valid = true;
 }
 

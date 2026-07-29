@@ -2,6 +2,9 @@
 #include "Orange.h"
 #include "AllHeader.h"
 
+// STM32->Orange
+int Oran_Goal = 0 ;	// STM32发送给Orange的参数
+
 uint8_t Oran_cmd = 0 ;	// 0. 指令模式
 int Oran_real = 0 ;			// 1. 偏差
 int Oran_Speed=0	;			// 2. 钢球速度
@@ -54,56 +57,22 @@ void Oran_Send_Data(int* Data)
 	if (Data == &Oran_Param[5]) {Serial_printf(&Serial2 , "@Oran_Param_6:%d$#",Oran_Param[5]);}
 }
 // ======================= 香橙派寻迹PID =======================
-//Pid_Typedef 
-//void Oran_XY_Init(void)
-//{
-//	
-//}
+Pid_Typedef PID_Oran ;	// 铁球PID
+#define Oran_PID_Dir (1)
+void Oran_XY_Init(void)
+{
+	// PID初始化
+	PID_Init(&PID_Oran , 0.0f , 0.0f , 0.0f , 200 , -200 , 1000) ;
+}
 
-
-// ======================= 香橙派寻迹PID =======================
-// (外环: X: 小车的左右速度+-,保持中心 Y: 小车的主速度,去往目标位置  内环: 速度环)
-//Pid_Typedef PID_Oran_X ;
-//Pid_Typedef PID_Oran_Y ;
-//#define Oran_XY_X_Check ( -1)	// X纠正方向
-//#define Oran_XY_Y_Check (  1)	// Y纠正方向
-
-
-//void Oran_PID_Func_X(void)
-//{
-//	if (PID_Oran_X.realPoint_Now < 40 && PID_Oran_X.realPoint_Now > -40)
-//	{
-//		PID_Oran_X.Kp = 0.3f; 
-//	}
-//	else 
-//	{
-//		PID_Oran_X.Kp = 0.649f ;
-//	}
-//}
-
-//void Oran_XY_Init(void)
-//{
-//	// 最大内环速度为 200 rpm/min
-//	// 目标都是偏差为0
-//	PID_Init(&PID_Oran_X, 0.649f, 0.0f, 5.635f, 10, -10, 400) ;
-//	PID_Init(&PID_Oran_Y, 1.0f, 0.0f, 7.2f, 10, -10, 140) ;
-//	PID_Oran_X.d_filter = 0.3f ;	// 不完全微分
-//	PID_Oran_X.PID_Func = Oran_PID_Func_X ;
-//	
-//}
-
-//void Oran_XY_PID_Update(void)
-//{
-//	// 1. 香橙派更新数据,得到Real值:这个是全局任务，直接放在Mode_G
-//	// Oran_Update() ;
-//	// 2. PID数据更新:real更新 goal为0 set需要求
-//	PID_Oran_X.realPoint_Now = x_real ;
-//	PID_Oran_Y.realPoint_Now = y_real ;
-//	// 3. PID计算
-//	PID_Update(&PID_Oran_X, PID_Oran_X.realPoint_Now) ;
-//	PID_Update(&PID_Oran_Y, PID_Oran_Y.realPoint_Now) ;
-//	// 4. 内环驱动: Y为主速度 X为偏移速度
-//	Motor_SetSpeed(&Motor_A, PID_Oran_Y.setPoint * Oran_XY_Y_Check + PID_Oran_X.setPoint * Oran_XY_X_Check) ;
-//	Motor_SetSpeed(&Motor_B, PID_Oran_Y.setPoint * Oran_XY_Y_Check - PID_Oran_X.setPoint * Oran_XY_X_Check) ;
-//}
-
+void Oran_PID_Update(void)
+{
+	// 1. 香橙派更新数据,得到Real值:这个是全局任务，直接放在Mode_G
+	// Oran_Update() ;
+	// 2. PID数据更新:real更新 goal为0 set需要求
+	PID_Oran.realPoint_Now = Oran_real ;
+	// 3. PID计算
+	PID_Update(&PID_Oran, PID_Oran.realPoint_Now) ;
+	// 4. 内环驱动: 步进电机1即可
+	Stepper_PWM_Speed_Set(&Stepper1 , PID_Oran.setPoint * Oran_PID_Dir , 0) ;
+}
