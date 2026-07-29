@@ -13,8 +13,8 @@ typedef enum
 		Mode_4 ,     		// 模式4:电机PID调参
 		Mode_5 ,        // 模式5:业务逻辑
 		Mode_6 ,        // 模式6:业务逻辑
-//		Con_Mode_1 ,    // 电机PID调参
-//		Con_Mode_2 ,    // 业务逻辑
+//		Con_Mode_1 ,    // 寻迹比赛
+		Con_Mode_2 ,    // 寻迹比赛
 //		Con_Mode_3 ,    // 业务逻辑
 //		Con_Mode_4 ,    // 业务逻辑
 //		Con_Mode_5 ,    // 业务逻辑

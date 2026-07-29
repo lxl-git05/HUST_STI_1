@@ -73,3 +73,45 @@ void Y8U_PID_Update(void)
     Motor_SetSpeed(&Motor_A, Track_Base_Speed - Y8U_PID.setPoint);
     Motor_SetSpeed(&Motor_B, Track_Base_Speed + Y8U_PID.setPoint);
 }
+
+// ============== 得到7路有效通道 ADC 之和 ==============
+uint16_t Y8U_GetADC_Sum(void)
+{
+    uint16_t sum = 0;
+    for (int i = 0; i < Y8U_VALID_COUNT; i++)
+        sum += Y8U_ADC[i];
+    return sum;
+}
+
+// ============== 横线终点检测（滑动窗口 → 异常值触发，不污染基线）==============
+uint8_t Y8U_CheckFinishLine(void)
+{
+    static uint16_t window[FINISH_SUM_WINDOW] = {0};
+    static uint8_t  idx    = 0;
+    static uint8_t  filled = 0;
+
+    uint16_t sum = Y8U_GetADC_Sum();
+
+    // 滑动窗口均值
+    int n = filled ? FINISH_SUM_WINDOW : idx;
+    if (n == 0) {
+        window[idx++] = sum;
+        return 0;
+    }
+
+    float avg = 0;
+    for (int i = 0; i < n; i++)
+        avg += window[i];
+    avg /= n;
+
+    // 异常值 → 检测到横线，不污染基线
+    if (sum > avg * FINISH_SUM_RATIO)
+        return 1;
+
+    // 正常值 → 加入滑动窗口
+    window[idx] = sum;
+    idx = (idx + 1) % FINISH_SUM_WINDOW;
+    if (!filled && idx == 0) filled = 1;
+
+    return 0;
+}

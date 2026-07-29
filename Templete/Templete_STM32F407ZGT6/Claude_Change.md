@@ -1,3 +1,17 @@
+## 2026-07-29 16:30 | 横线终点检测 Y8U_CheckFinishLine + 集成到 Mode_4
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Y8_Track.h | ./Template_F407ZGT6/Hardware/Y8_Track.h | 修改 | 新增 3 个横线检测宏 + Y8U_CheckFinishLine() 声明 |
+| Y8_Track.c | ./Template_F407ZGT6/Hardware/Y8_Track.c | 修改 | 实现 Y8U_CheckFinishLine()：通道计数≥5 且连续 3 帧确认 + 500ms 冷却 |
+| Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | Mode_4_Tick 新增横线终点检测：行驶中命中则 Y8U_SetSpeed(0) |
+
+## 2026-07-29 16:00 | Mode_4 OLED 显示 Y8U_ADC + 修复 Tick 中 adc_sum
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | Loop 新增 3 行 OLED 显示 ADC ch0~6 + 超阈值计数 + 总和；Tick 修复 adc_sum 通道索引重复/语法错误，追加到 Serial1 CSV 输出 |
+
 ## 2026-07-29 | MSPM0→F407 移植 P5（项目清理）
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
