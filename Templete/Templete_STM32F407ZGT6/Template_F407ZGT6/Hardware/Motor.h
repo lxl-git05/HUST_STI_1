@@ -14,6 +14,7 @@ typedef struct
 	float PPR;           	// 编码器线数
 	float ReductionRatio;	// 减速比
 	int Motor_Max_Speed ;	// 最大速度(限速,建议比最高速度还低一些)
+	float Wheel_Cm;			// 轮子周长(cm) — 用于位置环距离计算
 }Motor_Param_Typedef ;
 
 // 电机状态
@@ -66,6 +67,6 @@ void Motor_Speed_Update(Motor_Typedef *Motor , uint32_t Gap_Time_ms) ;
 // 4. 得到当前电机旋转的角度
 void Motor_Angle_Update(Motor_Typedef *Motor) ;
 
-// // 5. 得到当前电机走过的位移
-// void Motor_Pos_Update(Motor_Typedef *Motor) ;
+// 5. 得到当前电机走过的位移(cm)
+void Motor_Pos_Update(Motor_Typedef *Motor) ;
 #endif

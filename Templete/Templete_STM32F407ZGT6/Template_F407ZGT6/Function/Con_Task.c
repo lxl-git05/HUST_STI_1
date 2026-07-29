@@ -18,6 +18,24 @@ Task_Record_Typedef Task_Records[TASK_RECORD_MAX];
 int                 Task_Record_Count = 0;
 static int          Task_Exec_Index   = 0;   // 全局任务执行序号（每完成一个任务+1）
 
+// 记录任务完成（统一入口，供 Loop 正常退出和 Skip 强制跳过共用）
+static void Con_Task_RecordComplete(const char *reason)
+{
+    float elapsed_s = (HAL_GetTick() - Task_StartTick) / 1000.0f;
+    if (Task_Record_Count < TASK_RECORD_MAX)
+    {
+        Task_Exec_Index++;
+        Task_Records[Task_Record_Count].task_index = Task_Exec_Index;
+        Task_Records[Task_Record_Count].task_type  = (Task_Type)Task_Curr;
+        Task_Records[Task_Record_Count].time_s     = elapsed_s;
+        Task_Record_Count++;
+    }
+
+#ifdef CON_TASK_LOG
+    Serial_printf(&Serial1, "[Task:%d %s Time:%.2fs]\r\n", Task_Curr, reason, elapsed_s);
+#endif
+}
+
 // ==================== API 实现 ====================
 
 // 注册任务表 + 清空队列 + 终止当前任务（可重复调用）
@@ -52,6 +70,19 @@ void Con_Task_Enqueue(int task_type, float p0, float p1, float p2, float p3)
 void Con_Task_Clear(void)
 {
     Queue_Clear(&Task_Queue);
+    Task_Curr      = -1;
+    Task_Next      = -1;
+    Task_SetupDone = false;
+}
+
+// 强制完成当前任务（跳过IsExit判断，记录耗时后自动进入下一个任务）
+// 注意：不会自动停止电机/PWM，调用方需自行处理硬件停止
+void Con_Task_Skip(void)
+{
+    if (Task_Curr == -1) return;  // 无任务运行，无需跳过
+
+    Con_Task_RecordComplete("Skip");
+
     Task_Curr      = -1;
     Task_Next      = -1;
     Task_SetupDone = false;
@@ -107,20 +138,7 @@ void Con_Task_Loop(void)
         const Task_Descriptor_Typedef *desc = &Task_Table[Task_Curr];
         if (desc->IsExit && desc->IsExit(Task_Params))
         {
-            // ★ 记录本次任务耗时
-            float elapsed_s = (HAL_GetTick() - Task_StartTick) / 1000.0f;
-            if (Task_Record_Count < TASK_RECORD_MAX)
-            {
-                Task_Exec_Index++;
-                Task_Records[Task_Record_Count].task_index = Task_Exec_Index;
-                Task_Records[Task_Record_Count].task_type  = (Task_Type)Task_Curr;
-                Task_Records[Task_Record_Count].time_s     = elapsed_s;
-                Task_Record_Count++;
-            }
-
-#ifdef CON_TASK_LOG
-            Serial_printf(&Serial1, "[Task:%d Exit Time:%.2fs]\r\n", Task_Curr, elapsed_s);
-#endif
+            Con_Task_RecordComplete("Exit");
 
             Task_Curr = -1;
             Task_Next = -1;

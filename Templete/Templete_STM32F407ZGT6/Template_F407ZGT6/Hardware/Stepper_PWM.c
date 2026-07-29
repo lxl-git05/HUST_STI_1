@@ -326,12 +326,12 @@ void Stepper_PWM_Pos_Set_Rel(Stepper_PWM_Typedef* pStepper, float relative_angle
 
 // =================== 角度到达检测 ===================
 
-// 内部辅助：判断单个步进电机是否到达目标位置
+// 内部辅助：判断单个步进电机是否到达目标位置（自定义容差倍数）
 // 返回 true 需同时满足：
 //   1. 位置模式阶段为 IDLE（无进行中的位控运动）
 //   2. |Speed_Now| < 0.01 rpm（电机已停止）
-//   3. |Pos_Now - Pos_TargetAngle| <= 1.5 * pulse_angle（角度在容差内）
-static bool _Stepper_Is_Angle_Single(const Stepper_PWM_Typedef* pStepper)
+//   3. |Pos_Now - Pos_TargetAngle| <= tol_mult * pulse_angle（角度在容差内）
+static bool _Stepper_Is_Angle_Single_Tol(const Stepper_PWM_Typedef* pStepper, float tol_mult)
 {
     // 条件1：位控运动中直接返回未到达
     if (pStepper->Pos_Phase != POS_PHASE_IDLE)
@@ -342,29 +342,44 @@ static bool _Stepper_Is_Angle_Single(const Stepper_PWM_Typedef* pStepper)
     if (speed_abs >= 0.01f)
         return false;
 
-    // 条件3：角度在容差内（2.5 个脉冲 = 容忍 1 脉冲超调 + 浮点累积误差）
-    float tolerance = 2.5f * pStepper->pulse_angle;
+    // 条件3：角度在容差内
+    float tolerance = tol_mult * pStepper->pulse_angle;
     float diff = pStepper->Pos_Now - pStepper->Pos_TargetAngle;
     if (diff < 0.0f) diff = -diff;
 
-    if (diff <= tolerance)
-        return true;
+    return (diff <= tolerance);
+}
 
-    return false;
+// 内部辅助：默认容差 2.5 个脉冲（容忍 1 脉冲超调 + 浮点累积误差）
+static bool _Stepper_Is_Angle_Single(const Stepper_PWM_Typedef* pStepper)
+{
+    return _Stepper_Is_Angle_Single_Tol(pStepper, 2.5f);
 }
 
 // 公开 API：判断两个步进电机是否都已到达目标角度
-// 速度 ≈ 0 且 当前角度 ≈ 目标角度，两个电机都满足才返回 true
 bool Stepper_PWM_Is_Angle(void)
 {
     return _Stepper_Is_Angle_Single(&Stepper1)
         && _Stepper_Is_Angle_Single(&Stepper2);
 }
 
-// 单电机版本：供需要单独判断某个电机的场景使用
+// 单电机版本
 bool Stepper_PWM_Is_Angle_Stepper(const Stepper_PWM_Typedef* pStepper)
 {
     return _Stepper_Is_Angle_Single(pStepper);
+}
+
+// 双电机，自定义容差倍数
+bool Stepper_PWM_Is_Angle_Ex(float tol_mult)
+{
+    return _Stepper_Is_Angle_Single_Tol(&Stepper1, tol_mult)
+        && _Stepper_Is_Angle_Single_Tol(&Stepper2, tol_mult);
+}
+
+// 单电机，自定义容差倍数
+bool Stepper_PWM_Is_Angle_Stepper_Ex(const Stepper_PWM_Typedef* pStepper, float tol_mult)
+{
+    return _Stepper_Is_Angle_Single_Tol(pStepper, tol_mult);
 }
 
 // 位置模式 1ms Tick：速度ramp + 阶段切换

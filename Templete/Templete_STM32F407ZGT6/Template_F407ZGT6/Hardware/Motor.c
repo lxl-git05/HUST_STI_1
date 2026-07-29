@@ -78,14 +78,13 @@ void Motor_Angle_Update(Motor_Typedef *Motor)
 	Motor->PID_Angle.realPoint_Now = curr_Angle ;
 }
 
-// 暂时不配置位移环
-// // 5. 得到当前电机走过的位移: 周长: π * d = 3.1415926 * 8.5cm = 26.70353755492
-// void Motor_Pos_Update(Motor_Typedef *Motor)
-// {
-// 	// 得到位移 = 圈数 * 2 * π * r = 圈数 * π * d =  圈数 * 周长
-// 	float curr_Pos = (float)Motor->Motor_Encoder->total_cnt * Motor_ZhouChang * Motor->Encoder_Dir / 
-// 		(Motor->Motor_Encoder->time_Fre * Motor->Motor_Param->PPR * Motor->Motor_Param->ReductionRatio)   ;
-	
-// 	// 记录当前角度
-// 	Motor->PID_Pos.realPoint_Now = curr_Pos ;
-// }
+// 5. 得到当前电机走过的位移(cm)
+void Motor_Pos_Update(Motor_Typedef *Motor)
+{
+	// 位移(cm) = 总脉冲数 * 轮子周长 / (倍频 * PPR * 减速比)
+	float curr_Pos = (float)Motor->Motor_Encoder->total_cnt * Motor->Motor_Param->Wheel_Cm /
+		(Motor->Motor_Encoder->time_Fre * Motor->Motor_Param->PPR * Motor->Motor_Param->ReductionRatio)   ;
+
+	// 记录当前位置
+	Motor->PID_Pos.realPoint_Now = curr_Pos ;
+}

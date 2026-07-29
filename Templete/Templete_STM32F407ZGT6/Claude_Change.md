@@ -97,3 +97,19 @@
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
 |--------|----------------------|----------|------|
 | Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | Motor_A/B速度PID参数：Ki 1.0→0.1(10x降低积分累积速度)、ioutMax 1000→300(积分贡献上限30%)、Kp 8.0→5.0(降低P过冲)、Kd 0→2.0(加入微分抑制超调)。修复手拨阻塞+Goal阶跃超调219%→振荡的问题 |
+
+## 2026-07-29 | MSPM0→F407 程序移植 Phase 0-1 (P0+P1 完成)
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| MyPWM.h | ./Template_F407ZGT6/MySystem/MyPWM.h | 修改 | struct添加Tim_Clock/Tim_IRQn字段；声明SetLoadValue/GetTimClock/EnableIT |
+| MyPWM.c | ./Template_F407ZGT6/MySystem/MyPWM.c | 修改 | 实现MyPWM_SetLoadValue(封装__HAL_TIM_SET_AUTORELOAD)、MyPWM_GetTimClock(Tim_Clock兜底MySystem_Fre)、MyPWM_EnableIT(封装NVIC+TIM_IT_UPDATE) |
+| MySystem.c | ./Template_F407ZGT6/MySystem/MySystem.c | 修改 | Stepper1/2实例补充Tim_Clock(168M/84M)和Tim_IRQn(TIM1_BRK_TIM9/TIM8_BRK_TIM12) |
+| MyPID.h | ./Template_F407ZGT6/Software/MyPID.h | 修改 | 添加PID_Param_Reset()声明 |
+| MyPID.c | ./Template_F407ZGT6/Software/MyPID.c | 修改 | 实现PID_Param_Reset(清零9个运行时字段，保留增益/限幅) |
+| Motor.h | ./Template_F407ZGT6/Hardware/Motor.h | 修改 | Motor_Param_Typedef添加Wheel_Cm字段；激活Motor_Pos_Update声明 |
+| Motor.c | ./Template_F407ZGT6/Hardware/Motor.c | 修改 | 激活Motor_Pos_Update实现(Wheel_Cm替换硬编码周长) |
+| Stepper_PWM.h | ./Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 添加Is_Angle_Ex/Is_Angle_Stepper_Ex声明(自定义容差倍数) |
+| Stepper_PWM.c | ./Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 重构_Stepper_Is_Angle_Single_Tol(tol_mult)；新增两个Ex公开函数 |
+| Con_Task.h | ./Template_F407ZGT6/Function/Con_Task.h | 重写 | 合并F407云台+MSPM0小车任务枚举(16值)；添加Con_Task_Skip()声明；启用CON_TASK_RECORD_CLEAR_ON_INIT |
+| Con_Task.c | ./Template_F407ZGT6/Function/Con_Task.c | 重写 | 新增Con_Task_RecordComplete(reason)辅助函数；新增Con_Task_Skip()；Loop退出重构用RecordComplete；日志格式支持动态原因字符串 |

@@ -81,7 +81,9 @@ void Stepper_PWM_Pos_Set_Rel(Stepper_PWM_Typedef* pStepper, float relative_angle
 void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper);
 
 // 角度到达检测（速度≈0 且 角度≈目标）
-bool Stepper_PWM_Is_Angle(void);                                        // 双电机同时判定
-bool Stepper_PWM_Is_Angle_Stepper(const Stepper_PWM_Typedef* pStepper); // 单电机判定
+bool Stepper_PWM_Is_Angle(void);                                        // 双电机同时判定（容差=2.5×pulse_angle）
+bool Stepper_PWM_Is_Angle_Stepper(const Stepper_PWM_Typedef* pStepper); // 单电机判定（容差=2.5×pulse_angle）
+bool Stepper_PWM_Is_Angle_Ex(float tol_mult);                           // 双电机，自定义容差倍数
+bool Stepper_PWM_Is_Angle_Stepper_Ex(const Stepper_PWM_Typedef* pStepper, float tol_mult); // 单电机，自定义容差倍数
 
 #endif

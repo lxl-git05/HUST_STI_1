@@ -12,17 +12,25 @@
 // ==================== 全局任务枚举（所有 Mode 共用） ====================
 typedef enum {
     TASK_NONE = 0,
-    TASK_WAIT_TIME,       // 等待指定毫秒: p[0]=ms
-		TASK_Motor_Speed,			// 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms
-		TASK_Motor_Angle,			// 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
-		// 比赛逻辑
-		Task_Tar_XY,					// 装置去到目标x,y位置
-		Task_Down,						// 装置下降
-		Task_Back,						// 装置回位
-		Task_Elec,						// 取/放棋子
-		Task_Up	 ,						// 装置上升
-		// ★ 枚举总数，必须放最后
-    TASK_COUNT             
+    TASK_WAIT_TIME,         // 等待指定毫秒: p[0]=ms（伴随蜂鸣器响）
+    // === F407 云台任务 ===
+    TASK_Motor_Speed,       // 电机速度控制: p[0]=速度rpm, p[1]=持续时间ms
+    TASK_Motor_Angle,       // 电机角度控制: p[0]=目标角度°, p[1]=容差°(默认20)
+    Task_Tar_XY,            // 装置去到目标x,y位置
+    Task_Down,              // 装置下降
+    Task_Back,              // 装置回位
+    Task_Elec,              // 取/放棋子
+    Task_Up,                // 装置上升
+    // === MSPM0 小车任务 ===
+    TASK_MOTOR_A_ANGLE,     // 电机A角度控制: p[0]=目标角度°, p[1]=容差°
+    TASK_MOTOR_B_ANGLE,     // 电机B角度控制: p[0]=目标角度°, p[1]=容差°
+    TASK_STEPPER1_ANGLE,    // 步进电机1角度: p[0]=目标角度°, p[1]=max_speed(默认200), p[3]=acc(默认200)
+    TASK_STEPPER2_ANGLE,    // 步进电机2角度: p[0]=目标角度°, p[1]=max_speed(默认200), p[3]=acc(默认200)
+    TASK_CAR_YAW,           // 小车MPU相对旋转: p[0]=增量角度°(+CW/-CCW), p[1]=角度容差(0=5°), p[2]=角速度容差°/s(0=7°/s)
+    TASK_ORAN_TRACK,        // 香橙派寻迹追踪: p[0]=goal_x, p[1]=goal_y, p[2]=容差(默认10), p[3]=超时ms(0=不限)
+    TASK_CAR_STRAIGHT,      // 小车直行: p[0]=目标距离cm(≤0=永不停), p[1]=容差cm(默认1.0), p[2]=max_speed(0=默认200)
+    // ★ 枚举总数，必须放最后
+    TASK_COUNT
 } Task_Type;
 
 // ==================== 任务回调函数类型 ====================
@@ -33,7 +41,7 @@ typedef void (*Task_TickFunc) (float params[4]);     // 20ms 中断调用，可�
 
 // ==================== 任务执行记录（性能分析用） ====================
 #define TASK_RECORD_MAX 64              // 最多记录条数
-// #define CON_TASK_RECORD_CLEAR_ON_INIT  // ★ 取消注释：Con_Task_Init 时自动清空记录数组
+#define CON_TASK_RECORD_CLEAR_ON_INIT  // ★ 取消注释：Con_Task_Init 时自动清空记录数组
 
 typedef struct {
     int         task_index;     // 任务序号（第1条=1, 第2条=2 ...）
@@ -59,6 +67,10 @@ void Con_Task_Enqueue(int task_type, float p0, float p1, float p2, float p3);
 
 // 清空队列 + 终止当前任务（紧急停止）
 void Con_Task_Clear(void);
+
+// 强制完成当前任务（跳过IsExit判断，记录耗时后自动进入下一个任务）
+// 注意：不会自动停止电机/PWM，调用方需自行处理硬件停止
+void Con_Task_Skip(void);
 
 // 主循环调度（State Machine: Setup → Run → IsExit → 自动出队）
 void Con_Task_Loop(void);

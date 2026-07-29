@@ -41,4 +41,7 @@ void PID_Init(Pid_Typedef *pid, float kp, float ki, float kd , float OutMax , fl
 // PID值更新,更新值直接写入PID的Output
 void PID_Update(Pid_Typedef *pid, float ActualValue) ;
 
+// PID历史参数全部清零（保留Kp/Ki/Kd/OutMax/OutMin/ioutMax不变）
+void PID_Param_Reset(Pid_Typedef *pid) ;
+
 #endif

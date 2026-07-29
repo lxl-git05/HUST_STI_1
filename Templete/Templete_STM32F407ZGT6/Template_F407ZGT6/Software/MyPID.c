@@ -59,3 +59,19 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 	if ( pid->setPoint > pid->OutMax ) { pid->setPoint = pid->OutMax ; }
 	if ( pid->setPoint < pid->OutMin ) { pid->setPoint = pid->OutMin ; }
 }
+
+void PID_Param_Reset(Pid_Typedef *pid)
+{
+    pid->LastError = 0.0f;
+    pid->PreError  = 0.0f;
+    pid->SumError  = 0.0f;
+
+    pid->realPoint_Bef = 0.0f;
+    pid->realPoint_Now = 0.0f;
+
+    pid->pout = 0.0f;
+    pid->iout = 0.0f;
+    pid->dout = 0.0f;
+
+    pid->setPoint = 0.0f;
+}
