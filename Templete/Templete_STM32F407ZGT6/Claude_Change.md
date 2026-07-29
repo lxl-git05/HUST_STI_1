@@ -30,6 +30,18 @@
 | Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | 新增 AccBias 的 PARAM_FORCE 注释桩 |
 | Menu_Param.c | ./Template_F407ZGT6/Function/Menu_Param.c | 修改 | TUNE_GYRO_CAL 扩展为双列显示(GX/AX, GY/AY, GZ/AZ)，标定后同时保存6个零偏 |
 | CLAUDE.md | ./Template_F407ZGT6/CLAUDE.md | 修改 | 新增 AccBias、IMU_Get_Ax/Ay、IMU_Yaw_Gyro_Get 到 API 表和宏映射表，新增加速度零偏系统和水平加速度对比章节 |
+
+## 2026-07-29 | Y8_Driver: Y8_Data 改为滤波后输出
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Y8_Driver.c | ./Template_F407ZGT6/Hardware/Y8_Driver.c | 修改 | Y8_Angle_Bias_Get 阶段②后把多数投票确认的 confirm[] 写入 Y8_Data[]，此后不再需要单独调 Y8_Data_Update |
+
+## 2026-07-29 | Y8 巡线 PID 平滑化：投票加权 + EWMA + 丢线极端纠正
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Y8_Driver.c | ./Template_F407ZGT6/Hardware/Y8_Driver.c | 修改 | 阶段③ confirm 二值平均→vote 投票加权（连续过渡）；丢线从保持旧值→±25°极端纠正；阶段④允许丢线帧进入中值滤波；阶段⑤新增 EWMA(α=0.4) 平滑输出 |
 | Task.h | ./Template_F407ZGT6/Software/Task.h | 删除 | 已弃用模块，无源码引用 |
 | Task.c | ./Template_F407ZGT6/Software/Task.c | 删除 | 已弃用模块，无源码引用 |
 
