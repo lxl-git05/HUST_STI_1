@@ -45,4 +45,13 @@ bool Serial_SetIntData(Serial_Typedef *pSerial, char *KeyWord, char *cmd, int *D
 bool Serial_Check_Str(Serial_Typedef *pSerial, char *KeyWord);
 bool Serial_CheckCmd(Serial_Typedef *pSerial, char *cmd);          // 精确匹配（strcmp）
 
+// ============== 发送 API ==============
+void Serial_send_string(Serial_Typedef *pSerial, char *str);           // 轮询发字符串
+void Serial_SendBytes(Serial_Typedef *pSerial, uint8_t *buf, uint16_t len);
+void Serial_Send_HEX_Package(Serial_Typedef *pSerial, uint16_t *data, uint8_t count);
+
+// ============== 工具 API ==============
+void Serial_Clear_ABC(Serial_Typedef *pSerial);                       // 清空 ABC 接收缓冲区
+void Serial_PrintDebug(Serial_Typedef *pSerial);                       // 打印调试统计
+
 #endif // !__SERIAL_PORTING_H

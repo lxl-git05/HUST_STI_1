@@ -1,3 +1,25 @@
+## 2026-07-29 | MSPM0→F407 移植 P5（项目清理）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| IMU_Portable_Lib/ | ./Template_F407ZGT6/IMU_Portable_Lib/ | 删除 | 与 IMU/ 目录内容重复，删除整个目录 |
+| Task.h | ./Template_F407ZGT6/Software/Task.h | 删除 | 已弃用模块，无源码引用 |
+| Task.c | ./Template_F407ZGT6/Software/Task.c | 删除 | 已弃用模块，无源码引用 |
+
+## 2026-07-29 | MSPM0→F407 移植 P3（系统集成）+ P2 编译修复 + Straight方向修正
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_20ms_Callback 添加 IMU_Mahony_Update_Tick() 调用 |
+| Serial_porting.h | ./Template_F407ZGT6/Function/Serial_porting.h | 修改 | 添加 Serial_send_string/SendBytes/Send_HEX_Package/Clear_ABC/PrintDebug 声明 |
+| Serial_porting.c | ./Template_F407ZGT6/Function/Serial_porting.c | 修改 | 实现5个新API（HAL阻塞发送 + HEX帧封装 + ABC清空 + 调试打印） |
+| Con_Stepper.c | ./Template_F407ZGT6/Function/Con_Stepper.c | 修改 | Stepper_Init 添加 EN 引脚使能 |
+| AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | 移除 Function 段重复的 IMU.h include（用户已移至 Hardware 段） |
+| MyTimer.c | ./Template_F407ZGT6/MySystem/MyTimer.c | 修改 | 修复 Timer_DisableIRQ/EnableIRQ 被错误插入在 HAL_TIM_PeriodElapsedCallback 函数体内的编译错误 |
+| MyEncoder.h | ./Template_F407ZGT6/MySystem/MyEncoder.h | 修改 | 添加 MyEncoder_Total_Cnt_Clear() 声明 |
+| MyEncoder.c | ./Template_F407ZGT6/MySystem/MyEncoder.c | 修改 | 添加 MyEncoder_Total_Cnt_Clear() 实现 |
+| Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | PID_Car_Straight_Tick 修正：dist_A 用 Motor_A_Pos_Dir 纠正编码器方向，去掉手动取反，输出端用 Pos_Dir 宏统一适配 |
+
 ## 2026-07-29 08:48 | MSPM0→F407 移植 P2（Con_Motor + Control + Menu_Param + Match）
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |

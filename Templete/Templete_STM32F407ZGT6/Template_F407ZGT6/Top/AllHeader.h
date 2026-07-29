@@ -22,6 +22,7 @@
 #include "TJC_LCD.h"
 #include "Motor.h"
 #include "Y8_Driver.h"
+#include "IMU.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"
@@ -35,7 +36,6 @@
 #include "Con_Motor.h"
 #include "Param_AT24C02.h"
 #include "Con_Task.h"
-#include "IMU.h"
 #include "Menu_Param.h"
 #include "Match.h"
 

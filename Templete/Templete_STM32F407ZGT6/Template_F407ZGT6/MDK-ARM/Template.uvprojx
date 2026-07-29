@@ -1482,16 +1482,6 @@
               <FilePath>..\Software\MyPID.h</FilePath>
             </File>
             <File>
-              <FileName>Task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\Task.c</FilePath>
-            </File>
-            <File>
-              <FileName>Task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Software\Task.h</FilePath>
-            </File>
-            <File>
               <FileName>at24c02_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Software\at24c02_manager.c</FilePath>
