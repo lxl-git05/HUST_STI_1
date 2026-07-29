@@ -193,6 +193,18 @@ typedef Hanger_Status_Typedef QueueData_Typedef;	// 将void*替换成需要的�
 
 然后在Mode2写个简单demo例程，完成之后在D:\github\HUST_STI\HUST_STI_1\Templete\Templete_STM32F407ZGT6\Template_F407ZGT6\IMU_Portable_Lib修改的Readme包含MPU和ICM以及联合宏定义库，实现完整陀螺仪体系
 
++++
+
+新函数/库移植：需要改动的建议：
+
++ MyI2C不需要移植，因为我本库已经有AT和6050的实现了，暂时不需要新增其他IIC模块
++ Servo不需要新增舵机驱动了
++ BLE不需要移植
++ Orange不需要移植
++  Menu_Param需要移植，关于Orange选择(a) 
+
+
+
 
 
 

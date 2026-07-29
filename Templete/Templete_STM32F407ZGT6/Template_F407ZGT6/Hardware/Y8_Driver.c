@@ -164,13 +164,13 @@ float Y8_Angle_Bias_Get(uint16_t cnt)
 // ==================================================== 应用层PID计算 ====================================================
 // Y8巡线初始化
 Pid_Typedef PID_Track ;
-#define PID_Track_Dir (1)
+#define PID_Track_Dir (-1)
 void Y8_Init(void)
 {
 	// 硬件初始化
 	Y8_Drive_Init() ;
 	// PID初始化
-	PID_Init(&PID_Track , 0.0f , 0.0f , 0.0f , 200 , -200 , 1000) ;
+	PID_Init(&PID_Track , 8.0f , 0.0f , 6.88f , 200 , -200 , 1000) ;
 }
 
 // Y8巡线更新 + 巡线

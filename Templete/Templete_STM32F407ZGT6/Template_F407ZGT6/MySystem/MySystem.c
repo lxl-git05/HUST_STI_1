@@ -45,8 +45,8 @@ MyGPIO_Typedef MYGPIO_Y8_DAT			 = {Y8_DAT_GPIO_Port , Y8_DAT_Pin} ;
 MyPWM_Typedef MyPWM_Motor_A_IN1 = { &htim4, TIM_CHANNEL_3, 1000.0f, 0.0f   };  // 电机A
 MyPWM_Typedef MyPWM_Motor_B_IN1 = { &htim4, TIM_CHANNEL_4, 1000.0f, 0.0f   };  // 电机B
 
-MyPWM_Typedef MyPWM_Stepper1 		= { &htim9 ,TIM_CHANNEL_1, 1000.0f, 0.0f   };  // 步进电机1
-MyPWM_Typedef MyPWM_Stepper2 		= { &htim12,TIM_CHANNEL_1, 1000.0f, 0.0f   };  // 步进电机2
+MyPWM_Typedef MyPWM_Stepper1 		= { &htim9 ,TIM_CHANNEL_1, 1000.0f, 0.0f, 168000000, TIM1_BRK_TIM9_IRQn  };  // 步进电机1 (APB2:168MHz)
+MyPWM_Typedef MyPWM_Stepper2 		= { &htim12,TIM_CHANNEL_1, 1000.0f, 0.0f, 84000000,  TIM8_BRK_TIM12_IRQn };  // 步进电机2 (APB1:84MHz)
 
 // ====================================================================
 // Encoder 实例定义 — 换芯片时只需修改 htim / time_Fre
