@@ -68,7 +68,7 @@ void Tune_MotorA_Angle_Run(float p[4])
 }
 void Tune_MotorA_Angle_Tick(float p[4])
 {
-    Motorx_Angle_Update_Tick(&Motor_A, 1);
+    Motorx_Angle_Update_Tick(&Motor_A, Motor_A_Angle_Dir);
     Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
         Motor_A.PID_Angle.goalPoint, Motor_A.PID_Angle.realPoint_Now, Motor_A.PID_Angle.setPoint);
 }
@@ -83,7 +83,7 @@ void Tune_MotorA_Pos_Run(float p[4])
 }
 void Tune_MotorA_Pos_Tick(float p[4])
 {
-    Motorx_Pos_Update_Tick(&Motor_A, 1);
+    Motorx_Pos_Update_Tick(&Motor_A, Motor_A_Pos_Dir);
     Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
         Motor_A.PID_Pos.goalPoint, Motor_A.PID_Pos.realPoint_Now, Motor_A.PID_Pos.setPoint);
 }
@@ -112,7 +112,7 @@ void Tune_MotorB_Angle_Run(float p[4])
 }
 void Tune_MotorB_Angle_Tick(float p[4])
 {
-    Motorx_Angle_Update_Tick(&Motor_B, -1);
+    Motorx_Angle_Update_Tick(&Motor_B, Motor_B_Angle_Dir);
     Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
         Motor_B.PID_Angle.goalPoint, Motor_B.PID_Angle.realPoint_Now, Motor_B.PID_Angle.setPoint);
 }
@@ -127,7 +127,7 @@ void Tune_MotorB_Pos_Run(float p[4])
 }
 void Tune_MotorB_Pos_Tick(float p[4])
 {
-    Motorx_Pos_Update_Tick(&Motor_B, -1);
+    Motorx_Pos_Update_Tick(&Motor_B, Motor_B_Pos_Dir);
     Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
         Motor_B.PID_Pos.goalPoint, Motor_B.PID_Pos.realPoint_Now, Motor_B.PID_Pos.setPoint);
 }
@@ -389,52 +389,52 @@ void Tune_Orange_Tick(float p[4])
 static const TuneLabel s_labels[TUNE_COUNT] = {
 //    { "Y8",      "Track"    },  // TUNE_Y8_TRACK
 //    { "Orange",  "Param"    },  // TUNE_ORANGE_PARAM
-//    { "Gyro",    "Cal"      },  // TUNE_GYRO_CAL
-//    { "Gyro",    "YawPID"   },  // TUNE_GYRO_YAW
-//    { "Stepper", "S1"       },  // TUNE_STEPPER_S1
-//    { "Stepper", "S2"       },  // TUNE_STEPPER_S2
+    { "Gyro",    "Cal"      },  // TUNE_GYRO_CAL
+    { "Gyro",    "YawPID"   },  // TUNE_GYRO_YAW
+    { "Stepper", "S1"       },  // TUNE_STEPPER_S1
+    { "Stepper", "S2"       },  // TUNE_STEPPER_S2
 
 
     // 不常用,暂时放最后
-	 { "Motor_A", "Speed"    },  // TUNE_MOTOR_A_SPEED
-	 { "Motor_A", "Angle"    },  // TUNE_MOTOR_A_ANGLE
-	 { "Motor_A", "Pos"      },  // TUNE_MOTOR_A_POS
-	 { "Motor_B", "Speed"    },  // TUNE_MOTOR_B_SPEED
-	 { "Motor_B", "Angle"    },  // TUNE_MOTOR_B_ANGLE
-	 { "Motor_B", "Pos"      },  // TUNE_MOTOR_B_POS
-	 { "Car",     "Straight" },  // TUNE_CAR_STRAIGHT
+//	 { "Motor_A", "Speed"    },  // TUNE_MOTOR_A_SPEED
+//	 { "Motor_A", "Angle"    },  // TUNE_MOTOR_A_ANGLE
+//	 { "Motor_A", "Pos"      },  // TUNE_MOTOR_A_POS
+//	 { "Motor_B", "Speed"    },  // TUNE_MOTOR_B_SPEED
+//	 { "Motor_B", "Angle"    },  // TUNE_MOTOR_B_ANGLE
+//	 { "Motor_B", "Pos"      },  // TUNE_MOTOR_B_POS
+//	 { "Car",     "Straight" },  // TUNE_CAR_STRAIGHT
 };
 
 Task_Descriptor_Typedef Menu_Tune_Table[TUNE_COUNT] = {
-    // TUNE_Y8_TRACK
+//    // TUNE_Y8_TRACK
 //    { Tune_Y8_Track_Setup,     Tune_Y8_Track_Run,     Tune_AlwaysFalse, Tune_Y8_Track_Tick },
 //    // TUNE_ORANGE_PARAM
 //    { Tune_Orange_Setup,       Tune_Orange_Run,       Tune_AlwaysFalse, Tune_Orange_Tick },
-//    // TUNE_GYRO_CAL
-//    { Tune_Gyro_Cal_Setup,     Tune_Gyro_Cal_Run,     Tune_Gyro_Cal_IsExit, Tune_Gyro_Cal_Tick },
-//    // TUNE_GYRO_YAW
-//    { Tune_Gyro_Yaw_Setup,     Tune_Gyro_Yaw_Run,     Tune_AlwaysFalse, Tune_Gyro_Yaw_Tick },
-//    // TUNE_STEPPER_S1
-//    { NULL,                    Tune_Stepper_S1_Run,   Tune_AlwaysFalse, Tune_Stepper_S1_Tick },
-//    // TUNE_STEPPER_S2
-//    { NULL,                    Tune_Stepper_S2_Run,   Tune_AlwaysFalse, Tune_Stepper_S2_Tick },
+    // TUNE_GYRO_CAL
+    { Tune_Gyro_Cal_Setup,     Tune_Gyro_Cal_Run,     Tune_Gyro_Cal_IsExit, Tune_Gyro_Cal_Tick },
+    // TUNE_GYRO_YAW
+    { Tune_Gyro_Yaw_Setup,     Tune_Gyro_Yaw_Run,     Tune_AlwaysFalse, Tune_Gyro_Yaw_Tick },
+    // TUNE_STEPPER_S1
+    { NULL,                    Tune_Stepper_S1_Run,   Tune_AlwaysFalse, Tune_Stepper_S1_Tick },
+    // TUNE_STEPPER_S2
+    { NULL,                    Tune_Stepper_S2_Run,   Tune_AlwaysFalse, Tune_Stepper_S2_Tick },
 
 
     // 不常用,暂时放最后
-		 // TUNE_MOTOR_A_SPEED
-		 { Tune_MotorA_Speed_Setup, Tune_MotorA_Speed_Run, Tune_AlwaysFalse, Tune_MotorA_Speed_Tick },
-		 // TUNE_MOTOR_A_ANGLE
-		 { Tune_MotorA_Angle_Setup, Tune_MotorA_Angle_Run, Tune_AlwaysFalse, Tune_MotorA_Angle_Tick },
-		 // TUNE_MOTOR_A_POS
-		 { Tune_MotorA_Pos_Setup,   Tune_MotorA_Pos_Run,   Tune_AlwaysFalse, Tune_MotorA_Pos_Tick },
-		 // TUNE_MOTOR_B_SPEED
-		 { Tune_MotorB_Speed_Setup, Tune_MotorB_Speed_Run, Tune_AlwaysFalse, Tune_MotorB_Speed_Tick },
-		 // TUNE_MOTOR_B_ANGLE
-		 { Tune_MotorB_Angle_Setup, Tune_MotorB_Angle_Run, Tune_AlwaysFalse, Tune_MotorB_Angle_Tick },
-		 // TUNE_MOTOR_B_POS
-		 { Tune_MotorB_Pos_Setup,   Tune_MotorB_Pos_Run,   Tune_AlwaysFalse, Tune_MotorB_Pos_Tick },
-		 // TUNE_CAR_STRAIGHT
-		 { Tune_Car_Straight_Setup, Tune_Car_Straight_Run, Tune_AlwaysFalse, Tune_Car_Straight_Tick },
+//		 // TUNE_MOTOR_A_SPEED
+//		 { Tune_MotorA_Speed_Setup, Tune_MotorA_Speed_Run, Tune_AlwaysFalse, Tune_MotorA_Speed_Tick },
+//		 // TUNE_MOTOR_A_ANGLE
+//		 { Tune_MotorA_Angle_Setup, Tune_MotorA_Angle_Run, Tune_AlwaysFalse, Tune_MotorA_Angle_Tick },
+//		 // TUNE_MOTOR_A_POS
+//		 { Tune_MotorA_Pos_Setup,   Tune_MotorA_Pos_Run,   Tune_AlwaysFalse, Tune_MotorA_Pos_Tick },
+//		 // TUNE_MOTOR_B_SPEED
+//		 { Tune_MotorB_Speed_Setup, Tune_MotorB_Speed_Run, Tune_AlwaysFalse, Tune_MotorB_Speed_Tick },
+//		 // TUNE_MOTOR_B_ANGLE
+//		 { Tune_MotorB_Angle_Setup, Tune_MotorB_Angle_Run, Tune_AlwaysFalse, Tune_MotorB_Angle_Tick },
+//		 // TUNE_MOTOR_B_POS
+//		 { Tune_MotorB_Pos_Setup,   Tune_MotorB_Pos_Run,   Tune_AlwaysFalse, Tune_MotorB_Pos_Tick },
+//		 // TUNE_CAR_STRAIGHT
+//		 { Tune_Car_Straight_Setup, Tune_Car_Straight_Run, Tune_AlwaysFalse, Tune_Car_Straight_Tick },
 };
 
 // ==================== 菜单浏览 OLED ====================

@@ -4,6 +4,11 @@
 #include "MySystem.h"
 #include "Motor.h"
 
+#define Motor_A_Angle_Dir (-1)
+#define Motor_A_Pos_Dir 	(-1)
+#define Motor_B_Angle_Dir ( 1)
+#define Motor_B_Pos_Dir 	( 1)
+
 extern Motor_Typedef Motor_A ;
 extern Motor_Typedef Motor_B ;
 

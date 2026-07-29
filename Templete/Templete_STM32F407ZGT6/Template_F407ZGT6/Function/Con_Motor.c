@@ -35,7 +35,7 @@ void Con_Motor_Init(void)
 	(
 		&Motor_B , &MyPWM_Motor_B_IN1 , &Motor_B_Encoder ,
 		&MyGPIO_Motor_B_IN1 , &MyGPIO_Motor_B_IN2 , &Motor_Param ,
-		Motor_DIR_N , Motor_DIR_N ,
+		Motor_DIR_N , Motor_DIR_P ,
 		Motor_B.PID_s , Motor_B.PID_Angle , Motor_B.PID_Pos
 	);
 
@@ -329,8 +329,8 @@ void PID_Car_Straight_Tick(void)
 	Motor_Pos_Update(&Motor_A) ;
 	Motor_Pos_Update(&Motor_B) ;
 
-	// 2. 以A轮距离为前进距离参考
-	float dist_A = Motor_Get_Pos(&Motor_A) * ( 1);
+	// 2. 以A轮距离为前进距离参考（Pos_Dir 纠正编码器计数方向与物理前进方向的一致性）
+	float dist_A = Motor_Get_Pos(&Motor_A) * Motor_A_Pos_Dir;
 	PID_Car_Straight.realPoint_Now = dist_A ;
 
 	// 3. 位置PID → 基础速度(rpm)
@@ -365,6 +365,6 @@ void PID_Car_Straight_Tick(void)
 	float yaw_correction = PID_Straight_Yaw.setPoint ;
 
 	// 5. 差速输出（A/B同向基础速度 + 反向偏航修正）
-	Motor_SetSpeed(&Motor_A, base_speed - yaw_correction) ;
-	Motor_SetSpeed(&Motor_B, base_speed + yaw_correction) ;
+	Motor_SetSpeed(&Motor_A, (base_speed - yaw_correction)) ;
+	Motor_SetSpeed(&Motor_B, (base_speed + yaw_correction)) ;
 }
