@@ -29,8 +29,8 @@ void Oran_Update(void)
 		// 钢球识别模式
 		if (Oran_cmd == 0)
 		{
-			Oran_real = Serial_GetHexData(&Serial2 , 1) ;
-			Oran_Speed=	Serial_GetHexData(&Serial2 , 2) ;
+			Oran_real = Serial_GetHexData(&Serial2 , 1) - 1000;
+			Oran_Speed=	Serial_GetHexData(&Serial2 , 2) - 1000;
 		}
 		// 
 		else if (Oran_cmd == 1)
@@ -42,7 +42,6 @@ void Oran_Update(void)
 			Oran_Param[4] = Serial_GetHexData(&Serial2 , 5) ;
 			Oran_Param[5] = Serial_GetHexData(&Serial2 , 6) ;
 		}
-
 	}
 }
 
@@ -59,7 +58,7 @@ void Oran_Send_Data(int* Data)
 // ======================= 香橙派寻迹PID =======================
 Pid_Typedef PID_Oran ;	// 铁球PID
 #define Oran_PID_Dir (1)
-void Oran_XY_Init(void)
+void Oran_PID_Init(void)
 {
 	// PID初始化
 	PID_Init(&PID_Oran , 0.0f , 0.0f , 0.0f , 200 , -200 , 1000) ;

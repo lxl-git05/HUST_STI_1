@@ -37,6 +37,9 @@ float Y8U_GetOffset(void);
 void Y8U_PID_Init(void);
 void Y8U_PID_Update(void);
 
+// 速度斜坡: 每 cnt 个 Tick 向 goal 追赶 1 rpm（调用才生效，不调用不影响）
+void Y8U_RampTick(float goal, uint8_t cnt);
+
 // 横线终点检测（滑动窗口 ADC 和 → 异常值触发，不污染基线）
 #define FINISH_SUM_WINDOW   15      // 滑动窗口大小（15帧=300ms基线）
 #define FINISH_SUM_RATIO    1.1f   // 超过基线 10% 视为异常

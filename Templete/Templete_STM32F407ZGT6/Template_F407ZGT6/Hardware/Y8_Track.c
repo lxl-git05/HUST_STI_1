@@ -83,6 +83,20 @@ uint16_t Y8U_GetADC_Sum(void)
     return sum;
 }
 
+// ============== 速度斜坡（分频追赶，调用才生效）==============
+void Y8U_RampTick(float goal, uint8_t cnt)
+{
+    static uint8_t div = 0;
+
+    if (cnt == 0) return;
+
+    if (++div < cnt) return;
+    div = 0;
+
+    if      (Track_Base_Speed < goal) Track_Base_Speed += 1.0f;
+    else if (Track_Base_Speed > goal) Track_Base_Speed -= 1.0f;
+}
+
 // ============== 横线终点检测（滑动窗口 → 异常值触发，不污染基线）==============
 uint8_t Y8U_CheckFinishLine(void)
 {

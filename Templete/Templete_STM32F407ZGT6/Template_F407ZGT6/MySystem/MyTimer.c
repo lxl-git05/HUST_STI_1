@@ -5,10 +5,17 @@ void Timer_Initial(void)
 {
 	HAL_TIM_Base_Start_IT(&htim6);
 	HAL_TIM_Base_Start_IT(&htim7);
+	HAL_TIM_Base_Start_IT(&htim10);
 }
 
 /*弱函数声明,主函数调用*/
 __attribute__((weak)) void Timer_1ms_Callback(void)
+{
+    // 默认空实现
+}
+
+/*弱函数声明,主函数调用*/
+__attribute__((weak)) void Timer_10ms_Callback(void)
 {
     // 默认空实现
 }
@@ -41,6 +48,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Instance == TIM7)
 	{
 		Timer_20ms_Callback() ;	// 20ms中断
+	}
+	// 判断是否是TIM10中断（球平衡 10ms）
+	if (htim->Instance == TIM10)
+	{
+		Timer_10ms_Callback() ;	// 10ms中断
 	}
 	// 步进电机脉冲计数（TIM9=Stepper1, TIM12=Stepper2）
 	if (htim->Instance == TIM9)
