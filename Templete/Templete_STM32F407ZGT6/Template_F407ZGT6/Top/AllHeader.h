@@ -21,6 +21,7 @@
 #include "Elec.h"
 #include "TJC_LCD.h"
 #include "Motor.h"
+#include "Y8_Driver.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"
@@ -34,10 +35,6 @@
 #include "Con_Motor.h"
 #include "Param_AT24C02.h"
 #include "Con_Task.h"
-#include "MPU6050_Angle.h"
-#include "ICM42688_Angle.h"
-#include "ICM42688_Mahony.h"
-#include "MPU6050_Mahony.h"
 #include "IMU.h"
 
 // Mode库

@@ -8,27 +8,11 @@ const AT_ParamItem s_AT_Params[] = {
 		// 模式存储
     { AT_PARAM_I8(&curr_mode			, 1           )} ,   // addr=0,  int8_t,  default=0
 		// 云台PID
-    { AT_PARAM_F(&Stepper1.PID_Angle.Kp , 0.0f 		  )} ,
-    { AT_PARAM_F(&Stepper1.PID_Angle.Ki , 0.0f 		  )} ,
-    { AT_PARAM_F(&Stepper1.PID_Angle.Kd , 0.0f 		  )} ,
-    { AT_PARAM_F(&Stepper2.PID_Angle.Kp , 0.0f 		  )} ,
-    { AT_PARAM_F(&Stepper2.PID_Angle.Ki , 0.0f 		  )} ,
-    { AT_PARAM_F(&Stepper2.PID_Angle.Kd , 0.0f 		  )} ,
+    
 		// 香橙派数据
-		{ AT_PARAM_I16(&angle_shift			, 0          )} ,
-		{ AT_PARAM_I16(&offset				, 0          )} ,
-		{ AT_PARAM_I16(&black_h				, 0          )} ,
-		{ AT_PARAM_I16(&black_s				, 0          )} ,
-		{ AT_PARAM_I16(&black_v				, 0          )} ,
+		
 		// 各个任务的阈值
-		// 坐标标定阈值
-		{ AT_PARAM_F(&Oran_X_A , 1)},
-		{ AT_PARAM_F(&Oran_X_B , 0)},
-		{ AT_PARAM_F(&Oran_Y_A , 1)},
-		{ AT_PARAM_F(&Oran_Y_B , 0)},
-//		{ AT_PARAM_F(&Down_Tar_Angle , 30)},
-//		{ AT_PARAM_F(&Down_Tol_Angle , 5 )},
-//		{ AT_PARAM_F(&Elec_Wait	    ,1000)},
+		
 };	
 
 int At_Size = sizeof(s_AT_Params)/sizeof(s_AT_Params[0]) ;
@@ -40,24 +24,6 @@ void Mode_1_Setup(void)
 	Param_Init();
 	// Param_Register 内会自动检测 AT 关联并载入已存值
 	Param_Register("curr_mode",&curr_mode,1,PARAM_INT8);
-//	Param_Register("Stp1_Kp",  &Stepper1.PID_Angle.Kp,0.01f,PARAM_FLOAT);
-//	Param_Register("Stp1_Kd",  &Stepper1.PID_Angle.Kd,0.01f,PARAM_FLOAT);
-//	Param_Register("Stp2_Kp",  &Stepper2.PID_Angle.Kp,0.01f,PARAM_FLOAT);
-//	Param_Register("Stp2_Kd",  &Stepper2.PID_Angle.Kd,0.01f,PARAM_FLOAT);
-	// 香橙派数据
-	Param_Register("angle_shift",  &angle_shift,1,PARAM_INT16);
-	Param_Register("offset",   &offset ,1,PARAM_INT16);
-	Param_Register("black_h",  &black_h,1,PARAM_INT16);
-	Param_Register("black_s",  &black_s,1,PARAM_INT16);
-	Param_Register("black_v",  &black_v,1,PARAM_INT16);
-	// 任务阈值
-	Param_Register("Oran_X_A",  &Oran_X_A,0.1f,PARAM_FLOAT);
-	Param_Register("Oran_X_B",  &Oran_X_B,1.0f,PARAM_FLOAT);
-	Param_Register("Oran_Y_A",  &Oran_Y_A,0.1f,PARAM_FLOAT);
-	Param_Register("Oran_Y_B",  &Oran_Y_B,1.0f,PARAM_FLOAT);
-//	Param_Register("Down_Tar_Angle",  &Down_Tar_Angle,0.5f,PARAM_FLOAT);
-//	Param_Register("Down_Tol_Angle",  &Down_Tol_Angle,0.5f,PARAM_FLOAT);
-//	Param_Register("Elec_Wait",  &Elec_Wait,1.0f,PARAM_FLOAT);
 }
 
 void Mode_1_Loop(void)
