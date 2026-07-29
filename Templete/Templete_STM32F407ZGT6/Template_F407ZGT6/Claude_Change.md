@@ -45,3 +45,12 @@
 | AllHeader.h | ./Top/AllHeader.h | 修改 | 移除 #include "Imu_Types.h" 行 |
 | README.md | ./IMU_Portable_Lib/README.md | 修改 | 移除 Imu_Types.h 引用，§4 改为 "IMU 类型定义" |
 | CLAUDE.md | ./CLAUDE.md | 修改 | 移除架构图/文件清单中的 Imu_Types.h |
+
+## 2026-07-29 15:30 | 新寻迹模块 USART3 DMA+Idle 协议解析 + Mode_4 OLED 展示 8 路 ADC
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Y8_USART.h | ./Hardware/Y8_USART.h | 修改 | 新增 Y8U_ API 声明：Y8U_ADC[8]/Y8U_Digital[8]/Init/SendCmd/DMA_RxCallback |
+| Y8_USART.c | ./Hardware/Y8_USART.c | 修改 | 完整实现：USART3 DMA+Idle 接收、$A/D,xn:val# 状态机解析、命令发送 |
+| Mode_4.c | ./Mode/Mode_4.c | 修改 | OLED 8 路 ADC 展示（4 行 × 2 通道），KEY1 重发 $0,1,0# |
+| Serial_porting.c | ./Function/Serial_porting.c | 修改 | HAL_UARTEx_RxEventCallback 新增 USART3 → Y8U_DMA_RxCallback 分发分支 |

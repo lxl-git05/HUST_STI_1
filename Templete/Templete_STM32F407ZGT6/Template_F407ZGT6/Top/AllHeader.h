@@ -39,6 +39,7 @@
 #include "Menu_Param.h"
 #include "Match.h"
 #include "Y8_USART.h"
+#include "Y8_Track.h"
 
 // Mode库
 #include "Mode_G.h"

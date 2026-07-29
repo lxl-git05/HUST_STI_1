@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "Timer_Counter.h"
+#include "Y8_USART.h"
 
 // ============== 全局实例 ==============
 Serial_Typedef Serial1;
@@ -321,6 +322,12 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
+    // ★ USART3 → Y8_USART 协议（独立于 ABC/HEX，由 Y8U_DMA_RxCallback 处理）
+    if (huart->Instance == USART3) {
+        Y8U_DMA_RxCallback(huart, Size);
+        return;
+    }
+
     // 1. 查找实例
     Serial_Typedef *pSerial = Serial_GetInstance(huart);
     if (pSerial == NULL) return;

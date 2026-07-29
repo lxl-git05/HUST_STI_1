@@ -1476,6 +1476,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Y8_USART.h</FilePath>
             </File>
+            <File>
+              <FileName>Y8_Track.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Y8_Track.c</FilePath>
+            </File>
+            <File>
+              <FileName>Y8_Track.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Y8_Track.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
