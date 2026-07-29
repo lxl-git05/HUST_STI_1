@@ -36,6 +36,8 @@
 #include "Param_AT24C02.h"
 #include "Con_Task.h"
 #include "IMU.h"
+#include "Menu_Param.h"
+#include "Match.h"
 
 // Mode库
 #include "Mode_G.h"

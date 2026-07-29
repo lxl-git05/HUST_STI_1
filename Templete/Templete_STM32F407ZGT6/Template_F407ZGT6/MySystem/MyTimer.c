@@ -52,3 +52,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	    Timer_Stepper2_Pulse_Callback();
 	}
 }
+
+// ========== 全局中断开关 ==========
+// 标定/Flash写入等场景需要独占I2C等资源，防止ISR抢占
+void Timer_DisableIRQ(void)
+{
+    __disable_irq();
+}
+
+void Timer_EnableIRQ(void)
+{
+    __enable_irq();
+}

@@ -43,5 +43,6 @@ int Serial_GetError_ABC(Serial_Typedef *pSerial);                           // �
 bool Serial_SetFloatData(Serial_Typedef *pSerial, char *KeyWord, char *cmd, float *Data);
 bool Serial_SetIntData(Serial_Typedef *pSerial, char *KeyWord, char *cmd, int *Data);
 bool Serial_Check_Str(Serial_Typedef *pSerial, char *KeyWord);
+bool Serial_CheckCmd(Serial_Typedef *pSerial, char *cmd);          // 精确匹配（strcmp）
 
 #endif // !__SERIAL_PORTING_H

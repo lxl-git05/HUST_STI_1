@@ -24,4 +24,7 @@ int MyEncoder_Get_CNT(MyEncoder_Typedef* MyEncoder) ;
 // 3. 得到累计脉冲数
 int MyEncoder_Get_Total_CNT(MyEncoder_Typedef* MyEncoder) ;
 
+// 4. 清除累计脉冲数
+void MyEncoder_Total_Cnt_Clear(MyEncoder_Typedef* MyEncoder) ;
+
 #endif

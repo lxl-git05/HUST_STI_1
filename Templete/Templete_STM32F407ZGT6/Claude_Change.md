@@ -1,3 +1,27 @@
+## 2026-07-29 08:48 | MSPM0→F407 移植 P2（Con_Motor + Control + Menu_Param + Match）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Motor.h | ./Template_F407ZGT6/Function/Con_Motor.h | 修改 | 重写：激活位置环API + IMU角度环PID完整API + 整车直行PID_Car_Straight API + Motor_Is_Angle升级4参数 |
+| Con_Motor.c | ./Template_F407ZGT6/Function/Con_Motor.c | 修改 | 重写：实现全部新增API + Wheel_C宏 + Motor_Param含Wheel_Cm + Con_Motor_Init添加MPU/直行初始化 |
+| Control.h | ./Template_F407ZGT6/Function/Control.h | 修改 | 合并：保留F407旧任务声明 + 新增MSPM0 8个新任务声明 + Control_TaskTable extern |
+| Control.c | ./Template_F407ZGT6/Function/Control.c | 修改 | 合并：保留全部F407旧任务 + 新增8个MSPM0新任务 + Control_TaskTable[16] + Motor_Is_Angle调用更新 |
+| Menu_Param.h | ./Template_F407ZGT6/Function/Menu_Param.h | 新增 | 从MSPM0拷贝：PID调参任务菜单（TuneTaskID枚举+回调声明+任务表+导航API） |
+| Menu_Param.c | ./Template_F407ZGT6/Function/Menu_Param.c | 新增 | 从MSPM0拷贝并适配F407：13个调参任务（Y8/Orange/Gyro/Stepper/Motor/Car） |
+| Match.h | ./Template_F407ZGT6/Function/Match.h | 新增 | 从MSPM0拷贝：比赛专用逻辑空占位符 |
+| Match.c | ./Template_F407ZGT6/Function/Match.c | 新增 | 从MSPM0拷贝：比赛专用逻辑空占位符 |
+| IMU.h | ./Template_F407ZGT6/IMU/IMU.h | 修改 | 添加IMU_Yaw_Gyro_Get()声明（校准后Z轴角速度绝对值） |
+| IMU.c | ./Template_F407ZGT6/IMU/IMU.c | 修改 | 添加IMU_Yaw_Gyro_Get()实现 |
+| MyTimer.h | ./Template_F407ZGT6/MySystem/MyTimer.h | 修改 | 添加Timer_DisableIRQ()/Timer_EnableIRQ()声明 |
+| MyTimer.c | ./Template_F407ZGT6/MySystem/MyTimer.c | 修改 | 添加Timer_DisableIRQ()/Timer_EnableIRQ()实现（CMSIS全局中断开关） |
+| TJC_LCD.h | ./Template_F407ZGT6/Hardware/TJC_LCD.h | 修改 | 添加LCD_Cmd_Check()声明 |
+| TJC_LCD.c | ./Template_F407ZGT6/Hardware/TJC_LCD.c | 修改 | 添加LCD_Cmd_Check()存根实现（返回false） |
+| Orange.h | ./Template_F407ZGT6/Hardware/Orange.h | 修改 | 添加extern int Oran_Param[6]（Menu_Param调参兼容） |
+| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | 添加int Oran_Param[6]定义 |
+| Serial_porting.h | ./Template_F407ZGT6/Function/Serial_porting.h | 修改 | 添加Serial_CheckCmd()声明（ABC协议精确匹配） |
+| Serial_porting.c | ./Template_F407ZGT6/Function/Serial_porting.c | 修改 | 添加Serial_CheckCmd()实现（strcmp精确匹配） |
+| AllHeader.h | ./Template_F407ZGT6/Top/AllHeader.h | 修改 | 注册#include "Menu_Param.h"和#include "Match.h" |
+
 ## 2026-07-15 | 电机PID调参示例代码——用KEY_1单击切换电机替代#ifdef
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |

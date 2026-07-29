@@ -16,6 +16,7 @@ extern float Oran_X_B ;
 extern float Oran_Y_A ;
 extern float Oran_Y_B ;
 
+extern int Oran_Param[6] ;	// 香橙派通信参数（Menu_Param 调参用）
 extern int angle_shift ;
 extern int offset      ;
 extern int black_h     ;

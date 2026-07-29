@@ -92,4 +92,8 @@ uint8_t IMU_Turn_Yaw_Is_Ok_Ex(float target, float deadband);
 // 简化版：使用默认死区 IMU_TURN_YAW_DEFAULT_DEADBAND
 uint8_t IMU_Turn_Yaw_Is_Ok(float target);
 
+// 获取当前校准后的Z轴角速度绝对值 (°/s)
+// 用于旋转任务退出前的稳定确认（防止机械回弹误判）
+float IMU_Yaw_Gyro_Get(void);
+
 #endif

@@ -29,52 +29,50 @@ void Motor_Speed_Update_Tick(uint32_t Gap_Time_ms) ;
 void Motorx_Angle_Update_Tick(Motor_Typedef *Motor , int Dir);	// Dir: 纠正PID控制方向
 
 // 8. 设置电机旋转角度
-void Motor_SetAngle(Motor_Typedef *Motor , int Angle); 
+void Motor_SetAngle(Motor_Typedef *Motor , int Angle);
 
 // 9. 得到电机当前位置
 float Motor_Get_Angle(Motor_Typedef *Motor) ;
 
-// 10. 检查电机位置
-bool Motor_Is_Angle(Motor_Typedef *Motor , int Angle , int Tolerance) ;
+// 10. 检查电机位置（三重检查：状态+速度+角度容差，Speed_Tol 单位 rpm）
+bool Motor_Is_Angle(Motor_Typedef *Motor , float Angle , float Tolerance , float Speed_Tol) ;
 
-//// Pos函数
-//// 1. 设置电机目标位移
-//void Motor_SetPos(Motor_Typedef *Motor , float Pos) ;
+// Pos函数
+// 1. 设置电机目标位移(cm)
+void Motor_SetPos(Motor_Typedef *Motor , float Pos) ;
 
-//// 2. 得到电机当前位移
-//float Motor_Get_Pos(Motor_Typedef *Motor) ;
+// 2. 得到电机当前位移(cm)
+float Motor_Get_Pos(Motor_Typedef *Motor) ;
 
-//// 3. 检查电机位置
-//bool Motor_Is_Pos(Motor_Typedef *Motor , int Pos , int Tolerance) ;
+// 3. 检查电机位置（三重检查：状态+速度+位置容差，Speed_Tol 单位 rpm）
+bool Motor_Is_Pos(Motor_Typedef *Motor , float Pos , float Tolerance , float Speed_Tol) ;
 
-//// 4. 清除累计位移
-//void Motor_Pos_Clear(void) ;
+// 4. 清除累计位移
+void Motor_Pos_Clear(void) ;
 
-// PID
-//extern Pid_Typedef PID_Angle ;	// 小车的角度环
+// 6.3 电机位置环PID（单电机，不含IMU偏航修正）
+void Motorx_Pos_Update_Tick(Motor_Typedef *Motor , int Dir);	// Dir: 纠正PID控制方向
 
-// 初始化角度环
-void PID_Angle_Init(void) ;
+// =================== IMU角度环 ===================
 
-// 角度环配置
-//void PID_Angle_Tick(int Base_Speed) ;
+extern Pid_Typedef PID_Angle ;	// 小车的yaw角度环
 
-//// 配置目标角度
-//void PID_Goal_Angle_Set(float GoalAngle) ;
+void PID_Angle_Init(void) ;         // 初始化角度环PID（Kp=2.47, Kd=7.16, Out±100）
+void PID_Angle_Reset(void) ;        // 记录当前yaw为基准 + 清空PID历史（不归零，纯相对运动）
+void PID_Angle_Tar_Yaw(float delta);// 配置相对增量角度（+顺时针/-逆时针，基于Reset时刻的yaw基准）
+float PID_Angle_Get_Yaw(void) ;     // 获取相对yaw角度（当前值 - 起始基准）
+void PID_Angle_Tick(void) ;         // 20ms Tick: MPU更新→PID→差速输出(A-/B+)
+void PID_Angle_Speed_High_On(void) ;// 配置旋转速度:High
+void PID_Angle_Speed_Low_On(void) ; // 配置旋转速度:Low
 
-//// 设置当前角度为0
-//void PID_Angle_Curr_Reset(void) ;
+// =================== 整车直行位置环（A轮距离 + IMU偏航PD闭环） ===================
 
-//// 位置环
-//// ================= 电机编码器双轮外环 =================
+extern Pid_Typedef PID_Car_Straight ;	// 整车位置PID (参考A轮)
+extern Pid_Typedef PID_Straight_Yaw ;	// 直行偏航角度PD (参考startYaw=0°)
 
-//// 初始化
-//void PID_ALL_Pos_Init(void) ;
-//// 配置目标位移
-//void PID_ALL_Pos_Set_Goal(int Goal_Pos) ;
-//// 角度环配置
-//float PID_ALL_Pos_Tick(void) ;
-
-//void PID_ALL_Pos_Reset(void) ;
+void PID_Car_Straight_Init(void) ;		// 初始化（位置PD + 偏航PD参数）
+void PID_Car_Straight_Reset(void) ;		// 清零编码器 + 记录起始yaw + 清两个PID历史
+void PID_Car_Straight_Tick(void) ;		// 20ms: A轮距离→位置PID→梯形限速 + yaw PD→差速修正
+void PID_Car_Straight_SetSpeedParams(float max_speed); // 配置最高巡航速度(rpm)，0=默认200
 
 #endif

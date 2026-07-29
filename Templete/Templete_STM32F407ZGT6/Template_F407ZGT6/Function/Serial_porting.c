@@ -224,6 +224,12 @@ bool Serial_Check_Str(Serial_Typedef *pSerial, char *KeyWord)
     return false;
 }
 
+// 精确匹配（strcmp）
+bool Serial_CheckCmd(Serial_Typedef *pSerial, char *cmd)
+{
+    return (strcmp(pSerial->ABC_Data.Serial_New_Package_ABC, cmd) == 0);
+}
+
 // ========== 空闲中断回调 ==========
 
 // ============== 根据huart查找Serial实例 ==============

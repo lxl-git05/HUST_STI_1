@@ -1611,6 +1611,26 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Control.h</FilePath>
             </File>
+            <File>
+              <FileName>Match.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Match.c</FilePath>
+            </File>
+            <File>
+              <FileName>Match.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Match.h</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Menu_Param.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Param.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Menu_Param.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -15,6 +15,7 @@ int black_s     = 255 ;
 int black_v     = 100 ;
 
 int Oran_Check_XY[6] = {0} ;
+int Oran_Param[6] ;	// 香橙派通信参数（Menu_Param 调参用）
 float Oran_X_A = -3;	
 float Oran_X_B = 2850;	
 float Oran_Y_A = 2.889;	
