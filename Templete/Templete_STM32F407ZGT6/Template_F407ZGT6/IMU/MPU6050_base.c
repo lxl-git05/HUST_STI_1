@@ -93,54 +93,65 @@ void MPU6050_Init(void)
 	MPU6050_WriteReg(MPU6050_ACCEL_CONFIG, ACCEL_RANGE);	// 加速度计配置寄存器
 }
 
+// DWT 延时（ISR 安全，不依赖 SysTick）
+static void DWT_Delay_ms(uint32_t ms)
+{
+    uint32_t start = DWT->CYCCNT;
+    uint32_t cycles = ms * (SystemCoreClock / 1000);
+    while ((DWT->CYCCNT - start) < cycles);
+}
+
 // 硬件IIC故障修复函数
 HAL_StatusTypeDef MPU6050_I2C_Recover(void)
 {
     // 1. 先禁用 I2C 外设
-    __HAL_RCC_I2C2_CLK_DISABLE();  // 根据自己的 I2C 改成 I2C1 或 I2C2
-    HAL_Delay(10);
-    __HAL_RCC_I2C2_CLK_ENABLE();
-    HAL_Delay(10);
+
+    __HAL_RCC_I2C1_CLK_DISABLE();
+
+
+    DWT_Delay_ms(10);
+    __HAL_RCC_I2C1_CLK_ENABLE();
+    DWT_Delay_ms(10);
 
     // 2. 把 SDA 和 SCL 引脚恢复为 GPIO，强制产生 9 个时钟脉冲（标准 I2C 总线恢复）
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    // 假设你的 I2C2: SCL=PB10, SDA=PB11（根据 CubeMX 修改）
-    GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_11;
+    // I2C1: SCL=PB6, SDA=PB7
+    GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;  // 开漏输出
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     // 强制拉高 SDA 和 SCL
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10 | GPIO_PIN_11, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6 | GPIO_PIN_7, GPIO_PIN_SET);
 
-    HAL_Delay(1);
+    DWT_Delay_ms(1);
 
     // 产生 9 个 SCL 时钟脉冲（SDA 保持高）
     for(int i = 0; i < 9; i++) {
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
-        HAL_Delay(1);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
-        HAL_Delay(1);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+        DWT_Delay_ms(1);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+        DWT_Delay_ms(1);
     }
 
     // 产生一个 STOP 条件（SDA 从低到高，SCL 高）
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
-    HAL_Delay(1);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
-    HAL_Delay(1);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_SET);
-    HAL_Delay(1);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+    DWT_Delay_ms(1);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+    DWT_Delay_ms(1);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+    DWT_Delay_ms(1);
 
     // 3. 重新初始化 I2C 外设
     HAL_I2C_DeInit(hi2c_MPU6050);
-    HAL_Delay(10);
+    DWT_Delay_ms(10);
     if(HAL_I2C_Init(hi2c_MPU6050) != HAL_OK) {
         return HAL_ERROR;
     }
 
-    HAL_Delay(50);
+    DWT_Delay_ms(50);
     return HAL_OK;
 }
 
@@ -257,6 +268,105 @@ uint8_t MPU6050_GetID(void)
 {
 	return MPU6050_ReadReg(MPU6050_WHO_AM_I) ;
 }
+
+// ==================== DWT 硬件 I2C 连续读取（ISR 安全） ====================
+// 用 DWT 周期计数器做超时，不依赖 SysTick / HAL_GetTick
+// 在 TIM7 ISR 中也能正常工作（SysTick 无法抢占 ISR 但 DWT 是纯硬件计数器）
+static HAL_StatusTypeDef MPU6050_I2C_BurstRead(uint8_t reg, uint8_t *buf, uint8_t size)
+{
+    I2C_TypeDef *i2c = hi2c1.Instance;
+    uint32_t ts;
+
+    // 首次调用时初始化 DWT
+    if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk)) {
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    }
+    if (!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)) {
+        DWT->CYCCNT = 0;
+        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    }
+
+    // 超时 10ms（168M * 0.01 = 1.68M 周期）
+    #define TO_CYCLES  (SystemCoreClock / 100)
+
+    // ----- 1. 等总线空闲 -----
+    ts = DWT->CYCCNT;
+    while (i2c->SR2 & I2C_SR2_BUSY) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+
+    // ----- 2. 发 START -----
+    i2c->CR1 |= I2C_CR1_START;
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_SB)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+
+    // ----- 3. 发从机地址(写) -----
+    i2c->DR = MPU6050_ADDRESS;
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_ADDR)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+    (void)i2c->SR1; (void)i2c->SR2;  // 清 ADDR
+
+    // ----- 4. 发寄存器地址 -----
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_TXE)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+    i2c->DR = reg;
+
+    // 等 BTF 确保寄存器地址已发出
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_BTF)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+
+    // ----- 5. 发 RESTART -----
+    i2c->CR1 |= I2C_CR1_START;
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_SB)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+
+    // ----- 6. 发从机地址(读) -----
+    i2c->DR = MPU6050_ADDRESS | 0x01;
+
+    // ----- 7. 开 ACK -----
+    i2c->CR1 |= I2C_CR1_ACK;
+
+    ts = DWT->CYCCNT;
+    while (!(i2c->SR1 & I2C_SR1_ADDR)) {
+        if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+    }
+    (void)i2c->SR1; (void)i2c->SR2;  // 清 ADDR
+
+    // ----- 8. 读数据 -----
+    for (uint8_t i = 0; i < size; i++)
+    {
+        // 最后 1 字节：关 ACK + 设 STOP，读 DR 后自动生成 STOP
+        if (i == size - 1) {
+            i2c->CR1 &= ~I2C_CR1_ACK;
+            i2c->CR1 |= I2C_CR1_STOP;
+        }
+
+        ts = DWT->CYCCNT;
+        while (!(i2c->SR1 & I2C_SR1_RXNE)) {
+            if ((DWT->CYCCNT - ts) > TO_CYCLES) goto timeout;
+        }
+        buf[i] = (uint8_t)i2c->DR;
+    }
+
+    return HAL_OK;
+
+timeout:
+    // 超时：用 DWT 延时 + 硬件恢复
+    Flash_Mode_Set(Flash_Mode_Topp);
+    MPU6050_I2C_Recover();
+    return HAL_TIMEOUT;
+}
+
 // 原始数据更新
 void MPU6050_Update_Data(void)
 {
@@ -286,25 +396,11 @@ void MPU6050_Update_Data(void)
 	}
 	// 停止
 	MyI2C_Stop();
-	#else
-	// 硬件IIC可能读取失败,此时需要进行重启,而软件IIC问题就没有那么大,这里的修复逻辑有大量的delay,*待处理*
-	uint8_t retry = 5 ;
-	while(retry--) 
-	{
-		if (HAL_I2C_Mem_Read(hi2c_MPU6050,MPU6050_ADDRESS,MPU6050_ACCEL_XOUT_H,I2C_MEMADD_SIZE_8BIT,buf,14,1000) == HAL_OK)
-		{
-			retry = 0 ;
-		}
-		else	// 一般就是错误了
-		{
-			Flash_Mode_Set(Flash_Mode_Fast) ;
-			Timer_Counter_Begin() ;
-			MPU6050_I2C_Recover();
-			Timer_Counter_End() ;
-		}
-		// 修不成就寄了,待处理
-	}
-	#endif
+		#else
+
+		MPU6050_I2C_BurstRead(MPU6050_ACCEL_XOUT_H, buf, 14);
+
+		#endif
 	
 	// 数据处理
 	// 得到加速度

@@ -224,6 +224,18 @@
 | Con_Stepper.c | ./Template_F407ZGT6/Function/Con_Stepper.c | 修改 | 删除注释掉的 Stepper_PID_Tick + Stepper_PID_Is_OK 遗留代码 |
 | CLAUDE.md | ./Template_F407ZGT6/CLAUDE.md | 修改 | 更新 struct/API 表格 + 新增角度跟踪模式架构说明 |
 
+## 2026-07-31 16:00 | 修复 MPU6050 I2C 在 TIM7 ISR 中死锁（双层 bug）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| MPU6050_base.c | ./Template_F407ZGT6/IMU/MPU6050_base.c | 修改 | Bug1: MPU6050_I2C_Recover 修 I2C2/PB10-11→I2C1/PB6-7, HAL_Delay→DWT_Delay_ms(ISR安全)。Bug2: 新增 MPU6050_I2C_BurstRead() 用 DWT 周期计数器替代 HAL_GetTick 做 I2C 超时，MPU6050_Update_Data 中替换 HAL_I2C_Mem_Read 调用，消除 SysTick 优先级死锁 |
+
+## 2026-07-31 14:30 | Mode_4 缓慢启停运动系统（状态机+Ramp）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | 重写：5态状态机(IDLE→ACCEL→CRUISE→DECEL→STOP) + 分离加速/减速ramp分频 + OLED状态显示 + KEY1启动/KEY2调速 + Y8U_RampTick在末尾统一执行确保减速ramp不被覆盖 |
+
 ## 2026-07-30 | Mode_2 新增加角度跟踪独立测试 + Orange测试函数
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |

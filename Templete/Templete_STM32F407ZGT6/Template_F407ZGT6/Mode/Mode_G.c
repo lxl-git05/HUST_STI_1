@@ -102,7 +102,7 @@ void Timer_10ms_Callback(void)
 void Timer_20ms_Callback(void)
 {
     // 0. IMU 陀螺仪姿态更新（20ms Mahony 解算）
-//    IMU_Mahony_Update_Tick();
+    IMU_Mahony_Update_Tick();
     // 1. 香橙派更新,放在10ms
     
     // 2. Con_Task 通用 Tick（无任务时自动跳过）
@@ -119,7 +119,7 @@ void Timer_20ms_Callback(void)
 			case 6 : Mode_6_Tick() ; break;
 //			case Con_Mode_1 : Con_Mode_1_Tick() ; break;
 			case Con_Mode_2 : Con_Mode_2_Tick() ; break;
-//			case Con_Mode_3 : Con_Mode_3_Tick() ; break;
+			case Con_Mode_3 : Con_Mode_3_Tick() ; break;
 //			case Con_Mode_4 : Con_Mode_4_Tick() ; break;
 //			case Con_Mode_5 : Con_Mode_5_Tick() ; break;
 //			case Con_Mode_6 : Con_Mode_6_Tick() ; break;
