@@ -39,6 +39,7 @@ void Mode_G_Loop(void)
     if (Key_Check(KEY_0, KEY_SINGLE))// 单击
     {
         Flash_Mode_Set(Flash_Mode_Fast) ;
+			Mode_To_Next() ;
     }
     // 进入下一个模式
     if (Key_Check(KEY_0, KEY_DOUBLE))// 双击
@@ -76,16 +77,34 @@ void Timer_1ms_Callback(void)
 	// 功能4: 步进电机位置模式Tick（1ms速度ramp + 阶段切换）
 	Stepper_PWM_Pos_Tick(&Stepper1);
 	Stepper_PWM_Pos_Tick(&Stepper2);
+	// 功能5: 步进电机角度PID Tick（连续轨迹跟踪，1ms内环）
+	Stepper_PWM_Angle_Tick(&Stepper1);
+	Stepper_PWM_Angle_Tick(&Stepper2);
 
+}
+
+// 10ms定时器（球平衡，按模式分发）
+void Timer_10ms_Callback(void)
+{
+//	Timer_Counter_Func() ;
+		Oran_Update() ;
+//		Oran_Filter_10ms() ;  // 关闭, 直接用Serial速度
+    switch (curr_mode)
+    {
+        case Mode_2: Mode_2_10ms_Tick(); break;
+        case Mode_5: Mode_5_10ms_Tick(); break;
+        case Mode_6: Mode_6_10ms_Tick(); break;
+        default: break;
+    }
 }
 
 // 20ms定时器
 void Timer_20ms_Callback(void)
 {
     // 0. IMU 陀螺仪姿态更新（20ms Mahony 解算）
-    IMU_Mahony_Update_Tick();
-    // 1. 香橙派更新
-    Oran_Update() ;
+//    IMU_Mahony_Update_Tick();
+    // 1. 香橙派更新,放在10ms
+    
     // 2. Con_Task 通用 Tick（无任务时自动跳过）
     Con_Task_Tick() ;
     // 3. 20ms定时器逻辑

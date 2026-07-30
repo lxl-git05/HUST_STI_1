@@ -11,7 +11,7 @@ void Mode_4_Setup(void)
 
 void Mode_4_Loop(void)
 {
-    OLED_Printf(0, 0, OLED_6X8, "Mode_4 Spd:%.0f", Y8U_GetSpeed());
+    OLED_Printf(0, 0, OLED_6X8, "Mode_4 Y8Spd:%.0f", Y8U_GetSpeed());
 		// 调试PID
 		if (Serial_GetNewPackageFlag_ABC(&Serial1))
 		{

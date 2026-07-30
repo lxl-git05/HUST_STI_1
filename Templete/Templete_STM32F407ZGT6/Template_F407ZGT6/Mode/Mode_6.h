@@ -10,5 +10,6 @@ void Mode_6_Loop(void);
 void Mode_6_Exit(void);
 
 void Mode_6_Tick(void);
+void Mode_6_10ms_Tick(void);
 
 #endif

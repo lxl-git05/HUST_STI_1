@@ -10,5 +10,6 @@ void Mode_5_Loop(void);
 void Mode_5_Exit(void);
 
 void Mode_5_Tick(void);
+void Mode_5_10ms_Tick(void);
 
 #endif

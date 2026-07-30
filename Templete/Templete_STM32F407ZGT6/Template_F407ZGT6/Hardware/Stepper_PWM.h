@@ -46,6 +46,10 @@ typedef struct
     float   Pos_TargetAngle;            // 运动目标绝对角度
     // PID参数
     Pid_Typedef PID_Angle;              // 香橙派角度对应PID
+
+    // --- 角度跟踪模式（连续轨迹跟踪，非点到点） ---
+    float   Angle_Tar;                  // 目标角度（度），由外层设置
+    uint8_t Angle_Mode_Enable;          // 1=角度PID激活，0=关闭
 } Stepper_PWM_Typedef;
 
 extern Stepper_PWM_Typedef Stepper1 ;
@@ -79,6 +83,23 @@ void Stepper_PWM_Pos_Set_Rel(Stepper_PWM_Typedef* pStepper, float relative_angle
 
 // 位置模式1ms Tick（速度ramp + 阶段切换）
 void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper);
+
+// =================== 角度跟踪模式（连续轨迹跟踪，非点到点） ===================
+
+// 设置目标角度并启用角度PID跟踪（不做运动规划，1ms Angle_Tick驱动）
+void Stepper_Set_Angle(Stepper_PWM_Typedef* pStepper, float angle);
+
+// 角度跟踪1ms Tick：读取Pos_Now，PID(error)→速度，直接_Stepper_Apply_Speed
+void Stepper_PWM_Angle_Tick(Stepper_PWM_Typedef* pStepper);
+
+// 配置角度PID增益（Kp/Ki/Kd + 输出限幅±OutMax/OutMin）
+void Stepper_PWM_Angle_Gains_Set(Stepper_PWM_Typedef* pStepper, float Kp, float Ki, float Kd, float OutMax, float OutMin);
+
+// 重置角度PID历史（误差/积分清零），用于新控制序列开始
+void Stepper_PWM_Angle_Reset(Stepper_PWM_Typedef* pStepper);
+
+// 退出角度跟踪模式（电机不立即停止，需额外调用Stop）
+void Stepper_PWM_Angle_Disable(Stepper_PWM_Typedef* pStepper);
 
 // 角度到达检测（速度≈0 且 角度≈目标）
 bool Stepper_PWM_Is_Angle(void);                                        // 双电机同时判定（容差=2.5×pulse_angle）

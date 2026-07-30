@@ -49,8 +49,8 @@ void PID_Update(Pid_Typedef *pid, float ActualValue)
 	// 得到PID的输出值
 	pid->setPoint = pid->pout + pid->iout + pid->dout ;
 
-	// 输出死区,死区超过0.1f视为存在死区
-	if ( fabs(pid->deadspace) > 0.1f && fabs (pid->setPoint - pid->realPoint_Now) < pid->deadspace )
+	// 输出死区,死区超过0.1f视为存在死区（比较误差而非输出-测量，两者量纲不同）
+	if ( fabs(pid->deadspace) > 0.1f && fabs (pid->PreError) < pid->deadspace )
 	{
 		pid->SumError = 0.0f ;
 	}

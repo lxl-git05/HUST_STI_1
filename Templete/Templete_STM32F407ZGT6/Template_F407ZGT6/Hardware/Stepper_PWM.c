@@ -53,6 +53,10 @@ void Stepper_PWM_Init(Stepper_PWM_Typedef* pStepper, MyPWM_Typedef* PWM, MyGPIO_
     pStepper->Pos_StartAngle = 0;
     pStepper->Pos_TargetAngle = 0;
 
+    // 角度跟踪模式初始化
+    pStepper->Angle_Tar = 0;
+    pStepper->Angle_Mode_Enable = 0;
+
     // 初始化DIR引脚（默认正转）
     MyGPIO_WritePin(pStepper->GPIO_Dir, Positive_Dir > 0 ? 1 : 0);
     // 初始化PWM
@@ -113,6 +117,7 @@ void Stepper_PWM_Speed_Set(Stepper_PWM_Typedef* pStepper, float Speed, float acc
         pStepper->Pos_Phase = POS_PHASE_IDLE;
         pStepper->Pos_StepCnt = 0;
     }
+    pStepper->Angle_Mode_Enable = 0;   // 取消角度跟踪模式
 
     pStepper->Speed_Tar = Speed;
     pStepper->Acc_Val = acc;
@@ -151,6 +156,7 @@ void Stepper_PWM_Stop(Stepper_PWM_Typedef* pStepper)
 {
     MyPWM_SetCompare(pStepper->PWM, 0);
     pStepper->Speed_Now = 0;
+    pStepper->Angle_Mode_Enable = 0;   // 取消角度跟踪模式
 }
 
 // =================== 脉冲中断处理（需要在TIM脉冲更新中断中调用） ===================
@@ -243,6 +249,8 @@ uint8_t Stepper_PWM_Limit_Check(Stepper_PWM_Typedef* pStepper, float target_spee
 // acc: 加速度（rpm/s），<0.001=快速模式（直接到位，脉冲中断停止）
 void Stepper_PWM_Pos_Set_Abs(Stepper_PWM_Typedef* pStepper, float target_angle, float max_speed, float acc)
 {
+    pStepper->Angle_Mode_Enable = 0;   // 取消角度跟踪模式
+
     // 1. 取消速度模式
     pStepper->Speed_Tar = 0;
     pStepper->Acc_Val = 0;
@@ -444,4 +452,53 @@ void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper)
     }
 
     _Stepper_Apply_Speed(pStepper, speed_mag * pStepper->Pos_MoveDir);
+}
+
+// =================== 角度跟踪模式（连续轨迹跟踪，非点到点） ===================
+
+// 设置目标角度并启用角度PID跟踪
+// 不做运动规划，实际运动由 1ms Angle_Tick 驱动
+void Stepper_Set_Angle(Stepper_PWM_Typedef* pStepper, float angle)
+{
+    // 取消位置模式
+    if (pStepper->Pos_Phase != POS_PHASE_IDLE) {
+        pStepper->Pos_Phase = POS_PHASE_IDLE;
+        pStepper->Pos_StepCnt = 0;
+    }
+    // 存储目标并启用角度跟踪
+    pStepper->Angle_Tar = angle;
+    pStepper->Angle_Mode_Enable = 1;
+}
+
+// 角度跟踪 1ms Tick：误差→角度PID→速度→硬件
+// 直接调用 _Stepper_Apply_Speed，不经过 Speed_Set（避免互斥清除 Angle_Mode_Enable）
+void Stepper_PWM_Angle_Tick(Stepper_PWM_Typedef* pStepper)
+{
+    if (!pStepper->Angle_Mode_Enable) return;
+
+    // PID: 角度误差 → 速度输出
+    pStepper->PID_Angle.goalPoint = pStepper->Angle_Tar;
+    PID_Update(&pStepper->PID_Angle, pStepper->Pos_Now);
+
+    // 直接应用到硬件（PID_Angle.setPoint 已由 PID_Update 限幅到 OutMax/OutMin）
+    pStepper->Speed_Tar = pStepper->PID_Angle.setPoint;  // 仅用于调试显示
+    _Stepper_Apply_Speed(pStepper, pStepper->PID_Angle.setPoint);
+}
+
+// 配置角度PID增益（Kp/Ki/Kd + 输出限幅±OutMax/OutMin，ioutMax=1000）
+void Stepper_PWM_Angle_Gains_Set(Stepper_PWM_Typedef* pStepper, float Kp, float Ki, float Kd, float OutMax, float OutMin)
+{
+    PID_Init(&pStepper->PID_Angle, Kp, Ki, Kd, OutMax, OutMin, 1000.0f);
+}
+
+// 重置角度PID历史（误差/积分清零），用于新控制序列开始
+void Stepper_PWM_Angle_Reset(Stepper_PWM_Typedef* pStepper)
+{
+    PID_Param_Reset(&pStepper->PID_Angle);
+}
+
+// 退出角度跟踪模式（电机不立即停止，需额外调用 Stop）
+void Stepper_PWM_Angle_Disable(Stepper_PWM_Typedef* pStepper)
+{
+    pStepper->Angle_Mode_Enable = 0;
 }

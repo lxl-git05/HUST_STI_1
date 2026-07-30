@@ -68,10 +68,16 @@ void Mymain(void)
 							default: break;
 					}
 			}
-			curr_mode = next_mode ; // 状态更新
-			// 记忆模式：保存到 AT24C02，下次上电自动恢复
-			if (curr_mode != Mode_Null)
+			// 状态更新 + 模式变化时写一次 AT24C02（不再每次循环写）
+		{
+			static Mode_Typedef last_saved = Mode_Null ;
+			curr_mode = next_mode ;
+			if (curr_mode != Mode_Null && curr_mode != last_saved)
+			{
 				Param_AT24C02_Write(&curr_mode) ;
+				last_saved = curr_mode ;
+			}
+		}
 		  OLED_Update() ;
 	}
 }

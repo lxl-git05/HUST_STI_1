@@ -139,6 +139,9 @@ typedef struct {
     float Acc_Val;               // 加速度步进（rpm/Tick），0=瞬时
     // PID
     Pid_Typedef PID_Angle;       // 角度PID控制器
+    // 角度跟踪模式
+    float   Angle_Tar;           // 目标角度（度），外层设置
+    uint8_t Angle_Mode_Enable;   // 1=角度PID激活，0=关闭
 } Stepper_PWM_Typedef;
 ```
 
@@ -154,6 +157,15 @@ typedef struct {
 | `Stepper_PWM_Limit_Config(pStepper, max, min)` | 配置软件限位角度并启用 |
 | `Stepper_PWM_Limit_Check(pStepper, speed)` | 限位询问：返回1=放行/0=拦截（反向退回始终放行） |
 | `Stepper_PWM_Limit_LED_Update(void)` | 更新RGB限位指示灯 |
+| `Stepper_PWM_Pos_Set_Abs(pStepper, angle, max_spd, acc)` | 位置模式：梯形速度规划，点到点运动 |
+| `Stepper_PWM_Pos_Set_Rel(pStepper, rel_angle, max_spd, acc)` | 位置模式：相对角度旋转 |
+| `Stepper_PWM_Pos_Tick(pStepper)` | **1ms中断调用**：位置模式阶段切换+速度ramp |
+| `Stepper_PWM_Is_Angle()` / `_Ex()` | 角度到达检测（双/单电机，可调容差） |
+| `Stepper_Set_Angle(pStepper, angle)` | ★ 角度跟踪模式：仅设目标，不做运动规划 |
+| `Stepper_PWM_Angle_Tick(pStepper)` | **1ms中断调用**：角度误差→PID→速度（连续轨迹跟踪） |
+| `Stepper_PWM_Angle_Gains_Set(pStepper, Kp, Ki, Kd, OutMax, OutMin)` | 配置角度跟踪PID增益 |
+| `Stepper_PWM_Angle_Reset(pStepper)` | 重置角度PID历史（误差/积分清零） |
+| `Stepper_PWM_Angle_Disable(pStepper)` | 退出角度跟踪模式 |
 
 #### 双层限位
 
@@ -173,6 +185,25 @@ Timer_20ms_Callback
   →  Speed_Tick()      →  每20ms: Speed_Now ±= Acc_Val, 趋近 Speed_Tar
   →  _Stepper_Apply_Speed   (内部: 限位→方向→频率→PWM硬件)
 ```
+
+#### 角度跟踪模式（连续轨迹跟踪，非点到点）
+
+用于球平衡等目标角度持续变化的场景。不做梯形速度规划。
+
+```
+外层（10ms，如球速PID）：
+  → Stepper_Set_Angle(&Stepper1, target_angle)  // 仅存值+使能
+
+内环（1ms，Timer_1ms_Callback）：
+  → Stepper_PWM_Angle_Tick(&Stepper1)
+    → error = Angle_Tar - Pos_Now
+    → PID_Update(&PID_Angle, Pos_Now)           // 输出限幅=速度限幅
+    → _Stepper_Apply_Speed(setPoint)            // 直接驱动，不经Speed_Set
+```
+
+**三种控制模式互斥**：调用任一模式入口（Speed_Set / Pos_Set_Abs / Set_Angle）自动取消其他两种。
+
+**限位**：角度跟踪模式下 Pos_Phase==IDLE，第1层限位正常生效。
 
 #### 中断链路
 
@@ -235,6 +266,14 @@ TIM9/TIM12 Update → IRQHandler → HAL_TIM_IRQHandler
 ## TODO
 
 - [x] **目标角度精确控制**：✅ 2026-07-13 完成。`Stepper_PWM_Pos_Set(target_angle, max_speed, acc)` 实现T型速度曲线（等腰三角形/梯形），自动到位停止
+
+---
+
+## ⚠️ 球平衡系统：所有方案均为实验性尝试
+
+Orange 模块（`Hardware/Orange.c`）中的速度环滤波、串级 PID 参数、死区策略等均处于调试阶段，**未最终确定**。用户可能随时回档代码。改动前务必确认当前文件实际状态。
+
+详细实验记录见 memory: [[ball-balance-q3-plan]]
 
 ---
 

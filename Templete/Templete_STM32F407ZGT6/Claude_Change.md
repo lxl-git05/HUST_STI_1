@@ -212,3 +212,22 @@
 | Stepper_PWM.c | ./Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | 重构_Stepper_Is_Angle_Single_Tol(tol_mult)；新增两个Ex公开函数 |
 | Con_Task.h | ./Template_F407ZGT6/Function/Con_Task.h | 重写 | 合并F407云台+MSPM0小车任务枚举(16值)；添加Con_Task_Skip()声明；启用CON_TASK_RECORD_CLEAR_ON_INIT |
 | Con_Task.c | ./Template_F407ZGT6/Function/Con_Task.c | 重写 | 新增Con_Task_RecordComplete(reason)辅助函数；新增Con_Task_Skip()；Loop退出重构用RecordComplete；日志格式支持动态原因字符串 |
+
+## 2026-07-30 | 步进电机新增加角度PID内环（连续轨迹跟踪）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_PWM.h | ./Template_F407ZGT6/Hardware/Stepper_PWM.h | 修改 | 结构体新增 Angle_Tar + Angle_Mode_Enable 字段；声明 5 个角度跟踪 API |
+| Stepper_PWM.c | ./Template_F407ZGT6/Hardware/Stepper_PWM.c | 修改 | Init 初始化新字段；Speed_Set/Stop/Pos_Set_Abs 新增互斥清零；实现 Stepper_Set_Angle / Angle_Tick / Angle_Gains_Set / Angle_Reset / Angle_Disable |
+| Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | Timer_1ms_Callback 新增 Stepper_PWM_Angle_Tick(&Stepper1/2) 调用 |
+| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | Mode_5: Oran_Speed_PID_Init 新增角度PID增益配置；Oran_Speed_PID_Update 将 Pos_Set_Abs 替换为 Stepper_Set_Angle（去掉梯形规划器） |
+| Con_Stepper.c | ./Template_F407ZGT6/Function/Con_Stepper.c | 修改 | 删除注释掉的 Stepper_PID_Tick + Stepper_PID_Is_OK 遗留代码 |
+| CLAUDE.md | ./Template_F407ZGT6/CLAUDE.md | 修改 | 更新 struct/API 表格 + 新增角度跟踪模式架构说明 |
+
+## 2026-07-30 | Mode_2 新增加角度跟踪独立测试 + Orange测试函数
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Orange.h | ./Template_F407ZGT6/Hardware/Orange.h | 修改 | 声明 Oran_Angle_Test_Target / Oran_Angle_Test_Init / Oran_Angle_Test_Update |
+| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | 新增角度跟踪测试函数：Init(配置PID+归零)、Update(每10ms写目标角度) |
+| Mode_2.c | ./Template_F407ZGT6/Mode/Mode_2.c | 修改 | 新增mode2_sub子模式切换(0=位置PID,1=角度跟踪测试)；OLED/CSV自适应显示；串口"Mode=1"进入角度测试可调Kp_A/Ki_A/Kd_A/Angle |
