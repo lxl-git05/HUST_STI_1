@@ -21,6 +21,11 @@ void Oran_XY_Change(void) ;
 
 // ================== 位置环 PID ==================
 extern Pid_Typedef PID_Oran ;	// 铁球位置PID
+extern float Oran_Real_Offset ;	// real偏移量, 模拟Orange Pi输入
+extern float Oran_KpHi ;        // 低速Kp
+extern float Oran_KpLo ;        // 高速Kp
+extern float Oran_KpSpdThrLo ;  // 低速阈值
+extern float Oran_KpSpdThrHi ;  // 高速阈值
 void Oran_PID_Init(void) ;
 void Oran_PID_Update(void) ;
 

@@ -102,22 +102,28 @@ void Oran_Send_Data(int* Data)
 }
 // ============================================== 香橙派位置PID(Mode2使用) ==============================================
 Pid_Typedef PID_Oran ;	// 铁球PID
+float Oran_Real_Offset = 0.0f ;	// real偏移量, 模拟Orange Pi发送的偏移, 可串口在线调
+// === 变Kp: 球速越低Kp越大(球停→硬推, 球快→软控), 均可串口在线调 ===
+float Oran_KpHi         = 0.50f ;  // 低速Kp(球停了就加力)
+float Oran_KpLo         = 0.16f ;  // 高速Kp(不振荡)
+float Oran_KpSpdThrLo   = 5.0f ;   // <此值→KpHi
+float Oran_KpSpdThrHi   = 20.0f ;  // >此值→KpLo
 #define Oran_PID_Dir (1)
 #include "math.h"
 
-// 积分分离: |误差|>45时清零积分, 只在大误差时启用I项消除静差
+// 积分分离: |球偏离中心|>45时清零积分, 用realPoint_Now避免goal跳变误杀I
 static void PID_Oran_IntSep(void)
 {
-	if (fabs(PID_Oran.PreError) > 45.0f)
+	if (fabs(PID_Oran.realPoint_Now) > 45.0f)
 		PID_Oran.SumError = 0.0f ;
 }
 
 void Oran_PID_Init(void)
 {
-	// PID初始化
-	PID_Init(&PID_Oran , 0.237f , 0.002f , 3.4f , 200 , -200 , 1000) ;
+	// PID初始化: Kd 3.4→1.5(降噪声), Ki 0.002→0(PD先行,后续按需加)
+	PID_Init(&PID_Oran , 0.16f , 0.013f , 5.0f , 200 , -200 , 1000) ;
 	PID_Oran.PID_Func = PID_Oran_IntSep ;  // 注册积分分离回调
-	PID_Oran.d_filter = 0.2f ;
+	PID_Oran.d_filter = 0.4f ;
 }
 
 void Oran_PID_Update(void)
@@ -125,11 +131,21 @@ void Oran_PID_Update(void)
 	// 1. 香橙派更新数据,得到Real值:这个是全局任务，直接放在Mode_G
 	// Oran_Update() ;
 	// 2. PID数据更新:real更新 goal为0 set需要求
-	PID_Oran.realPoint_Now = Oran_real ;
-	// 3. PID计算
+	PID_Oran.realPoint_Now = Oran_real + Oran_Real_Offset ;  // real叠加偏移, 模拟Orange Pi输入
+	// 3. 变Kp(暂关): 球速越低Kp越大, 球停→硬推
+//	{
+//		float spd = fabs((float)Oran_Speed) ;
+//		if (spd < Oran_KpSpdThrLo)
+//			PID_Oran.Kp = Oran_KpHi ;
+//		else if (spd > Oran_KpSpdThrHi)
+//			PID_Oran.Kp = Oran_KpLo ;
+//		else
+//			PID_Oran.Kp = Oran_KpLo + (Oran_KpHi - Oran_KpLo)
+//				* (Oran_KpSpdThrHi - spd) / (Oran_KpSpdThrHi - Oran_KpSpdThrLo) ;
+//	}
+	// 4. PID计算
 	PID_Update(&PID_Oran, PID_Oran.realPoint_Now) ;
-	// 4. 内环驱动: 步进电机1即可
-//	Stepper_PWM_Speed_Set(&Stepper1 , -PID_Oran.setPoint * Oran_PID_Dir , 0) ;
+	// 4. 内环驱动
 	Stepper_Set_Angle(&Stepper1 , -PID_Oran.setPoint * Oran_PID_Dir) ;
 }
 

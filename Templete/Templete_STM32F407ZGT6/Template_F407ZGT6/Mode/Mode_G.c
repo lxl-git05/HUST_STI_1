@@ -89,13 +89,13 @@ void Timer_10ms_Callback(void)
 //	Timer_Counter_Func() ;
 		Oran_Update() ;
 //		Oran_Filter_10ms() ;  // 关闭, 直接用Serial速度
-    switch (curr_mode)
-    {
-        case Mode_2: Mode_2_10ms_Tick(); break;
-        case Mode_5: Mode_5_10ms_Tick(); break;
-        case Mode_6: Mode_6_10ms_Tick(); break;
-        default: break;
-    }
+	    switch (curr_mode)
+	    {
+	        case Mode_2: Mode_2_10ms_Tick(); break;
+	//        case Mode_5: Mode_5_10ms_Tick(); break;  // 已禁用,只用位置环
+	//        case Mode_6: Mode_6_10ms_Tick(); break;  // 已禁用,只用位置环
+	        default: break;
+	    }
 }
 
 // 20ms定时器
@@ -115,8 +115,8 @@ void Timer_20ms_Callback(void)
 			case 2 : Mode_2_Tick() ; break;
 			case 3 : Mode_3_Tick() ; break;
 			case 4 : Mode_4_Tick() ; break;
-			case 5 : Mode_5_Tick() ; break;
-			case 6 : Mode_6_Tick() ; break;
+			case 5 : break ;  // Mode_5_Tick() 已禁用,只用位置环
+			case 6 : break ;  // Mode_6_Tick() 已禁用,只用位置环
 //			case Con_Mode_1 : Con_Mode_1_Tick() ; break;
 			case Con_Mode_2 : Con_Mode_2_Tick() ; break;
 			case Con_Mode_3 : Con_Mode_3_Tick() ; break;

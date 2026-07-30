@@ -243,3 +243,11 @@
 | Orange.h | ./Template_F407ZGT6/Hardware/Orange.h | 修改 | 声明 Oran_Angle_Test_Target / Oran_Angle_Test_Init / Oran_Angle_Test_Update |
 | Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | 新增角度跟踪测试函数：Init(配置PID+归零)、Update(每10ms写目标角度) |
 | Mode_2.c | ./Template_F407ZGT6/Mode/Mode_2.c | 修改 | 新增mode2_sub子模式切换(0=位置PID,1=角度跟踪测试)；OLED/CSV自适应显示；串口"Mode=1"进入角度测试可调Kp_A/Ki_A/Kd_A/Angle |
+
+## 2026-07-31 | Con_Mode_3 位置环 PID 优化
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | Oran_PID_Init: Kd 3.4→1.5(降噪声放大), Ki 0.002→0(PD先行,后续按需加I) |
+| Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | Setup 加 PID_Param_Reset(防上一模式残留); Tick 加 Oran_Update(刷新数据) + 扩展CSV为6列(Goal/RawPos/Pout/Iout/Dout/Output) |
+| Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | 禁用 Mode_5 和 Mode_6 的 10ms/20ms Tick(只用位置环); 函数代码保留不删 |

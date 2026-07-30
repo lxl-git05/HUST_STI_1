@@ -29,6 +29,7 @@ void Mode_4_Setup(void)
 {
     Y8U_SetSpeed(0);
     race_state = RACE_IDLE;
+	Con_Mode_3_Setup();
 }
 
 void Mode_4_Loop(void)
@@ -101,17 +102,18 @@ void Mode_4_Loop(void)
 
 void Mode_4_Tick(void)
 {
+	Con_Mode_3_Tick();
     Motor_Pos_Update(&Motor_A);
     Motor_Pos_Update(&Motor_B);
 
     // ===== IDLE/STOP: 什么也不做，直接返回 =====
     if (race_state == RACE_IDLE || race_state == RACE_STOP)
     {
-        Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
-            IMU_Yaw_Abs_Get(),
-            Motor_A.PID_s.realPoint_Now,
-            Motor_B.PID_s.realPoint_Now,
-            IMU_Get_Ax(), IMU_Get_Ay());
+//        Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
+//            IMU_Yaw_Abs_Get(),
+//            Motor_A.PID_s.realPoint_Now,
+//            Motor_B.PID_s.realPoint_Now,
+//            IMU_Get_Ax(), IMU_Get_Ay());
         return;
     }
 
@@ -174,11 +176,11 @@ void Mode_4_Tick(void)
         Y8U_RampTick(Mode4_Tar_Speed, cnt);
     }
 
-    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
-        IMU_Yaw_Abs_Get(),
-        Motor_A.PID_s.realPoint_Now,
-        Motor_B.PID_s.realPoint_Now,
-        IMU_Get_Ax(), IMU_Get_Ay());
+//    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
+//        IMU_Yaw_Abs_Get(),
+//        Motor_A.PID_s.realPoint_Now,
+//        Motor_B.PID_s.realPoint_Now,
+//        IMU_Get_Ax(), IMU_Get_Ay());
 }
 void Mode_4_Exit(void)
 {
