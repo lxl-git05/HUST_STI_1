@@ -251,3 +251,18 @@
 | Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | Oran_PID_Init: Kd 3.4→1.5(降噪声放大), Ki 0.002→0(PD先行,后续按需加I) |
 | Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | Setup 加 PID_Param_Reset(防上一模式残留); Tick 加 Oran_Update(刷新数据) + 扩展CSV为6列(Goal/RawPos/Pout/Iout/Dout/Output) |
 | Mode_G.c | ./Template_F407ZGT6/Mode/Mode_G.c | 修改 | 禁用 Mode_5 和 Mode_6 的 10ms/20ms Tick(只用位置环); 函数代码保留不删 |
+
+## 2026-07-31 | 速度阻尼加入位置环输出
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Orange.h | ./Template_F407ZGT6/Hardware/Orange.h | 修改 | 新增 extern float Oran_Damping_K 声明 |
+| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | 新增 Oran_Damping_K=0.0f 定义；Oran_PID_Update 输出行加入 - Damping_K × Oran_Speed 阻尼项 |
+| Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | ABC 注册 Damp 命令，串口在线调 @Damp= |
+| Mode_4.c | ./Template_F407ZGT6/Mode/Mode_4.c | 修改 | ABC 注册 Damp 命令，串口在线调 @Damp= |
+
+## 2026-07-31 | Con_Mode_3 阶跃方向反转 + 宏控制
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | 新增 CON_MODE_3_STEP_DIR 宏(-1=先-5cm再+5cm)；首目标/斜坡/末目标三处用宏控制方向 |

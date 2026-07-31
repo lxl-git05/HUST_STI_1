@@ -7,6 +7,7 @@
 // 工具库 (Tools)
 #include "LED_Flash.h"
 #include "Timer_Counter.h"
+#include "math.h"
 
 // 硬件驱动库
 #include "Key.h"

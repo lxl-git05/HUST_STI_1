@@ -23,9 +23,6 @@ void Mode_5_Loop(void)
 			Serial_SetFloatData(&Serial1, "Ki",  "Ki=%f",  &PID_Oran_Speed.Ki);
 			Serial_SetFloatData(&Serial1, "Kd",  "Kd=%f",  &PID_Oran_Speed.Kd);
 			Serial_SetFloatData(&Serial1, "Goal","Goal=%f",&PID_Oran_Speed.goalPoint);
-			Serial_SetFloatData(&Serial1, "KpL", "KpL=%f", &Oran_SPD_Kp_Lo);
-			Serial_SetIntData  (&Serial1, "ThL", "ThL=%d", &Oran_SPD_Thr_Lo);
-			Serial_SetIntData  (&Serial1, "ThH", "ThH=%d", &Oran_SPD_Thr_Hi);
 	}
 }
 

@@ -1512,14 +1512,14 @@
               <FilePath>..\Software\ParamEdit.h</FilePath>
             </File>
             <File>
-              <FileName>Queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\Queue.c</FilePath>
-            </File>
-            <File>
               <FileName>Queue.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Software\Queue.h</FilePath>
+            </File>
+            <File>
+              <FileName>Queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\Queue.c</FilePath>
             </File>
           </Files>
         </Group>

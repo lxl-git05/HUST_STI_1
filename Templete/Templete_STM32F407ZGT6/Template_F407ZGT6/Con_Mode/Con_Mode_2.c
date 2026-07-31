@@ -71,7 +71,7 @@ void Con_Mode_2_Tick(void)
 				}
 		}
 
-		Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f\r\n", Y8U_PID.goalPoint, Y8U_PID.realPoint_Now, Y8U_PID.setPoint, IMU_Yaw_Abs_Get());
+		Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n", Y8U_PID.goalPoint, Y8U_PID.realPoint_Now, Y8U_PID.setPoint, IMU_Yaw_Abs_Get(),IMU_Get_Ax()*1000);
 }
 
 void Con_Mode_2_Exit(void)
