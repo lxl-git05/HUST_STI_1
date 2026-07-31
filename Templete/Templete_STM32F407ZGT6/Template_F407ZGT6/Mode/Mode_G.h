@@ -16,7 +16,7 @@ typedef enum
 //		Con_Mode_1 ,    // 寻迹比赛
 		Con_Mode_2 ,    // 寻迹比赛
 		Con_Mode_3 ,    // 业务逻辑
-//		Con_Mode_4 ,    // 业务逻辑
+Con_Mode_4 ,    // 业务逻辑
 //		Con_Mode_5 ,    // 业务逻辑
 //		Con_Mode_6 ,    // 业务逻辑
 
