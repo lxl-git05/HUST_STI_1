@@ -45,6 +45,7 @@ extern float Oran_FF_Alpha ;  // 低通系数
 extern float Oran_FF_Len   ;  // 板长 cm
 extern float Oran_FF_Lift  ;  // 步进每度升降 cm/°
 extern float Oran_Damping_K ;  // 速度阻尼系数, 串口在线调
+extern float Oran_FF_Enable  ;  // 加速度前馈使能: 1=开, 0=关(Mode_3静止用)
 extern float ff_angle ;
 
 // ================== 速度环 PID ==================

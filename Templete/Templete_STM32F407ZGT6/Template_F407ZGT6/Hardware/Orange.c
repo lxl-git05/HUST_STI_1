@@ -179,6 +179,7 @@ float Oran_FF_Alpha = 0.30f ;  // 低通系数
 float Oran_FF_Len   = 22.0f ;  // 板长 cm
 float Oran_FF_Lift  = 0.038f ; // 步进每度升降 cm/°
 float Oran_Damping_K = 0.0f ;  // 速度阻尼系数, 默认0=关闭, 串口在线调
+float Oran_FF_Enable  = 1.0f ;  // 加速度前馈使能: 1=开(默认), 0=关(静止场景)
 float ff_angle = 0 ;					 // 前馈补偿角度
 
 #define Oran_PID_Dir (1)
@@ -187,7 +188,7 @@ float ff_angle = 0 ;					 // 前馈补偿角度
 // 积分分离: |球偏离中心|>45时清零积分, 用realPoint_Now避免goal跳变误杀I
 static void PID_Oran_IntSep(void)
 {
-//	PID_Oran.SumError *= 0.99f;
+	PID_Oran.SumError *= 0.95f;
 	if (fabs(PID_Oran.realPoint_Now) > Oran_Single_Pos && (Oran_Speed > 8.0f || Oran_Speed < -8.0f))
 		PID_Oran.SumError = 0.0f ;
 }
@@ -214,7 +215,7 @@ void Oran_PID_Update(void)
 		static float ff_ax_filt = 0.0f ;
 		float ax = IMU_Get_Ax() ;
 		ff_ax_filt = Oran_FF_Alpha * ax + (1.0f - Oran_FF_Alpha) * ff_ax_filt ;
-		ff_angle = ff_ax_filt * Oran_FF_Len / Oran_FF_Lift ;
+		ff_angle = ff_ax_filt * Oran_FF_Len / Oran_FF_Lift * Oran_FF_Enable ;
 		Stepper_Set_Angle(&Stepper1 , ff_angle + Oran_Damping_K * Oran_Speed - (PID_Oran.setPoint) * Oran_PID_Dir) ;
 //		Stepper_Set_Angle(&Stepper1 , 0 + Oran_Damping_K * Oran_Speed - 0) ;
 	}

@@ -28,6 +28,7 @@ void Mode_4_Setup(void)
     Y8U_SetSpeed(0);
     race_state = RACE_IDLE;
 		Con_Mode_3_Setup();
+		Oran_FF_Enable = 1.0f;   // Mode_4 行驶中, 恢复加速度前馈
 }
 
 void Mode_4_Loop(void)

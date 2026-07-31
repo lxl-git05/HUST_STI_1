@@ -266,3 +266,9 @@
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
 |--------|----------------------|----------|------|
 | Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | 新增 CON_MODE_3_STEP_DIR 宏(-1=先-5cm再+5cm)；首目标/斜坡/末目标三处用宏控制方向 |
+
+## 2026-08-01 | Con_Mode_3 改用 S 曲线轨迹抗超调
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | 阶跃+斜坡状态机替换为S曲线平滑轨迹：新增 s_curve_step()(smoothstep)，4态(S_GOTO_POS→S_HOLD_POS→S_GOTO_NEG→S_HOLD_NEG)，总时长 4.0s≤5s，消除阶跃过冲
