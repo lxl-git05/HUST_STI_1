@@ -44,7 +44,6 @@ void Con_Mode_3_Loop(void)
 	Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &PID_Oran.Ki);
 	Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &PID_Oran.Kd);
 	Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &Oran_Real_Offset);
-	Serial_SetFloatData(&Serial1, "KpHi", "KpHi=%f", &Oran_KpHi);
 	// OLED展示
 	OLED_Printf(0,10,OLED_6X8,"%.1f,%.1f,%.1f",PID_Oran.Kp , PID_Oran.Ki , PID_Oran.Kd) ;
 	OLED_Printf(0,20,OLED_6X8,"%.1f,%.1f,%.1f", PID_Oran.goalPoint, PID_Oran.realPoint_Now, PID_Oran.setPoint);

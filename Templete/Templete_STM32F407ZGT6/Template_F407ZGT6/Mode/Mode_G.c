@@ -22,6 +22,13 @@ void Mode_G_Setup(void)
 //    PARAM_FORCE(IMU_Mahony_AccBiasY, 0.0f);
 //    PARAM_FORCE(IMU_Mahony_AccBiasZ, 0.0f);
 
+//    PARAM_FORCE(Pink_Sat_Lower, 0);
+//    PARAM_FORCE(Pink_Sat_Upper, 0);
+//    PARAM_FORCE(Start_x, 0);
+//    PARAM_FORCE(Start_y, 0);
+//    PARAM_FORCE(Tolerance, 0);
+//    PARAM_FORCE(t, 0);
+
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode
     //    将其复制到 next_mode 并重置 curr_mode，让 Mymain 执行完整模式切换

@@ -5,6 +5,14 @@
 #include "Serial_porting.h"
 #include "MyPID.h"
 
+// 脱机调节阈值
+extern int Pink_Sat_Lower ;
+extern int Pink_Sat_Upper ;
+extern int Start_x ;
+extern int Start_y ;
+extern int Tolerance ;
+extern int t ;
+
 extern int Oran_Param[6] ;
 
 extern int Oran_Goal ;	// STM32发送给Orange的参数

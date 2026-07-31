@@ -1,6 +1,13 @@
 // Orange 模块 — 初始化与通信更新
 #include "Orange.h"
 #include "AllHeader.h"
+// 脱机调节阈值
+int Pink_Sat_Lower = 0 ;
+int Pink_Sat_Upper = 0 ;
+int Start_x = 0 ;
+int Start_y = 0 ;
+int Tolerance = 0 ;
+int t = 0;
 
 // STM32->Orange
 int Oran_Goal = 0 ;	// STM32发送给Orange的参数
@@ -11,13 +18,6 @@ int Oran_Speed=0	;			// 2. 钢球速度
 
 int Oran_Single_Pos = 39 ;
 
-// α-β滤波器状态 (10ms定频, Oran_Filter_10ms使用)
-static float   pos_est   = 0 ;
-static float   spd_est   = 0 ;
-static int     oran_meas = 0 ;   // 最新位置测量
-static uint8_t oran_new  = 0 ;   // 有新测量标志
-static uint8_t filt_init = 1 ;   // 滤波器初始化
-
 // Orange通信脱机阈值调节:暂时设置6个
 int Oran_Param[6] ;
 /*
@@ -26,61 +26,6 @@ int Oran_Param[6] ;
 	Oran_real:距离目标位置的偏差,需要-1000
 	Oran_Speed:钢球移动的速度
 */
-
-#ifdef ORAN_OUTLIER_FILTER
-// ============== Oran_real 滑窗异常剔除（参考 Y8U_CheckFinishLine） ==============
-// 返回 1=正常(接受), 0=异常(拒绝,保持上一帧,异常值不污染窗口)
-static uint8_t Oran_Outlier_Check(int raw)
-{
-    static int     window[ORAN_WINDOW_SIZE] = {0};
-    static uint8_t idx     = 0;
-    static uint8_t filled  = 0;
-    static uint8_t rej_cnt = 0;   // 连续拒绝计数
-
-    // |raw| ≤ MIN: 中心小摆动, 不检测, 直接接受（也不入窗, 避免零附近拖低基线）
-    int abs_raw = (raw > 0) ? raw : -raw;
-    if (abs_raw <= ORAN_WINDOW_MIN)
-        return 1;
-
-    // 首帧: 无条件接受（播种窗口）
-    int n = filled ? ORAN_WINDOW_SIZE : idx;
-    if (n == 0)
-    {
-        window[idx++] = raw;
-        return 1;
-    }
-
-    // 窗口均值
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += window[i];
-    int avg = sum / n;
-    int abs_avg = (avg > 0) ? avg : -avg;
-
-    // 阈值: |avg| 过小时用 MIN 兜底
-    int thr = (abs_avg < ORAN_WINDOW_MIN) ? ORAN_WINDOW_MIN : abs_avg;
-    int abnormal = (abs_raw > (int)((float)thr * ORAN_WINDOW_RATIO));
-
-    if (abnormal)
-    {
-        // 连续异常 → 真实快速运动, 强制接受并重播种
-        if (++rej_cnt >= ORAN_WINDOW_MAX_REJ)
-        {
-            rej_cnt = 0;
-            for (int i = 0; i < ORAN_WINDOW_SIZE; i++) window[i] = raw;
-            idx = 0; filled = 1;
-            return 1;
-        }
-        return 0;    // 单帧跳变: 拒绝
-    }
-
-    // 正常: 加入环形窗口
-    rej_cnt = 0;
-    window[idx] = raw;
-    idx = (idx + 1) % ORAN_WINDOW_SIZE;
-    if (!filled && idx == 0) filled = 1;
-    return 1;
-}
-#endif
 
 // 香橙派数据更新,在Mode_G实现20ms固定更新
 void Oran_Update(void)
@@ -95,83 +40,34 @@ void Oran_Update(void)
 		{
 			int raw_real = Serial_GetHexData(&Serial2 , 1) - 1000;
 			int raw_spd  = Serial_GetHexData(&Serial2 , 2) - 1000 ;
-#ifdef ORAN_OUTLIER_FILTER
-			if (Oran_Outlier_Check(raw_real))
-#endif
-			{
-				Oran_real = raw_real;
-				Oran_Speed = raw_spd ;
-				oran_meas = Oran_real ;
-				oran_new  = 1 ;
-			}
 			// 开启滤波时, 拒绝帧: Oran_real/Oran_Speed 保持上一帧, oran_new 不置位
 		}
 		// 
 		else if (Oran_cmd == 1)
 		{
-			Oran_Param[0] = Serial_GetHexData(&Serial2 , 1) ;
-			Oran_Param[1] = Serial_GetHexData(&Serial2 , 2) ;
-			Oran_Param[2] = Serial_GetHexData(&Serial2 , 3) ;
-			Oran_Param[3] = Serial_GetHexData(&Serial2 , 4) ;
-			Oran_Param[4] = Serial_GetHexData(&Serial2 , 5) ;
-			Oran_Param[5] = Serial_GetHexData(&Serial2 , 6) ;
+			Pink_Sat_Lower = Serial_GetHexData(&Serial2 , 1) ;
+			Pink_Sat_Upper = Serial_GetHexData(&Serial2 , 2) ;
+			Start_x = Serial_GetHexData(&Serial2 , 3) ;
+			Start_y= Serial_GetHexData(&Serial2 , 4) ;
+			Tolerance = Serial_GetHexData(&Serial2 , 5) ;
+			t = Serial_GetHexData(&Serial2 , 6) ;
 		}
 	}
-}
-
-// α-β滤波器: 10ms定频, 位置残差预测速度
-void Oran_Filter_10ms(void)
-{
-	if (oran_new)
-	{
-		if (filt_init)
-		{
-			pos_est = (float)oran_meas ;
-			spd_est = 0 ;
-			filt_init = 0 ;
-		}
-		else
-		{
-			float pos_pred = pos_est + spd_est * 0.01f ;          // 匀速预测
-			float residual = (float)oran_meas - pos_pred ;         // 偏移值
-			pos_est = pos_pred + 0.30f * residual ;                // α
-			spd_est = spd_est + 0.02f * residual / 0.01f ;        // β
-			// 低速区(|spd|<30): 切到Orange Pi原始速度(更精确)
-//			float abs_est = (spd_est > 0) ? spd_est : -spd_est ;
-//			if (abs_est < 30.0f)
-//				spd_est = (float)oran_raw_spd ;
-		}
-		oran_new = 0 ;
-	}
-	else if (!filt_init)
-	{
-		// 无新数据: 纯预测, 速度不变
-		pos_est = pos_est + spd_est * 0.01f ;
-	}
-	// 速度死区: |spd|<8 视为静止, 抑制零附近抖动
-	if (spd_est > -8.0f && spd_est < 8.0f)
-		spd_est = 0 ;
-	Oran_Speed = (int)spd_est ;
 }
 
 // 香橙派处理
 void Oran_Send_Data(int* Data)
 {
-	if (Data == &Oran_Param[0]) {Serial_printf(&Serial2 , "@Oran_Param_1:%d$#",Oran_Param[0]);}
-	if (Data == &Oran_Param[1]) {Serial_printf(&Serial2 , "@Oran_Param_2:%d$#",Oran_Param[1]);}
-	if (Data == &Oran_Param[2]) {Serial_printf(&Serial2 , "@Oran_Param_3:%d$#",Oran_Param[2]);}
-	if (Data == &Oran_Param[3]) {Serial_printf(&Serial2 , "@Oran_Param_4:%d$#",Oran_Param[3]);}
-	if (Data == &Oran_Param[4]) {Serial_printf(&Serial2 , "@Oran_Param_5:%d$#",Oran_Param[4]);}
-	if (Data == &Oran_Param[5]) {Serial_printf(&Serial2 , "@Oran_Param_6:%d$#",Oran_Param[5]);}
+	if (Data == &Pink_Sat_Lower) {Serial_printf(&Serial2 , "@Pink_Sat_Lower:%d$#",Pink_Sat_Lower);}
+	if (Data == &Pink_Sat_Upper) {Serial_printf(&Serial2 , "@Pink_Sat_Upper:%d$#",Pink_Sat_Upper);}
+	if (Data == &Start_x) {Serial_printf(&Serial2 , "@Start_x:%d$#",Start_x);}
+	if (Data == &Start_y) {Serial_printf(&Serial2 , "@Start_y:%d$#",Start_y);}
+	if (Data == &Tolerance) {Serial_printf(&Serial2 , "@Tolerance:%d$#",Tolerance);}
+	if (Data == &t) {Serial_printf(&Serial2 , "@t:%d$#",t);}
 }
 // ============================================== 香橙派位置PID(Mode2使用) ==============================================
 Pid_Typedef PID_Oran ;	// 铁球PID
 float Oran_Real_Offset = 0.0f ;	// real偏移量, 模拟Orange Pi发送的偏移, 可串口在线调
-// === 变Kp: 球速越低Kp越大(球停→硬推, 球快→软控), 均可串口在线调 ===
-float Oran_KpHi         = 0.50f ;  // 低速Kp(球停了就加力)
-float Oran_KpLo         = 0.16f ;  // 高速Kp(不振荡)
-float Oran_KpSpdThrLo   = 5.0f ;   // <此值→KpHi
-float Oran_KpSpdThrHi   = 20.0f ;  // >此值→KpLo
 
 // ================== IMU加速度前馈 ==================
 // stepper° = ax × Len / Lift
@@ -221,7 +117,7 @@ void Oran_PID_Update(void)
 	}
 }
 
-// ============================================== 球速PID(速度环, Mode_5使用) ==============================================
+// ============================================== 球速PID->弃用 ==============================================
 Pid_Typedef PID_Oran_Speed ;	// 球速PID(独立于位置环)
 #define Oran_Speed_PID_Dir (1)   //
 
@@ -263,7 +159,7 @@ void Oran_Speed_PID_Update(void)
 	Stepper_Set_Angle(&Stepper1 , -PID_Oran_Speed.setPoint * Oran_Speed_PID_Dir) ;
 }
 
-// ============================================== 串级PID(位置环→速度环, Mode_6使用) ==============================================
+// ============================================== 串级PID -> 弃用 ==============================================
 void Oran_Cascade_Init(void)
 {
 	// 位置环(外环): 输出=目标速度, 增益远小于速度环
