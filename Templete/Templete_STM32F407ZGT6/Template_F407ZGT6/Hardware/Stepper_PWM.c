@@ -470,6 +470,24 @@ void Stepper_Set_Angle(Stepper_PWM_Typedef* pStepper, float angle)
     pStepper->Angle_Mode_Enable = 1;
 }
 
+// 相对角度叠加: 在现有目标角度上累加delta, 其余交给1ms Angle_Tick
+// 首次调用自动以Pos_Now为基准初始化Angle_Tar, 避免跳变
+void Stepper_Add_Angle_Rel(Stepper_PWM_Typedef* pStepper, float delta_angle)
+{
+    // 取消位置模式
+    if (pStepper->Pos_Phase != POS_PHASE_IDLE) {
+        pStepper->Pos_Phase = POS_PHASE_IDLE;
+        pStepper->Pos_StepCnt = 0;
+    }
+    // 首次调用: 以当前实际角度为基准
+    if (!pStepper->Angle_Mode_Enable) {
+        pStepper->Angle_Tar = pStepper->Pos_Now;
+    }
+    // 叠加增量并启用角度跟踪
+    pStepper->Angle_Tar += delta_angle;
+    pStepper->Angle_Mode_Enable = 1;
+}
+
 // 角度跟踪 1ms Tick：误差→角度PID→速度→硬件
 // 直接调用 _Stepper_Apply_Speed，不经过 Speed_Set（避免互斥清除 Angle_Mode_Enable）
 void Stepper_PWM_Angle_Tick(Stepper_PWM_Typedef* pStepper)

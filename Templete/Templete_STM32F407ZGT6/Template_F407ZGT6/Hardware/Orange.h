@@ -59,9 +59,4 @@ void Oran_Speed_PID_Update(void) ;
 void Oran_Cascade_Init(void) ;
 void Oran_Cascade_Update(void) ;
 
-// ================== 角度跟踪测试（Mode_2 独立测试用） ==================
-extern float Oran_Angle_Test_Target ;   // 目标角度（度），可串口修改
-void Oran_Angle_Test_Init(void) ;       // 初始化 Stepper1 角度跟踪PID
-void Oran_Angle_Test_Update(void) ;     // 10ms调用：设置目标角度
-
 #endif

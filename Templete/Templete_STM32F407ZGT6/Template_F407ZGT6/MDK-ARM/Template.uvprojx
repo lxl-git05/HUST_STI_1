@@ -1476,6 +1476,16 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Y8_Track.h</FilePath>
             </File>
+            <File>
+              <FileName>Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Servo.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

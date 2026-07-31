@@ -89,6 +89,9 @@ void Stepper_PWM_Pos_Tick(Stepper_PWM_Typedef* pStepper);
 // 设置目标角度并启用角度PID跟踪（不做运动规划，1ms Angle_Tick驱动）
 void Stepper_Set_Angle(Stepper_PWM_Typedef* pStepper, float angle);
 
+// 相对角度叠加: 在现有目标上累加delta, 首次调用自动以Pos_Now为基准
+void Stepper_Add_Angle_Rel(Stepper_PWM_Typedef* pStepper, float delta_angle);
+
 // 角度跟踪1ms Tick：读取Pos_Now，PID(error)→速度，直接_Stepper_Apply_Speed
 void Stepper_PWM_Angle_Tick(Stepper_PWM_Typedef* pStepper);
 

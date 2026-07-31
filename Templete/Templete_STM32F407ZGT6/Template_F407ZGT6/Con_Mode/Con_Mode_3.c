@@ -21,6 +21,9 @@ void Con_Mode_3_Setup(void)
     test_state = S_IDLE;
     // 内环角度PID: 不依赖启动默认值, 防止被Mode_5改掉后切回时残留
     Stepper_PWM_Angle_Gains_Set(&Stepper1, 4.0f, 0.0f, 0.829f, 50.0f, -50.0f);
+	
+	
+		Oran_Speed_PID_Init() ;
 }
 
 #include "math.h"
@@ -28,10 +31,10 @@ void Con_Mode_3_Setup(void)
 void Con_Mode_3_Loop(void)
 {
 	OLED_Printf(0, 0, OLED_6X8, "=====Con_Mode_3=====") ;
-	Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &Oran_Damping_K);
+	Serial_SetFloatData(&Serial1, "Kp", "Kp=%f", &PID_Oran.Kp);
 	Serial_SetFloatData(&Serial1, "Ki", "Ki=%f", &PID_Oran.Ki);
 	Serial_SetFloatData(&Serial1, "Kd", "Kd=%f", &PID_Oran.Kd);
-	Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &Oran_Real_Offset);
+	Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &PID_Oran.goalPoint);
 	Serial_SetFloatData(&Serial1, "KpHi", "KpHi=%f", &Oran_KpHi);
 	// OLED展示
 	OLED_Printf(0,10,OLED_6X8,"%.1f,%.1f,%.1f",PID_Oran.Kp , PID_Oran.Ki , PID_Oran.Kd) ;
@@ -51,21 +54,23 @@ void Con_Mode_3_Tick(void)
 	Oran_Update() ;              // 刷新位置数据,确保PID用最新值
 	// 位置PID → 位置 (已内置 Damping_K × Oran_Speed 速度阻尼)
 	Oran_PID_Update() ;
+	Oran_Speed_PID_Update() ;
+	
 	// RGB_R指示灯: |real|>45 亮红灯
 	{
 		float r = PID_Oran.realPoint_Now ;
 		RGB_Set_Color((r > Oran_Single_Pos || r < -Oran_Single_Pos) ? 1 : 0, 0, 0) ;
 	}
 	// 位置PID CSV: Goal, Real(Re+Off), Pout, Iout, Dout, Output, Spd
-//	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",
-//	PID_Oran.goalPoint, PID_Oran.realPoint_Now,
-//	PID_Oran.pout, PID_Oran.iout, PID_Oran.dout, PID_Oran.setPoint, Oran_Speed,Y8U_GetSpeed());
+	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",
+	PID_Oran.goalPoint, PID_Oran.realPoint_Now,
+	PID_Oran.pout, PID_Oran.iout, PID_Oran.dout, PID_Oran.setPoint, Oran_Speed,Y8U_GetSpeed());
 	
 //	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
 //								,PID_Oran.setPoint, Y8U_GetSpeed(), IMU_Yaw_Abs_Get() , ff_angle * 1000 , Oran_Speed , IMU_Get_Ax() * 1000);
 	
-	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
-								,PID_Oran.setPoint, Y8U_PID.goalPoint, Y8U_PID.realPoint_Now,Y8U_PID.setPoint, IMU_Yaw_Abs_Get());
+//	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
+//								,PID_Oran.setPoint, Y8U_PID.goalPoint, Y8U_PID.realPoint_Now,Y8U_PID.setPoint, IMU_Yaw_Abs_Get());
 
 	// === 阶跃+斜坡状态机 ===
 	switch (test_state)

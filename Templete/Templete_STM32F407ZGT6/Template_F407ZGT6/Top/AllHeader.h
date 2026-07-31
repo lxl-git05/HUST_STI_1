@@ -23,6 +23,7 @@
 #include "TJC_LCD.h"
 #include "Motor.h"
 #include "IMU.h"
+#include "Servo.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"

@@ -11,7 +11,7 @@ void Initial_ALL(void)
 	IMU_Mahony_Init(0) ;														// 陀螺仪初始化
 	Y8U_Init();          														// 启动 USART3 DMA 接收 + 发送 $0,1,0#
 	Y8U_PID_Init();																	// 8路寻迹PID初始化
-
+	Servo_Init() ;
 	// Software
 	Serial_Init();																// 串口初始化
 	Encoder_Init() ;														// EC11编码器EXTI初始化

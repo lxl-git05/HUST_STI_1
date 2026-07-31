@@ -36,7 +36,6 @@ void Mode_5_Tick(void)
 
 void Mode_5_10ms_Tick(void)
 {
-	// Oran_Update() 已在 Timer_10ms_Callback 全局调用
 	Oran_Speed_PID_Update() ;
 }
 
