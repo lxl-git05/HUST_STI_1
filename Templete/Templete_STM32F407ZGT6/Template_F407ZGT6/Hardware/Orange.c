@@ -38,11 +38,10 @@ void Oran_Update(void)
 		// 钢球识别模式
 		if (Oran_cmd == 0)
 		{
-			int raw_real = Serial_GetHexData(&Serial2 , 1) - 1000;
-			int raw_spd  = Serial_GetHexData(&Serial2 , 2) - 1000 ;
-			// 开启滤波时, 拒绝帧: Oran_real/Oran_Speed 保持上一帧, oran_new 不置位
+			Oran_real   = Serial_GetHexData(&Serial2 , 1) - 1000;
+			Oran_Speed  = Serial_GetHexData(&Serial2 , 2) - 1000 ;
 		}
-		// 
+		// 脱机阈值模式
 		else if (Oran_cmd == 1)
 		{
 			Pink_Sat_Lower = Serial_GetHexData(&Serial2 , 1) ;
