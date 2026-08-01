@@ -7,7 +7,8 @@ int Oran_Goal = 0 ;	// STM32发送给Orange的参数
 
 uint8_t Oran_cmd = 0 ;	// 0. 指令模式
 int Oran_real = 0 ;			// 1. 偏差
-int Oran_Speed=0	;			// 2. 钢球速度
+int Oran_Speed=0	;			// 2. 钢球速度(Serial2摄像头)
+int Oran_Speed_Calc=0 ;		// 3. 自行解算速度(10ms位置差分+LPF)
 
 int Oran_Single_Pos = 39 ;
 
@@ -189,17 +190,32 @@ void Oran_PID_Update(void)
 // ============================================== 球速PID(速度环, Mode_5使用) ==============================================
 Pid_Typedef PID_Oran_Speed ;	// 球速PID(独立于位置环)
 #define Oran_Speed_PID_Dir (-1)
+float Oran_Speed_Filt_Alpha = 0.30f ;  // 球速低通滤波系数(0=无滤波, 0.3=默认)
 
 void Oran_Speed_PID_Init(void)
 {
-	PID_Init(&PID_Oran_Speed , 0.06746f , 0.0f , 0.0f , 200 , -200 , 1000) ;
+	PID_Init(&PID_Oran_Speed , 0.122f , 0.0f , 1.131f , 200 , -200 , 1000) ;
+//	PID_Oran_Speed.d_filter = 0.30f ;  // D项低通滤波: 抑制速度噪声被微分放大
+//	PID_Oran_Speed.d_style  = 1.0f  ;  // 微分先行: 对测量值微分, 避免Goal跳变冲击
 	PID_Param_Reset(&PID_Oran_Speed) ;
-	Servo_SetAngle(90) ;
 }
 
 void Oran_Speed_PID_Update(void)
 {
-	PID_Oran_Speed.realPoint_Now = Oran_Speed ;
+	// 球速低通滤波: 抑制摄像头测量噪声
+	static float spd_filt = 0.0f ;
+	static uint8_t spd_init = 1 ;
+	if (spd_init)
+	{
+		spd_filt = (float)Oran_Speed ;
+		spd_init = 0 ;
+	}
+	else
+	{
+		spd_filt = Oran_Speed_Filt_Alpha * (float)Oran_Speed + (1.0f - Oran_Speed_Filt_Alpha) * spd_filt ;
+	}
+	Oran_Speed_Calc = (int)spd_filt ;
+	PID_Oran_Speed.realPoint_Now = spd_filt ;
 	PID_Update(&PID_Oran_Speed, PID_Oran_Speed.realPoint_Now) ;
 	// 驱动步进电机1
 	Stepper_Set_Angle(&Stepper1 , PID_Oran_Speed.setPoint * Oran_Speed_PID_Dir) ;
@@ -209,7 +225,7 @@ void Oran_Speed_PID_Update(void)
 void Oran_Cascade_Init(void)
 {
 	// 位置环(外环): 输出=目标速度, 增益远小于速度环
-	PID_Init(&PID_Oran , 0.0f , 0.0f , 0.0f , 1000 , -1000 , 1000) ;
+	PID_Init(&PID_Oran , 1.049f , 0.053f , 0.849f , 1000 , -1000 , 1000) ;
 	PID_Param_Reset(&PID_Oran) ;
 	// 速度环(内环): 沿用Mode_5调好的参数
 	Oran_Speed_PID_Init() ;

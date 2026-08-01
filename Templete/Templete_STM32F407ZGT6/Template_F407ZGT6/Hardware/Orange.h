@@ -9,7 +9,8 @@ extern int Oran_Param[6] ;
 
 extern int Oran_Goal ;	// STM32发送给Orange的参数
 extern int Oran_real 	;	// 1. 真实值(偏移)
-extern int Oran_Speed ;	// 2. 速度
+extern int Oran_Speed ;			// 2. Serial2速度(摄像头)
+extern int Oran_Speed_Calc ;	// 3. 自行解算速度(10ms位置差分+LPF)
 
 extern int Oran_Single_Pos ;
 
@@ -54,6 +55,7 @@ extern int   Oran_SPD_Thr_Lo ;		// 低速阈值
 extern int   Oran_SPD_Thr_Hi ;		// 高速阈值
 void Oran_Speed_PID_Init(void) ;
 void Oran_Speed_PID_Update(void) ;
+extern float Oran_Speed_Filt_Alpha ;  // 球速低通滤波系数(0=无滤波, 1=无延迟)
 
 // ================== 串级 PID(位置环→速度环) ==================
 void Oran_Cascade_Init(void) ;
