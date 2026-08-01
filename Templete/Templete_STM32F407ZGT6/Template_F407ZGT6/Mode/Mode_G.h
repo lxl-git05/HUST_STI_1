@@ -18,7 +18,7 @@ typedef enum
 		Con_Mode_3 ,    // 业务逻辑
 Con_Mode_4 ,    // 业务逻辑
 Con_Mode_5 ,    // 业务逻辑
-//		Con_Mode_6 ,    // 业务逻辑
+	Con_Mode_6 ,    // 业务逻辑
 
     Mode_End ,      // 注册模式不能在这个下面!!!
 }Mode_Typedef;

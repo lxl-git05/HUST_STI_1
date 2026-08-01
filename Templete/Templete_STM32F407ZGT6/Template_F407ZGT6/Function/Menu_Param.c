@@ -344,12 +344,12 @@ void Tune_Y8_Track_Tick(float p[4])
 void Tune_Orange_Setup(float p[4])
 {
     Param_Init();
-    Param_Register("Param_1", &Oran_Param[0], 1, PARAM_INT32);
-    Param_Register("Param_2", &Oran_Param[1], 1, PARAM_INT32);
-    Param_Register("Param_3", &Oran_Param[2], 1, PARAM_INT32);
-    Param_Register("Param_4", &Oran_Param[3], 1, PARAM_INT32);
-    Param_Register("Param_5", &Oran_Param[4], 1, PARAM_INT32);
-    Param_Register("Param_6", &Oran_Param[5], 1, PARAM_INT32);
+    Param_Register("Pink_Sat_Lower",&Pink_Sat_Lower,1,PARAM_INT32);
+		Param_Register("Pink_Sat_Upper",&Pink_Sat_Upper,1,PARAM_INT32);
+		Param_Register("Start_x",&Start_x,1,PARAM_INT32);
+		Param_Register("Start_y",&Start_y,1,PARAM_INT32);
+		Param_Register("Tolerance",&Tolerance,1,PARAM_INT32);
+		Param_Register("t",&t,1,PARAM_INT32);
 
     // 向香橙派请求当前参数数据
     Serial_printf(&Serial2, "@start:6$#");
@@ -382,10 +382,7 @@ void Tune_Orange_Run(float p[4])
 
 void Tune_Orange_Tick(float p[4])
 {
-    // 20ms 输出 6 个参数到 Serial1 供远程监控
-    Serial_printf(&Serial1, "%d,%d,%d,%d,%d,%d\n",
-        Oran_Param[0], Oran_Param[1], Oran_Param[2],
-        Oran_Param[3], Oran_Param[4], Oran_Param[5]);
+	
 }
 
 // ==================== 任务描述表（同 Control_TaskTable）====================

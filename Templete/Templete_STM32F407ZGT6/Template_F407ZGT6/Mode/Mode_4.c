@@ -1,31 +1,112 @@
+// ========================== Mode_4 ==========================
+// 寻迹+球平衡联调：S 曲线速度规划版
+//
+// ★ 核心原则：
+//   1. 加速度全程缓慢 — S 曲线过渡时间长，速度变化幅度小
+//   2. 不预判停车 — 越过终点横线后才开始减速，不停车
+//   3. 弯道缓 — 弯前提前温和降速，弯中低速，出弯温和加速
+//   4. 直道适度快 — 巡航速度不过高，保持球稳定
+//
+// 状态机：IDLE → RUN → FINISH → STOP
+//          KEY1   横线触发   speed≈0
 #include "Mode_4.h"
 #include "AllHeader.h"
 
-// ========== 状态机 ==========
-enum {
-    RACE_IDLE = 0,      // 待命
-    RACE_ACCEL,         // 缓慢加速
-    RACE_CRUISE,        // 匀速巡航
-    RACE_PRE_DECEL,     // 预减速（yaw>300°, ramp降到低速，等待终点）
-    RACE_SLOW_STOP,     // 终点命中, 缓慢减速到0
-    RACE_STOP           // 完全停止
+// ==================== 状态机 ====================
+enum { S_IDLE, S_RUN, S_FINISH, S_STOP };
+
+// ==================== S 曲线速度规划器 ====================
+// smoothstep: f(t)=3t²-2t³, f'(0)=f'(1)=0 → 加速度连续无突变
+
+typedef struct {
+    float v0, vt;      // 起始速度, 目标速度 (rpm)
+    int   dur;         // 过渡 tick 数 (20ms/tick), 0=瞬时
+    int   tick;        // 当前 tick
+} SCurve_t;
+
+static void scurve_start(SCurve_t *sc, float from, float to, int dur)
+{
+    sc->v0   = from;
+    sc->vt   = to;
+    sc->dur  = (dur > 0) ? dur : 0;
+    sc->tick = 0;
+}
+
+static float scurve_peek(SCurve_t *sc)
+{
+    if (sc->dur <= 0 || sc->tick >= sc->dur) return sc->vt;
+    float t = (float)sc->tick / (float)sc->dur;
+    float s = t * t * (3.0f - 2.0f * t);
+    return sc->v0 + (sc->vt - sc->v0) * s;
+}
+
+static float scurve_tick(SCurve_t *sc)
+{
+    if (sc->dur <= 0) return sc->vt;
+    sc->tick++;
+    if (sc->tick >= sc->dur) return sc->vt;
+    float t = (float)sc->tick / (float)sc->dur;
+    float s = t * t * (3.0f - 2.0f * t);
+    return sc->v0 + (sc->vt - sc->v0) * s;
+}
+
+// ==================== 偏航角分段速度表 ====================
+// { 偏航启动角(°), 目标速度(rpm), S曲线过渡tick }
+// ★ 偏航角必须递增, 从 0.0 开始
+// ★ ramp=0 表示该段匀速, 不需要过渡
+// ★ 不设预减速段, 终点由 Y8U_CheckFinishLine 触发
+// ★ 比赛前根据实际赛道调节
+
+typedef struct {
+    float yaw;     // 进入偏航角 (°)
+    float speed;   // 目标速度 (rpm)
+    int   ramp;    // S 曲线过渡 tick 数 (20ms/tick)
+} SpeedSeg_t;
+
+#define SEG_COUNT 6
+static SpeedSeg_t seg[SEG_COUNT] = {
+    // { yaw,   speed, ramp }   说明
+    {   0.0f,  65.0f, 150 },  // 0°:   极缓起步 0→65, 150tick=3.0s
+    {  50.0f,  65.0f,   0 },  // 50°:  直道巡航 65
+    { 100.0f,  48.0f, 120 },  // 100°: 入弯缓降 65→48, 120tick=2.4s
+    { 150.0f,  48.0f,   0 },  // 150°: 弯中保持 48
+    { 210.0f,  65.0f, 120 },  // 210°: 出弯缓升 48→65, 120tick=2.4s
+    { 280.0f,  65.0f,   0 },  // 280°: 直道巡航至终点 (不预减速!)
 };
+// ★ 终点停车: Y8U_CheckFinishLine 触发后, S 曲线 →0, 250tick=5.0s 极缓
+// ★ 过线后冻结寻迹 PID 5 帧 (100ms), 防止白线 ADC 异常干扰方向
+// ★ 偏航角 > 250° 才允许触发终点检测, 防止前半圈误触发
+#define FINISH_MIN_YAW  320.0f
 
-// ========== 运行参数 ==========
-static float   Mode4_Tar_Speed = 70.0f;   // 巡航目标速度(rpm)
-static uint8_t Ramp_Up_Cnt     = 5;       // 加速分频(tick), 越大越慢
-static uint8_t Ramp_Dn_Cnt     = 3;       // 预减速分频(tick), 越大越慢
-#define PRE_DECEL_YAW   300.0f            // 预减速触发偏航角(°)
-#define PRE_SPEED        30.0f            // 预减速目标低速(rpm), 不能到0
-#define FINISH_YAW      330.0f            // 终点偏航阈值(°)
+// ==================== 运行时状态 ====================
+static uint8_t     state       = S_IDLE;
+static uint32_t    t0          = 0;
+static float       race_time   = 0.0f;
+static SCurve_t    sc;
+static int         seg_idx     = 0;
+static float       prev_off    = 0.0f;   // 上一帧 Y8U 偏移
+static uint8_t     finish_hold = 0;      // 过线后冻结寻迹帧数, 防止白线干扰
 
-// ========== 运行时状态 ==========
-static uint8_t  race_state = RACE_IDLE;
-static uint32_t race_start = 0;
-static float    race_time  = 0.0f;
-static float    prev_off   = 0.0f;   // 上一帧Y8U偏移, 检测出弯
+// ---- 球振荡检测 ----
+static float  ball_hist[6];              // 球位置环形缓冲 (6帧=120ms)
+static uint8_t ball_idx = 0;
 
-// 宽松积分分离: 只在极端偏差清I, 弯道允许I累积回中
+// ---- 阻尼计算中间值 (OLED显示) ----
+static float dbg_severity  = 0.0f;
+static int   dbg_osc       = 0;
+
+// ==================== 查找当前偏航角所在速度段 ====================
+static int profile_find_seg(float yaw)
+{
+    int idx = seg_idx;
+    for (int i = seg_idx + 1; i < SEG_COUNT; i++) {
+        if (yaw >= seg[i].yaw) idx = i;
+        else break;
+    }
+    return idx;
+}
+
+// ==================== 宽松积分分离（行驶专用）====================
 static void Mode4_IntSep(void)
 {
     float r = fabs(PID_Oran.realPoint_Now);
@@ -34,177 +115,240 @@ static void Mode4_IntSep(void)
         PID_Oran.SumError = 0.0f;
 }
 
-void Mode_4_Setup(void)
+// ==================== 多传感器融合阻尼 + 振荡检测 ====================
+// ★ 替代旧 3 档固定阻尼，融合 Y8U offset + 偏航角速率 + 横向加速度
+// ★ 速度段感知：直道低阻尼，弯道高阻尼（预调不等待传感器）
+// ★ 球速非线性：低速时等效阻尼更强，抑制微弱振荡
+// ★ 振荡检测：球位置短时多次过零 → 自动降P增益 + 清积分 + 加阻尼
+static void Mode4_Damping_Update(void)
 {
-    Y8U_SetSpeed(0);
-    race_state = RACE_IDLE;
-		Con_Mode_3_Setup();
-		PID_Oran.PID_Func = Mode4_IntSep;  // 宽松积分分离: |real|>100且|spd|>30才清I
-		PID_Oran.Kp       = 0.20f;         // 提P增益: 直道偏移更快修正
-		PID_Oran.ioutMax  = 2000.0f;       // 放大积分上限: 0.013×3000=39(原13)
-		Oran_FF_Enable    = 1.0f;   // Mode_4 行驶中, 恢复加速度前馈
-		Oran_Damping_K    = 0.10f;  // 速度阻尼: 抑制球速抖动
-}
+    // ──── 1. 多传感器弯道严重程度 (连续值 0~1) ────
+    float s_offset   = fabs(Y8U_GetOffset()) / 200.0f;       // 寻迹偏移
+    float s_yawrate  = IMU_Yaw_Gyro_Get() / 150.0f;          // 偏航角速率 (°/s)
+    float s_lataccel = fabs(IMU_Get_Ay()) * 4.0f;            // 横向加速度 (g)
 
-void Mode_4_Loop(void)
-{
-    OLED_Printf(0, 0, OLED_6X8, "M4 Spd:%.0f Y:%.0f", Y8U_GetSpeed(), IMU_Yaw_Abs_Get());
+    if (s_offset   > 1.0f) s_offset   = 1.0f;
+    if (s_yawrate  > 1.0f) s_yawrate  = 1.0f;
+    if (s_lataccel > 1.0f) s_lataccel = 1.0f;
 
-    // 调试PID
-    if (Serial_GetNewPackageFlag_ABC(&Serial1))
-    {
-        Serial_SetFloatData(&Serial1, "Kp",   "Kp=%f",   &Y8U_PID.Kp);
-        Serial_SetFloatData(&Serial1, "Ki",   "Ki=%f",   &Y8U_PID.Ki);
-        Serial_SetFloatData(&Serial1, "Kd",   "Kd=%f",   &Y8U_PID.Kd);
-//        Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &Y8U_PID.goalPoint);
-				Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &Oran_Real_Offset);
+    // 加权融合: 偏航速率反映弯道最直接, 横向加速度感知离心力
+    float severity = s_offset * 0.20f + s_yawrate * 0.50f + s_lataccel * 0.30f;
+    if (severity > 1.0f) severity = 1.0f;
+    dbg_severity = severity;
+
+    // ──── 2. 速度段基础阻尼 (预调, 不等传感器反馈) ────
+    float base;
+    switch (seg_idx) {
+        case 0:  base = 0.10f; break;   // 起步: 略高防甩球
+        case 1:                         // 直道巡航
+        case 5:  base = 0.06f; break;   // 低阻尼, 球自由滚动
+        case 2:                         // 入弯减速
+        case 4:  base = 0.12f; break;   // 中等阻尼
+        case 3:  base = 0.16f; break;   // 弯中: 高阻尼
+        default: base = 0.08f; break;
     }
+    Oran_Damping_K = base + severity * (0.30f - base);
 
-    switch (race_state)
+    // ──── 3. 球速非线性修正 (低速时等效阻尼更强) ────
     {
-    case RACE_IDLE:
-        OLED_Printf(0, 10, OLED_6X8, "KEY1:Go KEY2:Spd");
-        OLED_Printf(0, 20, OLED_6X8, "Tar:%.0f Up:%d Dn:%d", Mode4_Tar_Speed, Ramp_Up_Cnt, Ramp_Dn_Cnt);
-        OLED_Printf(0, 30, OLED_8X16, "Time:0");
-
-        // KEY1: 启动
-        if (Key_Check(KEY_1, KEY_SINGLE))
-        {
-            race_state = RACE_ACCEL;
-            race_start = HAL_GetTick();
-            IMU_Yaw_Abs_Reset();        // 偏航归零，从头计圈
-        }
-        // KEY2 单击: 巡航速度+10
-        if (Key_Check(KEY_2, KEY_SINGLE))
-        {
-            Mode4_Tar_Speed += 10.0f;
-            if (Mode4_Tar_Speed > 200.0f) Mode4_Tar_Speed = 200.0f;
-        }
-        // KEY2 双击: 巡航速度-10
-        if (Key_Check(KEY_2, KEY_DOUBLE))
-        {
-            Mode4_Tar_Speed -= 10.0f;
-            if (Mode4_Tar_Speed < 10.0f) Mode4_Tar_Speed = 10.0f;
-        }
-        break;
-
-    case RACE_ACCEL:
-        OLED_Printf(0, 10, OLED_6X8, "Accel...  Tar:%.0f", Mode4_Tar_Speed);
-        OLED_Printf(0, 30, OLED_8X16, "Time:%.1f", (HAL_GetTick() - race_start) / 1000.0f);
-        break;
-
-    case RACE_CRUISE:
-        OLED_Printf(0, 10, OLED_6X8, "Cruise    Yaw:%.0f", IMU_Yaw_Abs_Get());
-        OLED_Printf(0, 30, OLED_8X16, "Time:%.1f", (HAL_GetTick() - race_start) / 1000.0f);
-        break;
-
-    case RACE_PRE_DECEL:
-        OLED_Printf(0, 10, OLED_6X8, "PreDecel  Yaw:%.0f", IMU_Yaw_Abs_Get());
-        OLED_Printf(0, 30, OLED_8X16, "Time:%.1f", (HAL_GetTick() - race_start) / 1000.0f);
-        break;
-
-    case RACE_SLOW_STOP:
-        OLED_Printf(0, 10, OLED_6X8, "SlowStop  Spd:%.0f", Y8U_GetSpeed());
-        OLED_Printf(0, 30, OLED_8X16, "Time:%.1f", race_time);
-        break;
-
-    case RACE_STOP:
-        OLED_Printf(0, 10, OLED_6X8, "Finished!");
-        OLED_Printf(0, 30, OLED_8X16, "Time:%.1f", race_time);
-        break;
-    }
-}
-
-void Mode_4_Tick(void)
-{
-		Con_Mode_3_Tick();
-	
-    Motor_Pos_Update(&Motor_A);
-    Motor_Pos_Update(&Motor_B);
-
-    // ===== IDLE/STOP: 什么也不做，直接返回 =====
-    if (race_state == RACE_IDLE || race_state == RACE_STOP)
-        return;
-
-    // SLOW_STOP: 保持寻迹, 缓慢减速到0
-    if (race_state == RACE_SLOW_STOP)
-    {
-        Y8U_RampTick(0.0f, Ramp_Dn_Cnt);
-        if (Y8U_GetSpeed() < 2.0f)
-        {
-            race_state = RACE_STOP;
-            Y8U_SetSpeed(0);
-            Motor_SetSpeed(&Motor_A, 0);
-            Motor_SetSpeed(&Motor_B, 0);
-            return;
+        float abs_spd = fabs((float)Oran_Speed);
+        if (abs_spd < 10.0f) {
+            // spd=0→×3.0, spd=5→×2.0, spd=10→×1.0
+            float mult = 3.0f - abs_spd * 0.2f;
+            Oran_Damping_K *= mult;
         }
     }
 
-    Y8U_PID_Update();
-
-    // 弯道检测: 偏移越大弯越急, 动态提阻尼抗离心力
+    // ──── 4. 出弯清积分 ────
     {
         float off = fabs(Y8U_GetOffset());
-        if      (off > 120.0f) Oran_Damping_K = 0.26f;   // 急弯
-        else if (off > 60.0f)  Oran_Damping_K = 0.18f;   // 缓弯
-        else                   Oran_Damping_K = 0.08f;   // 直道
-
-        // 出弯检测: 弯→直瞬间清I, 快速回中
         if (prev_off > 60.0f && off <= 60.0f)
             PID_Oran.SumError = 0.0f;
         prev_off = off;
     }
 
-    if (race_state == RACE_SLOW_STOP)
-        return;   // SLOW_STOP 已处理 ramp, 不走下面
+    // ──── 5. 球振荡检测 (6帧=120ms 内过零 ≥3 次) ────
+    ball_hist[ball_idx] = PID_Oran.realPoint_Now;
+    ball_idx = (ball_idx + 1) % 6;
 
-    switch (race_state)
-    {
-    case RACE_ACCEL:
-        {
-            float spd = Y8U_GetSpeed();
-            float gap = (spd > Mode4_Tar_Speed) ? (spd - Mode4_Tar_Speed) : (Mode4_Tar_Speed - spd);
-            if (gap < 2.0f)
-                race_state = RACE_CRUISE;
-        }
-        break;
-
-    case RACE_CRUISE:
-        if (IMU_Yaw_Abs_Get() > PRE_DECEL_YAW)
-        {
-            race_state = RACE_PRE_DECEL;
-            Mode4_Tar_Speed = PRE_SPEED;
-        }
-        break;
-
-    case RACE_PRE_DECEL:
-        // 终点命中 → 冻结计时, 缓慢减速
-        if (IMU_Yaw_Abs_Get() > FINISH_YAW && Y8U_CheckFinishLine())
-        {
-            race_state = RACE_SLOW_STOP;
-            race_time  = (HAL_GetTick() - race_start) / 1000.0f;
-        }
-        break;
-
-    default:
-        break;
+    int zero_cross = 0;
+    for (int i = 1; i < 6; i++) {
+        int p = (ball_idx - i - 1 + 6) % 6;
+        int c = (ball_idx - i + 6) % 6;
+        if (ball_hist[p] * ball_hist[c] < 0.0f)
+            zero_cross++;
     }
+    dbg_osc = zero_cross;
 
-    {
-        uint8_t cnt;
-        if      (race_state == RACE_PRE_DECEL)  cnt = Ramp_Dn_Cnt;
-        else                                    cnt = Ramp_Up_Cnt;
-        Y8U_RampTick(Mode4_Tar_Speed, cnt);
+    if (zero_cross >= 3) {
+        // 振荡中: 降P增益 + 清积分 + 额外阻尼
+        PID_Oran.Kp     = 0.12f;          // 从 0.20 降到 0.12
+        PID_Oran.SumError = 0.0f;
+        Oran_Damping_K += 0.06f;
+    } else {
+        PID_Oran.Kp     = 0.20f;          // 恢复正常
     }
-
-//    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
-//        IMU_Yaw_Abs_Get(),
-//        Motor_A.PID_s.realPoint_Now,
-//        Motor_B.PID_s.realPoint_Now,
-//        IMU_Get_Ax(), IMU_Get_Ay());
 }
+
+// ==================== Setup ====================
+void Mode_4_Setup(void)
+{
+    Con_Mode_3_Setup();
+    PID_Oran.PID_Func = Mode4_IntSep;
+    PID_Oran.Kp       = 0.20f;
+    PID_Oran.ioutMax  = 2000.0f;
+    Oran_FF_Enable    = 1.0f;
+    Oran_Damping_K    = 0.10f;
+
+    Y8U_SetSpeed(0);
+    state    = S_IDLE;
+    seg_idx  = 0;
+    scurve_start(&sc, 0, seg[0].speed, seg[0].ramp);
+}
+
+// ==================== Loop ====================
+void Mode_4_Loop(void)
+{
+    OLED_Printf(0, 0, OLED_6X8, "M4 S-Crv Y:%.0f", IMU_Yaw_Abs_Get());
+
+    // 串口 ABC 在线调参
+    if (Serial_GetNewPackageFlag_ABC(&Serial1))
+    {
+        Serial_SetFloatData(&Serial1, "Kp",   "Kp=%f",   &Y8U_PID.Kp);
+        Serial_SetFloatData(&Serial1, "Ki",   "Ki=%f",   &Y8U_PID.Ki);
+        Serial_SetFloatData(&Serial1, "Kd",   "Kd=%f",   &Y8U_PID.Kd);
+        Serial_SetFloatData(&Serial1, "Goal", "Goal=%f", &Oran_Real_Offset);
+        Serial_SetFloatData(&Serial1, "S0", "%f", &seg[0].speed);
+        Serial_SetFloatData(&Serial1, "S1", "%f", &seg[1].speed);
+        Serial_SetFloatData(&Serial1, "S2", "%f", &seg[2].speed);
+        Serial_SetFloatData(&Serial1, "S3", "%f", &seg[3].speed);
+        Serial_SetFloatData(&Serial1, "S4", "%f", &seg[4].speed);
+        Serial_SetFloatData(&Serial1, "S5", "%f", &seg[5].speed);
+    }
+
+    switch (state)
+    {
+    case S_IDLE:
+        OLED_Printf(0, 10, OLED_6X8, "KEY1:Go");
+        OLED_Printf(0, 20, OLED_6X8, "Speeds:%.0f/%.0f/%.0f",
+                    seg[1].speed, seg[3].speed, seg[5].speed);
+        if (Key_Check(KEY_1, KEY_SINGLE))
+        {
+            state    = S_RUN;
+            Serial_printf(&Serial2 , "@rec:666$#") ;
+            t0       = HAL_GetTick();
+            seg_idx  = 0;
+            IMU_Yaw_Abs_Reset();
+            Y8U_FinishLine_Reset();   // 清空终点检测滑动窗口, 重新建立基线
+            scurve_start(&sc, 0, seg[0].speed, seg[0].ramp);
+            Y8U_SetSpeed(0);
+        }
+        break;
+
+    case S_RUN:
+        OLED_Printf(0, 10, OLED_6X8, "S%d Sv:%.2f D:%.2f",
+                    seg_idx, dbg_severity, Oran_Damping_K);
+        OLED_Printf(0, 20, OLED_8X16, "%dosc %.0frpm",
+                    dbg_osc, Y8U_GetSpeed());
+        break;
+
+    case S_FINISH:
+        OLED_Printf(0, 10, OLED_6X8, "Decel... %.0frpm", Y8U_GetSpeed());
+        OLED_Printf(0, 20, OLED_8X16, "%.1fs", (HAL_GetTick() - t0) / 1000.0f);
+        break;
+
+    case S_STOP:
+        OLED_Printf(0, 10, OLED_6X8, "Done!");
+        OLED_Printf(0, 20, OLED_8X16, "%.1fs", race_time);
+        break;
+    }
+}
+
+// ==================== Tick (20ms) ====================
+void Mode_4_Tick(void)
+{
+    // 球平衡（始终运行，IDLE 也能观察球是否稳住）
+    Con_Mode_3_Tick();
+    Motor_Pos_Update(&Motor_A);
+    Motor_Pos_Update(&Motor_B);
+
+    if (state == S_IDLE || state == S_STOP) return;
+
+    float yaw = IMU_Yaw_Abs_Get();
+
+    // === S_RUN: 按速度段表行驶 ===
+    if (state == S_RUN)
+    {
+        // 1. 查找当前速度段
+        int new_idx = profile_find_seg(yaw);
+        if (new_idx != seg_idx)
+        {
+            float cur = scurve_peek(&sc);
+            scurve_start(&sc, cur, seg[new_idx].speed, seg[new_idx].ramp);
+            seg_idx = new_idx;
+        }
+
+        // 2. S 曲线推进
+        float cur_spd = scurve_tick(&sc);
+        Y8U_SetSpeed(cur_spd);
+
+        // 3. 寻迹 PID（过线冻结期内跳过，防止白线干扰方向）
+        if (finish_hold == 0)
+            Y8U_PID_Update();
+        else
+            finish_hold--;
+
+        // 4. 多传感器融合阻尼 + 振荡检测（替代旧 3 档固定值）
+        Mode4_Damping_Update();
+
+        // 5. 终点检测 → 触发缓停车（需偏航角门槛 + 滑动窗口双重确认）
+        if (yaw > FINISH_MIN_YAW && Y8U_CheckFinishLine())
+        {
+            state       = S_FINISH;
+            finish_hold = 5;   // 冻结寻迹 5 帧 (100ms), 等白线完全过去
+            float cur = scurve_peek(&sc);
+            scurve_start(&sc, cur, 0.0f, 250);  // 250tick=5.0s 极缓慢停车
+        }
+    }
+    // === S_FINISH: 缓慢减速到 0 ===
+    else if (state == S_FINISH)
+    {
+        float cur_spd = scurve_tick(&sc);
+        Y8U_SetSpeed(cur_spd);
+
+        // 停车期间: 冻结期内跳过 PID, 之后恢复寻迹纠偏
+        if (finish_hold == 0)
+            Y8U_PID_Update();
+        else
+            finish_hold--;
+
+        // 多传感器融合阻尼 + 振荡检测（停车段继续保持）
+        Mode4_Damping_Update();
+
+        // 速度降到 ~0 后正式停车
+        if (cur_spd < 1.5f)
+        {
+            state      = S_STOP;
+            Serial_printf(&Serial2 , "@stop:666$#") ;
+            race_time  = (HAL_GetTick() - t0) / 1000.0f;
+            Y8U_SetSpeed(0);
+            Motor_SetSpeed(&Motor_A, 0);
+            Motor_SetSpeed(&Motor_B, 0);
+        }
+    }
+
+    // === 串口 CSV（调试用, 需要时取消注释）===
+//    Serial_printf(&Serial1, "%.2f,%.2f,%.2f,%.2f,%.2f\r\n",
+//        yaw, Y8U_GetSpeed(), Y8U_GetOffset(),
+//        PID_Oran.realPoint_Now, PID_Oran.setPoint);
+}
+
+// ==================== Exit ====================
 void Mode_4_Exit(void)
 {
-    race_state = RACE_IDLE;
+    state = S_IDLE;
     Y8U_SetSpeed(0);
+    Motor_SetSpeed(&Motor_A, 0);
+    Motor_SetSpeed(&Motor_B, 0);
+    Stepper_PWM_Stop(&Stepper1);
 }

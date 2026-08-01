@@ -98,24 +98,33 @@ void Y8U_RampTick(float goal, uint8_t cnt)
 }
 
 // ============== 横线终点检测（滑动窗口 → 异常值触发，不污染基线）==============
+static uint16_t fl_window[FINISH_SUM_WINDOW] = {0};
+static uint8_t  fl_idx    = 0;
+static uint8_t  fl_filled = 0;
+
+// 每次起跑前调用，清空滑动窗口基线
+void Y8U_FinishLine_Reset(void)
+{
+    for (int i = 0; i < FINISH_SUM_WINDOW; i++)
+        fl_window[i] = 0;
+    fl_idx    = 0;
+    fl_filled = 0;
+}
+
 uint8_t Y8U_CheckFinishLine(void)
 {
-    static uint16_t window[FINISH_SUM_WINDOW] = {0};
-    static uint8_t  idx    = 0;
-    static uint8_t  filled = 0;
-
     uint16_t sum = Y8U_GetADC_Sum();
 
     // 滑动窗口均值
-    int n = filled ? FINISH_SUM_WINDOW : idx;
+    int n = fl_filled ? FINISH_SUM_WINDOW : fl_idx;
     if (n == 0) {
-        window[idx++] = sum;
+        fl_window[fl_idx++] = sum;
         return 0;
     }
 
     float avg = 0;
     for (int i = 0; i < n; i++)
-        avg += window[i];
+        avg += fl_window[i];
     avg /= n;
 
     // 异常值 → 检测到横线，不污染基线
@@ -123,9 +132,9 @@ uint8_t Y8U_CheckFinishLine(void)
         return 1;
 
     // 正常值 → 加入滑动窗口
-    window[idx] = sum;
-    idx = (idx + 1) % FINISH_SUM_WINDOW;
-    if (!filled && idx == 0) filled = 1;
+    fl_window[fl_idx] = sum;
+    fl_idx = (fl_idx + 1) % FINISH_SUM_WINDOW;
+    if (!fl_filled && fl_idx == 0) fl_filled = 1;
 
     return 0;
 }

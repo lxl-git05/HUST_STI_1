@@ -45,5 +45,6 @@ void Y8U_RampTick(float goal, uint8_t cnt);
 #define FINISH_SUM_RATIO    1.1f   // 超过基线 10% 视为异常
 uint16_t Y8U_GetADC_Sum(void);
 uint8_t  Y8U_CheckFinishLine(void);
+void     Y8U_FinishLine_Reset(void);  // 重置滑动窗口（每次起跑前调用）
 
 #endif

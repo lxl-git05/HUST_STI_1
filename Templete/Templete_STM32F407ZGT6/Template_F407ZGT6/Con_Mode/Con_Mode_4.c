@@ -37,6 +37,7 @@ void Con_Mode_4_Loop(void)
         OLED_Printf(0, 20, OLED_8X16, "KEY1:Go");
         if (Key_Check(KEY_1, KEY_SINGLE))
         {
+					Serial_printf(&Serial2 , "@rec:666$#") ;
             IMU_Yaw_Abs_Reset();
             t0    = HAL_GetTick();
             state = S_ACCEL;

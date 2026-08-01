@@ -50,6 +50,7 @@ void Con_Mode_3_Loop(void)
 	// KEY1 单击 → 启动 S 曲线轨迹: O→+5cm→-5cm
 	if (Key_Check(KEY_1 , KEY_SINGLE))
 	{
+		Serial_printf(&Serial2 , "@rec:666$#") ;
 		PID_Param_Reset(&PID_Oran);         // 清积分历史
 		Oran_Damping_K = TRAJ_DAMPING_K;    // 轨迹轻阻尼
 		test_state = S_GOTO_POS;
@@ -68,12 +69,12 @@ void Con_Mode_3_Tick(void)
 		RGB_Set_Color((r > Oran_Single_Pos || r < -Oran_Single_Pos) ? 1 : 0, 0, 0) ;
 	}
 	// 位置PID CSV: Goal, Real(Re+Off), Pout, Iout, Dout, Output, Spd
-	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",
-	PID_Oran.goalPoint, PID_Oran.realPoint_Now,
-	PID_Oran.pout, PID_Oran.iout, PID_Oran.dout, PID_Oran.setPoint, Oran_Speed,Y8U_GetSpeed());
+//	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",
+//	PID_Oran.goalPoint, PID_Oran.realPoint_Now,
+//	PID_Oran.pout, PID_Oran.iout, PID_Oran.dout, PID_Oran.setPoint, Oran_Speed,Y8U_GetSpeed());
 	
-//	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
-//								,PID_Oran.setPoint, Y8U_GetSpeed(), IMU_Yaw_Abs_Get() , ff_angle * 1000 , Oran_Speed , IMU_Get_Ax() * 1000);
+	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
+								,PID_Oran.setPoint, Y8U_GetSpeed(), IMU_Yaw_Abs_Get() , ff_angle * 1000 , Oran_Speed , IMU_Get_Ax() * 1000);
 	
 //	Serial_printf(&Serial1 , "%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n",PID_Oran.goalPoint, PID_Oran.realPoint_Now
 //								,PID_Oran.setPoint, Y8U_PID.goalPoint, Y8U_PID.realPoint_Now,Y8U_PID.setPoint, IMU_Yaw_Abs_Get());
@@ -122,6 +123,7 @@ void Con_Mode_3_Tick(void)
 					PID_Oran.SumError = 0.0f;              // 清积分防过冲
 					Oran_Damping_K   = HOLD_DAMPING_K;     // 强阻尼制动
 					test_state = S_HOLD_NEG;
+					Serial_printf(&Serial2 , "@stop:666$#") ;
 				}
 			}
 			break;
