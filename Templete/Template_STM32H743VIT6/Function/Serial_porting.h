@@ -4,11 +4,14 @@
 #include "Serial_base.h"
 
 // ============== 串口实例结构体 ==============
+#define Serial_TX_BUF_SIZE 256                        // DMA 发送缓冲大小（超长自动回退阻塞发送）
+
 typedef struct {
     USART_TypeDef *Instance;              // USART外设基址
     UART_HandleTypeDef *huart;          // HAL句柄
 
-    uint8_t rxBuf[Serial_RX_BUF_SIZE];    // 接收缓冲区
+    uint8_t rxBuf[((Serial_RX_BUF_SIZE + 31) & ~31)] __attribute__((aligned(32)));    // 接收缓冲区(32字节对齐,DMA+D-Cache维护要求)
+    uint8_t txBuf[Serial_TX_BUF_SIZE] __attribute__((aligned(32)));                   // DMA发送缓冲区(32字节对齐,D-Cache维护要求)
     uint16_t rxLen;                       // 本次接收数据长度
 
     Serial_ABC_Data_Typedef ABC_Data;     // ABC协议数据

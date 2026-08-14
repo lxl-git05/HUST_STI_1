@@ -28,3 +28,21 @@
 | AllHeader.h | ./Top/AllHeader.h | 修改 | Mode 库组新增 Mode_5.h / Mode_6.h |
 
 > Keil 工程添加 Mode_5.c / Mode_6.c 由用户自行操作。
+
+## 2026-08-14 14:19 | USART1 改为 DMA 收发（RX=DMA1_Stream0, TX=DMA1_Stream1）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Serial_porting.h | ./Function/Serial_porting.h | 修改 | rxBuf 改为 32 字节对齐并补齐整 cache line（800B），供 D-Cache 维护使用 |
+| Serial_porting.c | ./Function/Serial_porting.c | 修改 | 新增 Serial_TX 统一发送入口：USART1 走 DMA（含 D-Cache 回写），其余串口保持阻塞；Serial1 接收改 ReceiveToIdle_DMA，回调失效缓存并分路重启；printf/send_string/SendBytes 全部改走 Serial_TX |
+
+> 关键设计：0x24000000 区域可缓存 → TX 前 CleanDCache、RX 解析前 InvalidateDCache；中断上下文里 TX 忙时直接丢帧（DMA 完成中断与定时器同为抢占优先级0，无法抢占，等则死锁）。Keil 工程无需新增文件（dma.c/h 由 CubeMX 重新生成时已加入）。
+
+## 2026-08-14 14:42 | 串口层 DMA 通用化（为全串口 DMA 做准备）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Serial_porting.h | ./Function/Serial_porting.h | 修改 | 结构体新增 32 字节对齐 txBuf[256]；Serial_TX_BUF_SIZE 宏移到头文件 |
+| Serial_porting.c | ./Function/Serial_porting.c | 修改 | 删 USART1 硬编码：新增 Serial_StartRx()（按 hdmarx 自动选 DMA/中断），Serial_TX 按 hdmatx 自动选 DMA/阻塞；4 路 Init、接收回调、重启全部通用化 |
+
+> 用户后续在 CubeMX 给 USART2/3/UART4 加 DMA 重新生成后，代码自动切换 DMA 收发，无需再改。

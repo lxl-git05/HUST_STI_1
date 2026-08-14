@@ -20,6 +20,43 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart);
 static void Serial_Parse_HEX(Serial_Typedef *pSerial, uint16_t Size);
 static void Serial_Parse_ABC(Serial_Typedef *pSerial);
 
+// ============== 接收/发送统一入口 ==============
+// 启动接收：有 DMA 接收句柄的串口走 DMA，否则中断接收（自动适配 CubeMX 的 DMA 配置）
+static void Serial_StartRx(Serial_Typedef *pSerial)
+{
+    if (pSerial->huart->hdmarx != NULL)
+        HAL_UARTEx_ReceiveToIdle_DMA(pSerial->huart, pSerial->rxBuf, Serial_RX_BUF_SIZE);
+    else
+        HAL_UARTEx_ReceiveToIdle_IT(pSerial->huart, pSerial->rxBuf, Serial_RX_BUF_SIZE);
+}
+
+// 统一发送入口：有 DMA 发送句柄的串口走 DMA，否则阻塞发送
+static void Serial_TX(Serial_Typedef *pSerial, uint8_t *buf, uint16_t len, uint32_t timeout)
+{
+    if (pSerial->huart->hdmatx != NULL && len > 0 && len <= Serial_TX_BUF_SIZE)
+    {
+        // 等待上一次 DMA 发送完成。
+        // 注意：DMA 完成中断与定时器中断同为抢占优先级0，中断上下文里 DMA 中断
+        //       无法抢占本中断，若忙则直接丢弃本帧，防止死等
+        if (__get_IPSR() != 0)
+        {
+            if (pSerial->huart->gState == HAL_UART_STATE_BUSY_TX) return;
+        }
+        else
+        {
+            while (pSerial->huart->gState == HAL_UART_STATE_BUSY_TX) { }
+        }
+        memcpy(pSerial->txBuf, buf, len);
+        // H7 D-Cache：DMA 读内存不经过缓存，发送前必须把缓冲回写内存
+        SCB_CleanDCache_by_Addr((uint32_t *)pSerial->txBuf, Serial_TX_BUF_SIZE);
+        HAL_UART_Transmit_DMA(pSerial->huart, pSerial->txBuf, len);
+    }
+    else
+    {
+        HAL_UART_Transmit(pSerial->huart, buf, len, timeout);   // 阻塞发送
+    }
+}
+
 // ============== 初始化 ==============
 void Serial_Init(void)
 {
@@ -30,7 +67,7 @@ void Serial_Init(void)
     memset(Serial1.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial1.ABC_Data, 0, sizeof(Serial1.ABC_Data));
     memset(&Serial1.HEX_Data, 0, sizeof(Serial1.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial1.huart, Serial1.rxBuf, Serial_RX_BUF_SIZE);
+    Serial_StartRx(&Serial1);
 
 #ifdef Serial2_Enable
     // ----- Serial2 -----
@@ -40,7 +77,7 @@ void Serial_Init(void)
     memset(Serial2.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial2.ABC_Data, 0, sizeof(Serial2.ABC_Data));
     memset(&Serial2.HEX_Data, 0, sizeof(Serial2.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial2.huart, Serial2.rxBuf, Serial_RX_BUF_SIZE);
+    Serial_StartRx(&Serial2);
 #endif
 
 #ifdef Serial3_Enable
@@ -51,7 +88,7 @@ void Serial_Init(void)
     memset(Serial3.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial3.ABC_Data, 0, sizeof(Serial3.ABC_Data));
     memset(&Serial3.HEX_Data, 0, sizeof(Serial3.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial3.huart, Serial3.rxBuf, Serial_RX_BUF_SIZE);
+    Serial_StartRx(&Serial3);
 #endif
 
 #ifdef Serial4_Enable
@@ -62,7 +99,7 @@ void Serial_Init(void)
     memset(Serial4.rxBuf, 0, Serial_RX_BUF_SIZE);
     memset(&Serial4.ABC_Data, 0, sizeof(Serial4.ABC_Data));
     memset(&Serial4.HEX_Data, 0, sizeof(Serial4.HEX_Data));
-    HAL_UARTEx_ReceiveToIdle_IT(Serial4.huart, Serial4.rxBuf, Serial_RX_BUF_SIZE);
+    Serial_StartRx(&Serial4);
 #endif
 
     // 初始化协议常量
@@ -84,7 +121,7 @@ void Serial_printf(Serial_Typedef *pSerial, const char *fmt, ...)
     if (len > 0) {
         if (len >= (int)sizeof(buffer))
             len = sizeof(buffer) - 1;
-        HAL_UART_Transmit(pSerial->huart, (uint8_t *)buffer, len, 100);
+        Serial_TX(pSerial, (uint8_t *)buffer, len, 100);
     }
 }
 
@@ -249,14 +286,14 @@ void Serial_send_string(Serial_Typedef *pSerial, char *str)
 {
     uint16_t len = (uint16_t)strlen(str);
     if (len > 0)
-        HAL_UART_Transmit(pSerial->huart, (uint8_t *)str, len, 1000);
+        Serial_TX(pSerial, (uint8_t *)str, len, 1000);
 }
 
 // 发送原始字节数组（阻塞式）
 void Serial_SendBytes(Serial_Typedef *pSerial, uint8_t *buf, uint16_t len)
 {
     if (len > 0)
-        HAL_UART_Transmit(pSerial->huart, buf, len, 1000);
+        Serial_TX(pSerial, buf, len, 1000);
 }
 
 // 发送 HEX 协议包（帧头+LEN+数据[XOR校验]+帧尾）
@@ -339,6 +376,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     Serial_Typedef *pSerial = Serial_GetInstance(huart);
     if (pSerial == NULL) return;
 
+    // DMA 接收缓存维护：DMA 直接写内存不经过缓存，CPU 读 rxBuf 前必须先失效 D-Cache
+    if (pSerial->huart->hdmarx != NULL)
+        SCB_InvalidateDCache_by_Addr((uint32_t *)pSerial->rxBuf, Serial_RX_BUF_SIZE);
+
     // 2. 清除状态
     pSerial->rxLen = Size;
     pSerial->HEX_Data.frame_valid = false;
@@ -361,5 +402,5 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     }
 
 _restart:
-    HAL_UARTEx_ReceiveToIdle_IT(pSerial->huart, pSerial->rxBuf, Serial_RX_BUF_SIZE);
+    Serial_StartRx(pSerial);
 }
