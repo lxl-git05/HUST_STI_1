@@ -67,12 +67,22 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define KEY0_Pin GPIO_PIN_3
 #define KEY0_GPIO_Port GPIOE
+#define KEY1_Pin GPIO_PIN_0
+#define KEY1_GPIO_Port GPIOC
+#define KEY2_Pin GPIO_PIN_1
+#define KEY2_GPIO_Port GPIOC
+#define AT_SCL_Pin GPIO_PIN_4
+#define AT_SCL_GPIO_Port GPIOA
+#define AT_SDA_Pin GPIO_PIN_5
+#define AT_SDA_GPIO_Port GPIOA
+#define EC11_S1_Pin GPIO_PIN_4
+#define EC11_S1_GPIO_Port GPIOC
+#define EC11_S2_Pin GPIO_PIN_5
+#define EC11_S2_GPIO_Port GPIOC
+#define EC11_Key_Pin GPIO_PIN_0
+#define EC11_Key_GPIO_Port GPIOB
 #define Buzzer_Pin GPIO_PIN_8
 #define Buzzer_GPIO_Port GPIOE
-#define KEY1_Pin GPIO_PIN_13
-#define KEY1_GPIO_Port GPIOB
-#define KEY2_Pin GPIO_PIN_15
-#define KEY2_GPIO_Port GPIOB
 #define Motor_A_IN2_Pin GPIO_PIN_10
 #define Motor_A_IN2_GPIO_Port GPIOD
 #define Motor_B_IN2_Pin GPIO_PIN_11

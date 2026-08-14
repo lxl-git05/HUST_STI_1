@@ -113,6 +113,8 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM8_Init();
   MX_I2C1_Init();
+  MX_UART4_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 	Mymain() ;
   /* USER CODE END 2 */
