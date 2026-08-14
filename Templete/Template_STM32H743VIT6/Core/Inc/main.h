@@ -77,8 +77,10 @@ void Error_Handler(void);
 #define AT_SDA_GPIO_Port GPIOA
 #define EC11_S1_Pin GPIO_PIN_4
 #define EC11_S1_GPIO_Port GPIOC
+#define EC11_S1_EXTI_IRQn EXTI4_IRQn
 #define EC11_S2_Pin GPIO_PIN_5
 #define EC11_S2_GPIO_Port GPIOC
+#define EC11_S2_EXTI_IRQn EXTI9_5_IRQn
 #define EC11_Key_Pin GPIO_PIN_0
 #define EC11_Key_GPIO_Port GPIOB
 #define Buzzer_Pin GPIO_PIN_8

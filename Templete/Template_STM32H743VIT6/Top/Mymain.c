@@ -1,50 +1,67 @@
 #include "Mymain.h"
 #include "AllHeader.h"
-// =================== È«¾Ö±äÁ¿ ===================
+// =================== å…¨å±€å˜é‡ ===================
 
 void Mymain(void)
 {
-	Mode_G_Setup() ;    // È«¾Ö³õÊ¼»¯
+	Mode_G_Setup() ;    // å…¨å±€åˆå§‹åŒ–
 
-	while (1) 
+	while (1)
 	{
-			OLED_Clear() ;
-			Mode_G_Loop() ; 
+			Mode_G_Loop() ;
 
 			if (curr_mode == next_mode)
 			{
-					switch (curr_mode) 
+					switch (curr_mode)
 					{
-							case Mode_Null : break; // Ö»ÓĞGlobalÄ£Ê½ÔÚ¸É»î
-							case 1 : Mode_1_Loop() ; break;
-							case 2 : Mode_2_Loop() ; break;
-							case 3 : Mode_3_Loop() ; break;
-							case 4 : Mode_4_Loop() ; break;
-							case Mode_End  : break; // µ½Í·ÁË,²»Òªµ½ÕâÀïÀ´,Ğ´caseÊÇÒòÎª²»È»±¨³ö¾¯¸æ
+							case Mode_Null : break; // åªæœ‰Globalæ¨¡å¼åœ¨å¹²æ´»
+							case Mode_1 : Mode_1_Loop() ; break;
+							case Mode_2 : Mode_2_Loop() ; break;
+							case Mode_3 : Mode_3_Loop() ; break;
+							case Mode_4 : Mode_4_Loop() ; break;
+							case Mode_5 : Mode_5_Loop() ; break;
+							case Mode_6 : Mode_6_Loop() ; break;
+							case Mode_End  : break; // çº¯å…œåº•,ä¸ä¼šè¿è¡Œåˆ°è¿™é‡Œ,å†™caseæ˜¯å› ä¸ºæšä¸¾æ²¡default
+							default: break;
 					}
 			}
-			else // Ä£Ê½½»½Ó,½öÔÚÄ£Ê½×ª»»²Å´¥·¢Ò»´Î 
+			else // æ¨¡å¼åˆ‡æ¢,å…ˆæ‰§è¡Œæ¨¡å¼è½¬æ¢å†å†™ä¸€æ¬¡
 			{
-					switch (curr_mode) 
+					switch (curr_mode)
 					{
 							case Mode_Null : break;
-							case 1 : Mode_1_Exit() ; break;
-							case 2 : Mode_2_Exit() ; break;
-							case 3 : Mode_3_Exit() ; break;
-							case 4 : Mode_4_Exit() ; break;
-							case Mode_End  : break; // µ½Í·ÁË,²»Òªµ½ÕâÀïÀ´,Ğ´caseÊÇÒòÎª²»È»±¨³ö¾¯¸æ
+							case Mode_1 : Mode_1_Exit() ; break;
+							case Mode_2 : Mode_2_Exit() ; break;
+							case Mode_3 : Mode_3_Exit() ; break;
+							case Mode_4 : Mode_4_Exit() ; break;
+							case Mode_5 : Mode_5_Exit() ; break;
+							case Mode_6 : Mode_6_Exit() ; break;
+							case Mode_End  : break; // çº¯å…œåº•,ä¸ä¼šè¿è¡Œåˆ°è¿™é‡Œ,å†™caseæ˜¯å› ä¸ºæšä¸¾æ²¡default
+							default: break;
 					}
-					switch (next_mode) 
+					switch (next_mode)
 					{
 							case Mode_Null : break;
-							case 1 : Mode_1_Setup() ; break;
-							case 2 : Mode_2_Setup() ; break;
-							case 3 : Mode_3_Setup() ; break;
-							case 4 : Mode_4_Setup()  ; break;
-							case Mode_End  : break; // µ½Í·ÁË,²»Òªµ½ÕâÀïÀ´,Ğ´caseÊÇÒòÎª²»È»±¨³ö¾¯¸æ
+							case Mode_1 : Mode_1_Setup() ; break;
+							case Mode_2 : Mode_2_Setup() ; break;
+							case Mode_3 : Mode_3_Setup() ; break;
+							case Mode_4 : Mode_4_Setup()  ; break;
+							case Mode_5 : Mode_5_Setup() ; break;
+							case Mode_6 : Mode_6_Setup()  ; break;
+							case Mode_End  : break; // çº¯å…œåº•,ä¸ä¼šè¿è¡Œåˆ°è¿™é‡Œ,å†™caseæ˜¯å› ä¸ºæšä¸¾æ²¡default
+							default: break;
 					}
 			}
-			curr_mode = next_mode ; // ×´Ì¬¸üĞÂ
+			// çŠ¶æ€æ›´æ–° + æ¨¡å¼å˜åŒ–æ—¶å†™ä¸€æ¬¡ AT24C02ï¼ˆä¸å†æ¯æ¬¡å¾ªç¯å†™ï¼‰
+		{
+			static Mode_Typedef last_saved = Mode_Null ;
+			curr_mode = next_mode ;
+			if (curr_mode != Mode_Null && curr_mode != last_saved)
+			{
+				Param_AT24C02_Write(&curr_mode) ;
+				last_saved = curr_mode ;
+			}
+		}
 		  OLED_Update() ;
 	}
 }

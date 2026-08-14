@@ -40,18 +40,32 @@ float Motor_Get_Angle(Motor_Typedef *Motor) ;
 // 10. 检查电机位置
 bool Motor_Is_Angle(Motor_Typedef *Motor , int Angle , int Tolerance) ;
 
-// 电机驱动
-void Motor_Hang_Up(void)  ;
-void Motor_Hang_Mid(void) ;
-void Motor_Hang_Down(void);
+// ==================== 位置环（F407 移植） ====================
+// 1. 设置电机目标位移(cm)
+void Motor_SetPos(Motor_Typedef *Motor , float Pos) ;
 
-bool IS_Motor_Hang_Up(void) ;
-bool Is_Motor_Hang_Mid(void) ;
-bool Is_Motor_Hanger_Down(void) ;
+// 2. 得到电机当前位移(cm)
+float Motor_Get_Pos(Motor_Typedef *Motor) ;
 
-void Motor_Hua_Next(void) ;
-void Motor_Hua_Back(void) ;
-bool Motor_Hua_is_Ok(void);
+// 3. 检查电机位移（速度检查 + 位置容差）
+bool Motor_Is_Pos(Motor_Typedef *Motor , float Pos , float Tolerance , float Speed_Tol) ;
+
+// 4. 电机位置环更新Tick（20ms 周期内调用，输出速度给速度环）
+void Motorx_Pos_Update_Tick(Motor_Typedef *Motor , int Dir) ;
+
+// 5. 清除双电机累计位移
+void Motor_Pos_Clear(void) ;
+
+// ==================== 整车直行环（F407 移植） ====================
+// 直行位置环（A轮距离→速度）与偏航环（IMU yaw→差速修正）
+extern Pid_Typedef PID_Car_Straight ;
+extern Pid_Typedef PID_Straight_Yaw ;
+
+void PID_Car_Straight_Init(void) ;                       // 初始化（位置PD + 偏航PD）
+void PID_Car_Straight_Reset(void) ;                      // 清零编码器 + 记录起始yaw + 清PID历史
+void PID_Car_Straight_Tick(void) ;                       // 20ms Tick: 位置PID+梯形限速+yaw PD→差速输出
+void PID_Car_Straight_SetSpeedParams(float max_speed) ;  // 配置最高巡航速度(rpm)，0=使用默认200
+
  
 
 #endif

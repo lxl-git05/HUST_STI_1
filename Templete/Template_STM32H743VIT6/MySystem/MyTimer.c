@@ -7,6 +7,18 @@ void Timer_Initial(void)
 	HAL_TIM_Base_Start_IT(&htim17);
 }
 
+// 关闭全局中断（供陀螺仪标定等对时序敏感的操作使用）
+void Timer_DisableIRQ(void)
+{
+	__disable_irq();
+}
+
+// 开启全局中断
+void Timer_EnableIRQ(void)
+{
+	__enable_irq();
+}
+
 /*弱函数声明,主函数调用*/
 __attribute__((weak)) void Timer_1ms_Callback(void)
 {

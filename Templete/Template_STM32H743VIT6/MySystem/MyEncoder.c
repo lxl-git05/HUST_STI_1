@@ -33,3 +33,13 @@ int MyEncoder_Get_Total_CNT(MyEncoder_Typedef* MyEncoder)
 {
 	return MyEncoder->total_cnt ;
 }
+
+// 4. 清除累计脉冲数
+void MyEncoder_Total_Cnt_Clear(MyEncoder_Typedef* encoder)
+{
+    if (encoder == 0)
+    {
+        return;
+    }
+    encoder->total_cnt = 0;
+}

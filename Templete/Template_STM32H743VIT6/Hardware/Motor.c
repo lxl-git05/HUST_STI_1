@@ -6,7 +6,7 @@ void Motor_Init
 		Motor_Typedef* pMotor, MyPWM_Typedef* pwm, MyEncoder_Typedef* encoder,
 		MyGPIO_Typedef* in1, MyGPIO_Typedef* in2,
 		Motor_Param_Typedef* param, int8_t pwm_dir, int8_t encoder_dir,
-		Pid_Typedef PID_s, Pid_Typedef PID_Angle
+		Pid_Typedef PID_s, Pid_Typedef PID_Angle, Pid_Typedef PID_Pos
 )
 {
     // 1. 初始化PWM
@@ -31,9 +31,13 @@ void Motor_Init
     // 6. 初始化PID
     pMotor->PID_s = PID_s ;
 		pMotor->PID_Angle = PID_Angle ;
+		pMotor->PID_Pos = PID_Pos ;
 
 		// 7. 状态
 		pMotor->State = MOTOR_STOP ;
+
+		// 8. 默认开启角度环（位置环/直行环任务会临时关闭）
+		pMotor->Angle_Ring_Enable = 1 ;
 }
 
 // 2. 设置PWM值
@@ -75,4 +79,15 @@ void Motor_Angle_Update(Motor_Typedef *Motor)
 
 	// 记录当前角度
 	Motor->PID_Angle.realPoint_Now = curr_Angle ;
+}
+
+// 5. 得到当前电机走过的位移(cm)
+void Motor_Pos_Update(Motor_Typedef *Motor)
+{
+	// 位移(cm) = 总脉冲数 * 轮子周长 / (倍频 * PPR * 减速比)
+	float curr_Pos = (float)Motor->Motor_Encoder->total_cnt * Motor->Motor_Param->Wheel_Cm * Motor->Encoder_Dir /
+		(Motor->Motor_Encoder->time_Fre * Motor->Motor_Param->PPR * Motor->Motor_Param->ReductionRatio)   ;
+
+	// 记录当前位置
+	Motor->PID_Pos.realPoint_Now = curr_Pos ;
 }

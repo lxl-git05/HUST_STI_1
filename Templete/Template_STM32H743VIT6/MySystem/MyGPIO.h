@@ -14,6 +14,7 @@ extern MyGPIO_Typedef MyGPIO_LED0;
 extern MyGPIO_Typedef MyGPIO_Key0;
 extern MyGPIO_Typedef MyGPIO_Key1;
 extern MyGPIO_Typedef MyGPIO_Key2;
+extern MyGPIO_Typedef MyGPIO_EC11_Key;
 extern MyGPIO_Typedef MyGPIO_OLED_SCL;
 extern MyGPIO_Typedef MyGPIO_OLED_SDA;
 extern MyGPIO_Typedef MyGPIO_Motor_A_IN1;

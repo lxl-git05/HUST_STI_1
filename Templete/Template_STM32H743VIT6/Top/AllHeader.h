@@ -11,13 +11,26 @@
 // 硬件驱动库
 #include "Key.h"
 #include "OLED.h"
+#include "Encoder_Key.h"
 #include "Serial_porting.h"
-
+#include "TJC_LCD.h"
+#include "Buzzer.h"
+#include "IMU.h"
+#include "Servo.h"
 
 // 软件算法库
+#include "MyPID.h"
+#include "Queue.h"
+#include "at24c02_manager.h"
+#include "ParamEdit.h"
+#include "Param_AT24C02.h"
 
 // 硬件实现库
 #include "Con_Motor.h"
+#include "Con_Servo.h"
+#include "Con_Task.h"
+#include "Control.h"
+#include "Menu_Param.h"
 
 // Mode库
 #include "Mode_G.h"
@@ -25,6 +38,8 @@
 #include "Mode_2.h"
 #include "Mode_3.h"
 #include "Mode_4.h"
+#include "Mode_5.h"
+#include "Mode_6.h"
 
 // Mymain初始化集合,使主函数更简洁
 void Initial_ALL(void) ;

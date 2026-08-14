@@ -20,7 +20,7 @@
 #include "gpio.h"   // GPIO 外设
 #include "tim.h"    // 定时器/PWM/Encoder
 #include "usart.h"  // 串口通信
-// #include "i2c.h"
+#include "i2c.h"    // I2C（IMU 使用）
 // #include "adc.h"
 // #include "dma.h"
 

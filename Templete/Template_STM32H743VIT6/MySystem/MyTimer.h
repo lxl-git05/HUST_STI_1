@@ -6,5 +6,7 @@
 void Timer_Initial(void) ;
 void Timer_1ms_Callback(void) ;
 void Timer_20ms_Callback(void) ;
+void Timer_DisableIRQ(void) ;
+void Timer_EnableIRQ(void) ;
 
 #endif

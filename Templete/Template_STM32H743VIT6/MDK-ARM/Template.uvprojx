@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H743xx,USE_PWR_LDO_SUPPLY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Function;../Hardware;../Software;../Tools;../Top;../Mode;../MySystem</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Function;../Hardware;../Software;../Tools;../Top;../Mode;../MySystem;../AT;../IMU</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -656,16 +656,6 @@
           <GroupName>Software</GroupName>
           <Files>
             <File>
-              <FileName>Task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Software\Task.c</FilePath>
-            </File>
-            <File>
-              <FileName>Task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Software\Task.h</FilePath>
-            </File>
-            <File>
               <FileName>MyPID.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Software\MyPID.c</FilePath>
@@ -674,6 +664,16 @@
               <FileName>MyPID.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Software\MyPID.h</FilePath>
+            </File>
+            <File>
+              <FileName>Queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Software\Queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>Queue.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Software\Queue.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -740,6 +740,36 @@
               <FileType>5</FileType>
               <FilePath>..\Hardware\Buzzer.h</FilePath>
             </File>
+            <File>
+              <FileName>Encoder_Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Encoder_Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Encoder_Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Encoder_Key.h</FilePath>
+            </File>
+            <File>
+              <FileName>TJC_LCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\TJC_LCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>TJC_LCD.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\TJC_LCD.h</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Hardware\Servo.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -764,6 +794,46 @@
               <FileName>Con_Motor.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Function\Con_Motor.h</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Con_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Con_Task.h</FilePath>
+            </File>
+            <File>
+              <FileName>Control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Control.c</FilePath>
+            </File>
+            <File>
+              <FileName>Control.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Control.h</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Menu_Param.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_Param.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Menu_Param.h</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Con_Servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Con_Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Con_Servo.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -845,6 +915,26 @@
               <FileType>5</FileType>
               <FilePath>..\Mode\Mode_4.h</FilePath>
             </File>
+            <File>
+              <FileName>Mode_5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Mode\Mode_5.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mode_5.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Mode\Mode_5.h</FilePath>
+            </File>
+            <File>
+              <FileName>Mode_6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Mode\Mode_6.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mode_6.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Mode\Mode_6.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -869,6 +959,126 @@
               <FileName>AllHeader.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Top\AllHeader.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AT</GroupName>
+          <Files>
+            <File>
+              <FileName>at24c02_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\AT\at24c02_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>at24c02_manager.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AT\at24c02_manager.h</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_at24c02.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\AT\bsp_at24c02.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_at24c02.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AT\bsp_at24c02.h</FilePath>
+            </File>
+            <File>
+              <FileName>Param_AT24C02.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\AT\Param_AT24C02.c</FilePath>
+            </File>
+            <File>
+              <FileName>Param_AT24C02.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AT\Param_AT24C02.h</FilePath>
+            </File>
+            <File>
+              <FileName>ParamEdit.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\AT\ParamEdit.c</FilePath>
+            </File>
+            <File>
+              <FileName>ParamEdit.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AT\ParamEdit.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>IMU</GroupName>
+          <Files>
+            <File>
+              <FileName>ICM_42688_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM_42688_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM_42688_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM_42688_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM42688_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM42688_Angle.h</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\ICM42688_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>ICM42688_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\ICM42688_Mahony.h</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\IMU.c</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\IMU.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_Angle.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Angle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_Angle.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_base.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_base.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_base.h</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Mahony.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\IMU\MPU6050_Mahony.c</FilePath>
+            </File>
+            <File>
+              <FileName>MPU6050_Mahony.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\IMU\MPU6050_Mahony.h</FilePath>
             </File>
           </Files>
         </Group>

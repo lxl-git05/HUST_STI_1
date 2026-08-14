@@ -8,6 +8,12 @@ Serial_Typedef Serial1;
 #ifdef Serial2_Enable
 Serial_Typedef Serial2;
 #endif
+#ifdef Serial3_Enable
+Serial_Typedef Serial3;
+#endif
+#ifdef Serial4_Enable
+Serial_Typedef Serial4;
+#endif
 
 // ============== 内部函数声明 ==============
 static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart);
@@ -35,6 +41,28 @@ void Serial_Init(void)
     memset(&Serial2.ABC_Data, 0, sizeof(Serial2.ABC_Data));
     memset(&Serial2.HEX_Data, 0, sizeof(Serial2.HEX_Data));
     HAL_UARTEx_ReceiveToIdle_IT(Serial2.huart, Serial2.rxBuf, Serial_RX_BUF_SIZE);
+#endif
+
+#ifdef Serial3_Enable
+    // ----- Serial3 -----
+    Serial3.Instance = USART3;
+    Serial3.huart = &huart3;
+    Serial3.rxLen = 0;
+    memset(Serial3.rxBuf, 0, Serial_RX_BUF_SIZE);
+    memset(&Serial3.ABC_Data, 0, sizeof(Serial3.ABC_Data));
+    memset(&Serial3.HEX_Data, 0, sizeof(Serial3.HEX_Data));
+    HAL_UARTEx_ReceiveToIdle_IT(Serial3.huart, Serial3.rxBuf, Serial_RX_BUF_SIZE);
+#endif
+
+#ifdef Serial4_Enable
+    // ----- Serial4 -----
+    Serial4.Instance = UART4;
+    Serial4.huart = &huart4;
+    Serial4.rxLen = 0;
+    memset(Serial4.rxBuf, 0, Serial_RX_BUF_SIZE);
+    memset(&Serial4.ABC_Data, 0, sizeof(Serial4.ABC_Data));
+    memset(&Serial4.HEX_Data, 0, sizeof(Serial4.HEX_Data));
+    HAL_UARTEx_ReceiveToIdle_IT(Serial4.huart, Serial4.rxBuf, Serial_RX_BUF_SIZE);
 #endif
 
     // 初始化协议常量
@@ -208,6 +236,75 @@ bool Serial_Check_Str(Serial_Typedef *pSerial, char *KeyWord)
     return false;
 }
 
+// 精确匹配（strcmp）
+bool Serial_CheckCmd(Serial_Typedef *pSerial, char *cmd)
+{
+    return (strcmp(pSerial->ABC_Data.Serial_New_Package_ABC, cmd) == 0);
+}
+
+// ========== 发送 API ==========
+
+// 轮询发字符串（阻塞式）
+void Serial_send_string(Serial_Typedef *pSerial, char *str)
+{
+    uint16_t len = (uint16_t)strlen(str);
+    if (len > 0)
+        HAL_UART_Transmit(pSerial->huart, (uint8_t *)str, len, 1000);
+}
+
+// 发送原始字节数组（阻塞式）
+void Serial_SendBytes(Serial_Typedef *pSerial, uint8_t *buf, uint16_t len)
+{
+    if (len > 0)
+        HAL_UART_Transmit(pSerial->huart, buf, len, 1000);
+}
+
+// 发送 HEX 协议包（帧头+LEN+数据[XOR校验]+帧尾）
+void Serial_Send_HEX_Package(Serial_Typedef *pSerial, uint16_t *data, uint8_t count)
+{
+    uint8_t txBuf[3 + 256 * 3 + 2]; // 最大帧大小
+    uint16_t idx = 0;
+
+    txBuf[idx++] = Serial_Agreement_HEX.head1;
+    txBuf[idx++] = Serial_Agreement_HEX.head2;
+    txBuf[idx++] = count;                           // LEN = 字数
+
+    for (uint8_t i = 0; i < count; i++)
+    {
+        uint8_t dh = (data[i] >> 8) & 0xFF;
+        uint8_t dl = data[i] & 0xFF;
+        txBuf[idx++] = dh;
+        txBuf[idx++] = dl;
+        txBuf[idx++] = dh ^ dl;                     // XOR 校验码
+    }
+
+    txBuf[idx++] = Serial_Agreement_HEX.end1;
+    txBuf[idx++] = Serial_Agreement_HEX.end2;
+
+    Serial_SendBytes(pSerial, txBuf, idx);
+}
+
+// ========== 工具 API ==========
+
+// 清空 ABC 接收缓冲区
+void Serial_Clear_ABC(Serial_Typedef *pSerial)
+{
+    memset(pSerial->ABC_Data.Serial_New_Package_ABC, 0,
+           sizeof(pSerial->ABC_Data.Serial_New_Package_ABC));
+    pSerial->ABC_Data.Serial_New_Package_Flag = 0;
+    pSerial->ABC_Data.err = Serial_Err_None;
+}
+
+// 打印调试统计
+void Serial_PrintDebug(Serial_Typedef *pSerial)
+{
+    Serial_printf(pSerial,
+        "=== Serial Debug ===\r\n"
+        "  Instance: 0x%08lX\r\n"
+        "==================\r\n",
+        (uint32_t)pSerial->Instance);
+}
+
 // ========== 空闲中断回调 ==========
 
 // ============== 根据huart查找Serial实例 ==============
@@ -216,6 +313,12 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
     if (huart->Instance == Serial1.Instance) return &Serial1;
 #ifdef Serial2_Enable
     if (huart->Instance == Serial2.Instance) return &Serial2;
+#endif
+#ifdef Serial3_Enable
+    if (huart->Instance == Serial3.Instance) return &Serial3;
+#endif
+#ifdef Serial4_Enable
+    if (huart->Instance == Serial4.Instance) return &Serial4;
 #endif
     return NULL;
 }
