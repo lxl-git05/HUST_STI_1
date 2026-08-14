@@ -22,6 +22,17 @@ void Mode_G_Setup(void)
 //    PARAM_FORCE(IMU_Mahony_AccBiasY, 0.0f);
 //    PARAM_FORCE(IMU_Mahony_AccBiasZ, 0.0f);
 
+//    PARAM_FORCE(Pink_Sat_Lower, 0);
+//    PARAM_FORCE(Pink_Sat_Upper, 0);
+//    PARAM_FORCE(Start_x, 0);
+//    PARAM_FORCE(Start_y, 0);
+//    PARAM_FORCE(Tolerance, 0);
+//    PARAM_FORCE(t, 0);
+	
+//			PARAM_FORCE(PID_Oran.Kp ,  0.16f) ;
+//			PARAM_FORCE(PID_Oran.Ki , 0.013f) ;
+//			PARAM_FORCE(PID_Oran.Kd ,   5.0f) ;
+
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode
     //    将其复制到 next_mode 并重置 curr_mode，让 Mymain 执行完整模式切换
@@ -59,6 +70,20 @@ void Mode_G_Loop(void)
     {
         OLED_Printf(0,0,OLED_6X8,"===Mode_G===") ;
     }
+		
+		// 串口屏处理
+		if (LCD_Cmd_Check("box")) 		
+		{
+			Serial_printf(&Serial2 , "@box:6$#") ;
+		}
+		if (LCD_Cmd_Check("line")) 		{Serial_printf(&Serial2 , "@line:6$#") ;}
+		if (LCD_Cmd_Check("binary")) 	{Serial_printf(&Serial2 , "@binary:6$#") ;}
+		// 模式管理
+		if (LCD_Cmd_Check("Con_Mode_2")) {Mode_ChangeTo(Con_Mode_2) ;} 	
+		if (LCD_Cmd_Check("Con_Mode_3")) {Mode_ChangeTo(Con_Mode_3) ;}
+		if (LCD_Cmd_Check("Con_Mode_4")) {Mode_ChangeTo(Con_Mode_4) ;}
+		if (LCD_Cmd_Check("Con_Mode_5")) {Mode_ChangeTo(Con_Mode_5) ;}
+		if (LCD_Cmd_Check("Con_Mode_6")) {Mode_ChangeTo(Con_Mode_6) ;}
 }
 
 // ========================== 系统定时器配置 ==========================
@@ -120,9 +145,9 @@ void Timer_20ms_Callback(void)
 //			case Con_Mode_1 : Con_Mode_1_Tick() ; break;
 			case Con_Mode_2 : Con_Mode_2_Tick() ; break;
 			case Con_Mode_3 : Con_Mode_3_Tick() ; break;
-//			case Con_Mode_4 : Con_Mode_4_Tick() ; break;
-//			case Con_Mode_5 : Con_Mode_5_Tick() ; break;
-//			case Con_Mode_6 : Con_Mode_6_Tick() ; break;
+case Con_Mode_4 : Con_Mode_4_Tick() ; break;
+case Con_Mode_5 : Con_Mode_5_Tick() ; break;
+	case Con_Mode_6 : Con_Mode_6_Tick() ; break;
 			default: break;
 	}
 	// 4. 电机PID_Tick

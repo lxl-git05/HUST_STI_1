@@ -54,3 +54,24 @@
 | Y8_USART.c | ./Hardware/Y8_USART.c | 修改 | 完整实现：USART3 DMA+Idle 接收、$A/D,xn:val# 状态机解析、命令发送 |
 | Mode_4.c | ./Mode/Mode_4.c | 修改 | OLED 8 路 ADC 展示（4 行 × 2 通道），KEY1 重发 $0,1,0# |
 | Serial_porting.c | ./Function/Serial_porting.c | 修改 | HAL_UARTEx_RxEventCallback 新增 USART3 → Y8U_DMA_RxCallback 分发分支 |
+
+## 2026-08-01 15:30 | TJC_LCD 完整移植：MSPM0 → STM32F407 (UART4/Serial4)
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| TJC_LCD.h | ./Hardware/TJC_LCD.h | 修改 | 存根→完整头文件：6 API + 可覆盖宏 + 按键/滑块ID宏 |
+| TJC_LCD.c | ./Hardware/TJC_LCD.c | 修改 | 存根→完整实现：按键/滑块/指令/波形/ABC Float100 解析，基于 Serial4 ABC 协议 |
+
+## 2026-08-01 16:00 | Con_Mode_5/6 缩短 S 曲线 ramp 提速 ~2s
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Mode_5.c | ./Con_Mode/Con_Mode_5.c | 修改 | seg[0] ramp 150→120, seg[2] 120→100, seg[4] 120→100, 终点减速 250→220 |
+| Con_Mode_6.c | ./Con_Mode/Con_Mode_6.c | 修改 | 同上，合计节省 2.0s (100 ticks × 20ms) |
+
+## 2026-08-01 16:05 | Con_Mode_5/6 再砍 1s (ramp 第二轮精简)
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Mode_5.c | ./Con_Mode/Con_Mode_5.c | 修改 | seg[0] 120→110, seg[2] 100→90, seg[4] 100→90, 终点 220→200 |
+| Con_Mode_6.c | ./Con_Mode/Con_Mode_6.c | 修改 | 同上，两轮累计节省 3.0s |

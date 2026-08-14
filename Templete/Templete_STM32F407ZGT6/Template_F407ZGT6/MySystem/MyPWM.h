@@ -16,7 +16,7 @@ typedef struct {
 // extern MyPWM_Typedef MyPWM_Servo1;
 // extern MyPWM_Typedef MyPWM_Servo2;
 // extern MyPWM_Typedef MyPWM_Servo3;
-extern MyPWM_Typedef MyPWM_Servo4;
+// extern MyPWM_Typedef MyPWM_Servo4;
 extern MyPWM_Typedef MyPWM_Motor_A_IN1;
 extern MyPWM_Typedef MyPWM_Motor_B_IN1;
 

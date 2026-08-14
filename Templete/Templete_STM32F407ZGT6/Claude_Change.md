@@ -267,11 +267,8 @@
 |--------|----------------------|----------|------|
 | Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | 新增 CON_MODE_3_STEP_DIR 宏(-1=先-5cm再+5cm)；首目标/斜坡/末目标三处用宏控制方向 |
 
-## 2026-08-01 | Mode_5 速度环改进：加Kd+LPF+微分先行
+## 2026-08-01 | Con_Mode_3 改用 S 曲线轨迹抗超调
 
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
 |--------|----------------------|----------|------|
-| Orange.h | ./Template_F407ZGT6/Hardware/Orange.h | 修改 | 新增 extern Oran_Speed_Filt_Alpha + extern Oran_Speed_Calc |
-| Orange.c | ./Template_F407ZGT6/Hardware/Orange.c | 修改 | (1) Init: Kp 0.067→0.08, +Kd=0.5, d_filter=0.30, d_style=1.0 (2) Update: 弃用Serial2速度, 改用10ms位置差分自解算速度+LPF, 存入Oran_Speed_Calc |
-| Mode_5.c | ./Template_F407ZGT6/Mode/Mode_5.c | 修改 | OLED行2 c:自解/r:Serial2双速对比；CSV新增 CalcSpd/CamSpd 列；ABC新增 @Alp= @Df= |
-| 球平衡交接文档.md | ./球平衡交接文档.md | 修改 | 更新速度环串口命令表(新增 Ki/Alp/Df)；更新已知问题#2 状态 |
+| Con_Mode_3.c | ./Template_F407ZGT6/Con_Mode/Con_Mode_3.c | 修改 | 阶跃+斜坡状态机替换为S曲线平滑轨迹：新增 s_curve_step()(smoothstep)，4态(S_GOTO_POS→S_HOLD_POS→S_GOTO_NEG→S_HOLD_NEG)，总时长 4.0s≤5s，消除阶跃过冲

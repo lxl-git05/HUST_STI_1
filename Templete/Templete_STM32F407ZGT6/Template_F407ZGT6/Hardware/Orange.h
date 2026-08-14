@@ -5,12 +5,19 @@
 #include "Serial_porting.h"
 #include "MyPID.h"
 
+// 脱机调节阈值
+extern int Pink_Sat_Lower ;
+extern int Pink_Sat_Upper ;
+extern int Start_x ;
+extern int Start_y ;
+extern int Tolerance ;
+extern int t ;
+
 extern int Oran_Param[6] ;
 
 extern int Oran_Goal ;	// STM32发送给Orange的参数
 extern int Oran_real 	;	// 1. 真实值(偏移)
-extern int Oran_Speed ;			// 2. Serial2速度(摄像头)
-extern int Oran_Speed_Calc ;	// 3. 自行解算速度(10ms位置差分+LPF)
+extern int Oran_Speed ;	// 2. 速度
 
 extern int Oran_Single_Pos ;
 
@@ -46,6 +53,7 @@ extern float Oran_FF_Alpha ;  // 低通系数
 extern float Oran_FF_Len   ;  // 板长 cm
 extern float Oran_FF_Lift  ;  // 步进每度升降 cm/°
 extern float Oran_Damping_K ;  // 速度阻尼系数, 串口在线调
+extern float Oran_FF_Enable  ;  // 加速度前馈使能: 1=开, 0=关(Mode_3静止用)
 extern float ff_angle ;
 
 // ================== 速度环 PID ==================
@@ -55,10 +63,14 @@ extern int   Oran_SPD_Thr_Lo ;		// 低速阈值
 extern int   Oran_SPD_Thr_Hi ;		// 高速阈值
 void Oran_Speed_PID_Init(void) ;
 void Oran_Speed_PID_Update(void) ;
-extern float Oran_Speed_Filt_Alpha ;  // 球速低通滤波系数(0=无滤波, 1=无延迟)
 
 // ================== 串级 PID(位置环→速度环) ==================
 void Oran_Cascade_Init(void) ;
 void Oran_Cascade_Update(void) ;
+
+// ================== 角度跟踪测试（Mode_2 独立测试用） ==================
+extern float Oran_Angle_Test_Target ;   // 目标角度（度），可串口修改
+void Oran_Angle_Test_Init(void) ;       // 初始化 Stepper1 角度跟踪PID
+void Oran_Angle_Test_Update(void) ;     // 10ms调用：设置目标角度
 
 #endif

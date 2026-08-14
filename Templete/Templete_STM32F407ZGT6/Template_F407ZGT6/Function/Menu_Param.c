@@ -44,6 +44,22 @@ static bool Serial_RoutePID(Pid_Typedef *pid)
     return (pid->goalPoint != old);
 }
 
+// ==================== TUNE_ORAN_PID ====================
+void Tune_Oran_PID_Setup(float p[4]) {}
+void Tune_Oran_PID_Run(float p[4])
+{
+    Serial_RoutePID(&PID_Oran);
+    OLED_ShowPID("Oran", "Ball", &PID_Oran);
+}
+void Tune_Oran_PID_Tick(float p[4])
+{
+//    Serial_printf(&Serial1, "%.2f,%.2f,%.2f\n",
+//        PID_Oran.goalPoint, PID_Oran.realPoint_Now, PID_Oran.setPoint);
+			TJC_LCD_Wave_Send_Float(0,PID_Oran.goalPoint); 
+			TJC_LCD_Wave_Send_Float(0,PID_Oran.realPoint_Now); 
+			TJC_LCD_Wave_Send_Float(0,PID_Oran.setPoint); 
+}
+
 // ==================== TUNE_MOTOR_A_SPEED ====================
 void Tune_MotorA_Speed_Setup(float p[4]) { Motor_SetSpeed(&Motor_A, Motor_A.PID_s.goalPoint); }
 void Tune_MotorA_Speed_Run(float p[4])
@@ -344,12 +360,12 @@ void Tune_Y8_Track_Tick(float p[4])
 void Tune_Orange_Setup(float p[4])
 {
     Param_Init();
-    Param_Register("Param_1", &Oran_Param[0], 1, PARAM_INT32);
-    Param_Register("Param_2", &Oran_Param[1], 1, PARAM_INT32);
-    Param_Register("Param_3", &Oran_Param[2], 1, PARAM_INT32);
-    Param_Register("Param_4", &Oran_Param[3], 1, PARAM_INT32);
-    Param_Register("Param_5", &Oran_Param[4], 1, PARAM_INT32);
-    Param_Register("Param_6", &Oran_Param[5], 1, PARAM_INT32);
+    Param_Register("Pink_Sat_Lower",&Pink_Sat_Lower,1,PARAM_INT32);
+		Param_Register("Pink_Sat_Upper",&Pink_Sat_Upper,1,PARAM_INT32);
+		Param_Register("Start_x",&Start_x,1,PARAM_INT32);
+		Param_Register("Start_y",&Start_y,1,PARAM_INT32);
+		Param_Register("Tolerance",&Tolerance,1,PARAM_INT32);
+		Param_Register("t",&t,1,PARAM_INT32);
 
     // 向香橙派请求当前参数数据
     Serial_printf(&Serial2, "@start:6$#");
@@ -391,12 +407,11 @@ void Tune_Orange_Tick(float p[4])
 // ==================== 任务描述表（同 Control_TaskTable）====================
 // 修改次序只需要将下面两个表各自位置交换即可
 static const TuneLabel s_labels[TUNE_COUNT] = {
-//    { "Y8",      "Track"    },  // TUNE_Y8_TRACK
-//    { "Orange",  "Param"    },  // TUNE_ORANGE_PARAM
+    { "Oran",    "Ball"     },  // TUNE_ORAN_PID
     { "Gyro",    "Cal"      },  // TUNE_GYRO_CAL
     { "Gyro",    "YawPID"   },  // TUNE_GYRO_YAW
-    { "Stepper", "S1"       },  // TUNE_STEPPER_S1
-    { "Stepper", "S2"       },  // TUNE_STEPPER_S2
+//    { "Stepper", "S1"       },  // TUNE_STEPPER_S1
+//    { "Stepper", "S2"       },  // TUNE_STEPPER_S2
 
 
     // 不常用,暂时放最后
@@ -410,18 +425,16 @@ static const TuneLabel s_labels[TUNE_COUNT] = {
 };
 
 Task_Descriptor_Typedef Menu_Tune_Table[TUNE_COUNT] = {
-//    // TUNE_Y8_TRACK
-//    { Tune_Y8_Track_Setup,     Tune_Y8_Track_Run,     Tune_AlwaysFalse, Tune_Y8_Track_Tick },
-//    // TUNE_ORANGE_PARAM
-//    { Tune_Orange_Setup,       Tune_Orange_Run,       Tune_AlwaysFalse, Tune_Orange_Tick },
+    // TUNE_ORAN_PID
+    { Tune_Oran_PID_Setup,     Tune_Oran_PID_Run,     Tune_AlwaysFalse, Tune_Oran_PID_Tick },
     // TUNE_GYRO_CAL
     { Tune_Gyro_Cal_Setup,     Tune_Gyro_Cal_Run,     Tune_Gyro_Cal_IsExit, Tune_Gyro_Cal_Tick },
     // TUNE_GYRO_YAW
     { Tune_Gyro_Yaw_Setup,     Tune_Gyro_Yaw_Run,     Tune_AlwaysFalse, Tune_Gyro_Yaw_Tick },
     // TUNE_STEPPER_S1
-    { NULL,                    Tune_Stepper_S1_Run,   Tune_AlwaysFalse, Tune_Stepper_S1_Tick },
-    // TUNE_STEPPER_S2
-    { NULL,                    Tune_Stepper_S2_Run,   Tune_AlwaysFalse, Tune_Stepper_S2_Tick },
+//    { NULL,                    Tune_Stepper_S1_Run,   Tune_AlwaysFalse, Tune_Stepper_S1_Tick },
+//    // TUNE_STEPPER_S2
+//    { NULL,                    Tune_Stepper_S2_Run,   Tune_AlwaysFalse, Tune_Stepper_S2_Tick },
 
 
     // 不常用,暂时放最后

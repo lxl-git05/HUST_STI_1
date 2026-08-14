@@ -12,8 +12,8 @@ void Stepper_Init(void)
 	Stepper_PWM_Init(&Stepper1, &MyPWM_Stepper1, &MyGPIO_Stepper_Dir, 0.1125f, STEPPER_DIR_P);
 	Stepper_PWM_Init(&Stepper2, &MyPWM_Stepper2, &MyGPIO_Stepper2_Dir, 0.1125f, STEPPER_DIR_P);
 	
-	PID_Init(&Stepper1.PID_Angle , 4.0f , 0.0f , 0.829f , 200.0f , -200.0f , 1000.0f) ;
-	PID_Init(&Stepper2.PID_Angle , 4.0f , 0.0f , 0.224f , 200.0f , -200.0f , 1000.0f) ;
+	PID_Init(&Stepper1.PID_Angle , 4.0f , 0.0f , 0.829f , 50.0f , -50.0f , 1000.0f) ;
+	PID_Init(&Stepper2.PID_Angle , 4.0f , 0.0f , 0.224f , 50.0f , -50.0f , 1000.0f) ;
 
 	// 软件限位配置
 //	Stepper_PWM_Limit_Config(&Stepper1, 120.0f, -120.0f);  // 电机1 水平旋转 ±120°

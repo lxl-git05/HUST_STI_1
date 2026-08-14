@@ -41,7 +41,7 @@ MyGPIO_Typedef MYGPIO_Y8_DAT			 = {Y8_DAT_GPIO_Port , Y8_DAT_Pin} ;
 //MyPWM_Typedef MyPWM_Servo1      = { &htim1, TIM_CHANNEL_1, 2000.0f, 500.0f };  // 舵机1
 //MyPWM_Typedef MyPWM_Servo2      = { &htim1, TIM_CHANNEL_2, 2000.0f, 500.0f };  // 舵机2
 //MyPWM_Typedef MyPWM_Servo3      = { &htim1, TIM_CHANNEL_3, 2000.0f, 500.0f };  // 舵机3
-MyPWM_Typedef MyPWM_Servo4      = { &htim1, TIM_CHANNEL_4, 2500.0f, 500.0f };  // 舵机4 PE14
+//MyPWM_Typedef MyPWM_Servo4      = { &htim1, TIM_CHANNEL_4, 2000.0f, 500.0f };  // 舵机4
 MyPWM_Typedef MyPWM_Motor_A_IN1 = { &htim4, TIM_CHANNEL_3, 1000.0f, 0.0f   };  // 电机A
 MyPWM_Typedef MyPWM_Motor_B_IN1 = { &htim4, TIM_CHANNEL_4, 1000.0f, 0.0f   };  // 电机B
 

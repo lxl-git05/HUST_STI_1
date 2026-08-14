@@ -9,7 +9,8 @@
 
 // ==================== 调参任务枚举 ====================
 typedef enum {
-    TUNE_MOTOR_A_SPEED = 0,  // Motor_A 速度环
+    TUNE_ORAN_PID = 0,       // 铁球位置PID (Oran_PID)
+    TUNE_MOTOR_A_SPEED,      // Motor_A 速度环
     TUNE_MOTOR_A_ANGLE,      // Motor_A 角度环
     TUNE_MOTOR_A_POS,        // Motor_A 位置环
     TUNE_MOTOR_B_SPEED,      // Motor_B 速度环
@@ -26,6 +27,9 @@ typedef enum {
 } TuneTaskID;
 
 // ==================== 任务回调声明 ====================
+void Tune_Oran_PID_Setup       (float p[4]);
+void Tune_Oran_PID_Run         (float p[4]);
+void Tune_Oran_PID_Tick        (float p[4]);
 void Tune_MotorA_Speed_Setup (float p[4]);
 void Tune_MotorA_Speed_Run   (float p[4]);
 void Tune_MotorA_Angle_Setup (float p[4]);
