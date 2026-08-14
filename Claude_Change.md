@@ -46,3 +46,10 @@
 | Serial_porting.c | ./Function/Serial_porting.c | 修改 | 删 USART1 硬编码：新增 Serial_StartRx()（按 hdmarx 自动选 DMA/中断），Serial_TX 按 hdmatx 自动选 DMA/阻塞；4 路 Init、接收回调、重启全部通用化 |
 
 > 用户后续在 CubeMX 给 USART2/3/UART4 加 DMA 重新生成后，代码自动切换 DMA 收发，无需再改。
+
+## 2026-08-14 15:05 | 编写工程小结文档（供后续 Agent 快速上手）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| 工程小结.md | ./Templete/Template_STM32H743VIT6/工程小结.md | 新增 | 全工程架构/API/硬件总表/关键坑总结（基于实际代码逐项核查） |
+| CLAUDE.md | ./Templete/Template_STM32H743VIT6/CLAUDE.md | 修改 | 顶部加指针行，引导新会话先读工程小结.md |
