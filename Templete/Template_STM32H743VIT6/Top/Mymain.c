@@ -7,7 +7,8 @@ void Mymain(void)
 	Mode_G_Setup() ;    // 全局初始化
 
 	while (1)
-	{
+	{	
+			OLED_Clear() ;
 			Mode_G_Loop() ;
 
 			if (curr_mode == next_mode)

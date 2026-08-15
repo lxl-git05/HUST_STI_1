@@ -26,6 +26,18 @@ Task_Descriptor_Typedef Control_TaskTable[TASK_COUNT] = {
         .Setup  = Task_Motor_B_Angle_Setup,
         .IsExit = Task_Motor_B_Angle_IsExit,
     },
+    [TASK_MOTOR_TO] = {
+        .Setup  = Task_Motor_To_Setup,
+        .IsExit = Task_Motor_To_IsExit,
+    },
+    [TASK_SERVO_SET] = {
+        .Setup  = Task_Servo_Set_Setup,
+        .IsExit = Task_Servo_Set_IsExit,
+    },
+    [TASK_CLAW_SET] = {
+        .Setup  = Task_Claw_Set_Setup,
+        .IsExit = Task_Claw_Set_IsExit,
+    },
 };
 
 // =========================== 通用任务 ===========================
@@ -124,4 +136,55 @@ bool Task_Motor_B_Angle_IsExit(float p[4])
 		return true ;
 	}
 	return false ;
+}
+
+// =========================== 晾衣机器人任务 ===========================
+
+// 舵机角色 → 实例映射表（角色索引与 ROBOT_SERVO_* 宏一致）
+static Servo_Typedef *const s_ServoMap[4] = {
+    SERVO_CLAW_A, SERVO_CLAW_B, SERVO_HANGER_1, SERVO_HANGER_2
+};
+
+// 6. 任务: 双电机定位（无超时，堵转需外部急停中断）A电机是330度逆时针电机 B电机是上下电机
+// TASK_MOTOR_TO: p[0]=电机(0=A/1=B), p[1]=目标角度°, p[2]=容差°
+void Task_Motor_To_Setup(float p[4])
+{
+    Motor_Typedef *m = ((int)p[0] == 0) ? &Motor_A : &Motor_B;
+    m->Angle_Ring_Enable = 1;           // 角度环由 Mode_G 20ms 链统一驱动，任务无需 Tick
+    Motor_SetAngle(m, (int)p[1]);
+}
+
+bool Task_Motor_To_IsExit(float p[4])
+{
+    Motor_Typedef *m = ((int)p[0] == 0) ? &Motor_A : &Motor_B;
+    return Motor_Is_Angle(m, (int)p[1], (int)p[2]);
+}
+
+// 7. 任务: 舵机设置，保持 p[2]ms 后 Exit（p[2]=0 立即完成）
+// TASK_SERVO_SET: p[0]=角色索引, p[1]=角度, p[2]=保持ms
+void Task_Servo_Set_Setup(float p[4])
+{
+    int idx = (int)p[0];
+    if (idx < 0 || idx > 3) return;     // 越界保护
+    p[3] = HAL_GetTick();               // 记录开始时间戳
+    Servo_SetAngle(s_ServoMap[idx], (int16_t)p[1]);
+}
+
+bool Task_Servo_Set_IsExit(float p[4])
+{
+    return ((HAL_GetTick() - p[3]) >= (uint32_t)p[2]);
+}
+
+// 8. 任务: 双夹爪同步设置，两舵机同时动作，保持 p[2]ms 后 Exit
+// TASK_CLAW_SET: p[0]=夹爪A角度, p[1]=夹爪B角度, p[2]=保持ms
+void Task_Claw_Set_Setup(float p[4])
+{
+    p[3] = HAL_GetTick();               // 记录开始时间戳
+    Servo_SetAngle(SERVO_CLAW_A, (int16_t)p[0]);
+    Servo_SetAngle(SERVO_CLAW_B, (int16_t)p[1]);
+}
+
+bool Task_Claw_Set_IsExit(float p[4])
+{
+    return ((HAL_GetTick() - p[3]) >= (uint32_t)p[2]);
 }

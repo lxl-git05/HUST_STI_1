@@ -31,6 +31,18 @@ void Mode_G_Setup(void)
 //    PARAM_FORCE(Motor_A.PID_Angle.Kd,  1.0f);
 //    PARAM_FORCE(Motor_B.PID_Angle.Kp,  0.9f);
 //    PARAM_FORCE(Motor_B.PID_Angle.Kd,  1.0f);
+//
+//    // 晾衣机器人脱机阈值默认值（首次烧录推送用，调通后保持注释）
+//    PARAM_FORCE(Th_Hanger_Up,       0);
+//    PARAM_FORCE(Th_Hanger_Mid,      1000);
+//    PARAM_FORCE(Th_Hanger_Down,     6900);
+//    PARAM_FORCE(Th_Sigan_Step,      330);
+//    PARAM_FORCE(Th_ClawA_Open,      50);
+//    PARAM_FORCE(Th_ClawA_Close,     85);
+//    PARAM_FORCE(Th_ClawB_Open,      84);
+//    PARAM_FORCE(Th_ClawB_Close,     43);
+//    PARAM_FORCE(Th_Hanger1_Open,    150);
+//    PARAM_FORCE(Th_Hanger1_Close,   70);
 
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode

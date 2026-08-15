@@ -90,3 +90,76 @@
 | Menu_Param.h | ./Function/Menu_Param.h | 修改 | 枚举扩至 9 项（新增 A/B 速度/角度/位置 + 整车直行）+ 21 个回调声明 |
 | Menu_Param.c | ./Function/Menu_Param.c | 修改 | 新增 7 个调参任务实现（速度环关角度环/角度环由全局 20ms 链驱动/位置环 Dir=1/直行环）+ 标签表与任务表扩展 |
 | Mode_3.c | ./Mode/Mode_3.c | 重写 | 改为 Menu_Task 模式（仿照 F4）：Setup=Menu_Tune_Init，Loop=Menu_Tune_Loop，Exit 停电机+恢复双电机角度环 |
+
+## 2026-08-14 23:58 | 晾衣机器人业务（Mode_4）+ LCD 脱机阈值系统
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.h | ./Function/Robot_Task.h | 新增 | 晾衣任务系统头：私有任务枚举(4)、舵机角色宏映射、11 个命名阈值 extern、任务回调与业务 API |
+| Robot_Task.c | ./Function/Robot_Task.c | 新增 | 任务实现：阈值默认值(V2实测)、任务表、晾衣9步/复位5步序列、急停/软停/超时保护、示教运动、ABC 命令解析(Rel/Abs/Save/Timeout/Hang_Go/Reset/Stop) |
+| AllHeader.h | ./Top/AllHeader.h | 修改 | 加入 Robot_Task.h include |
+| Mode_1.c | ./Mode/Mode_1.c | 修改 | s_AT_Params 追加 11 条 I32 晾衣阈值（地址自动分配 25~68） |
+| Mode_G.c | ./Mode/Mode_G.c | 修改 | PARAM_FORCE 注释块追加 11 行晾衣阈值默认值示例 |
+| TJC_LCD.h | ./Hardware/TJC_LCD.h | 修改 | 追加 TJC_LCD_Send_Text/Send_Num 声明（MCU→LCD 文本/数值发送） |
+| TJC_LCD.c | ./Hardware/TJC_LCD.c | 修改 | 实现 Send_Text/Send_Num（TJC 原生命令 \xFF\xFF\xFF 终止，仿 Wave_Send_Float） |
+| Mode_4.c | ./Mode/Mode_4.c | 重写 | 晾衣主模式状态机（IDLE/RUNNING/DONE/ERROR）+ 按键/LCD 触发 + OLED 渲染 + Tick 200ms LCD 回显 + Exit 软停兜底 |
+
+## 2026-08-15 00:06 | Mode_4 OLED 显示去中文并下移到 20 行之后
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Mode_4.c | ./Mode/Mode_4.c | 修改 | OLED 状态/提示文案全部改英文，状态行从 y=10 移到 y=30（y=20 角度行之后），提示行保持 y=40 |
+
+## 2026-08-15 00:21 | 任务原语并入全局 Task_Type，删除 Robot_Task 业务层（用户自行组装逻辑）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Task.h | ./Function/Con_Task.h | 修改 | 全局枚举 TASK_COUNT 前追加 TASK_SERVO_SET / TASK_CLEAR_ZERO / TASK_DONE |
+| Control.h | ./Function/Control.h | 修改 | 追加舵机角色宏(SERVO_CLAW_A/B、SERVO_HANGER_1/2)+角色索引宏+3 组任务回调声明 |
+| Control.c | ./Function/Control.c | 修改 | Control_TaskTable 注册 3 个新任务；实现 ServoSet/ClearZero/Done 回调（含 s_ServoMap） |
+| AllHeader.h | ./Top/AllHeader.h | 修改 | 移除 Robot_Task.h include |
+| Mode_1.c | ./Mode/Mode_1.c | 修改 | 移除 11 条晾衣阈值 AT 参数（恢复原 7 条） |
+| Mode_G.c | ./Mode/Mode_G.c | 修改 | 移除 11 行晾衣阈值 PARAM_FORCE 注释示例 |
+| Mode_4.c | ./Mode/Mode_4.c | 重写 | 改为任务组装空壳：Setup 注册全局表、Loop 保留 LCD_KEY_4=Skip+Con_Task_Loop+OLED 角度回显，留组装注释位 |
+| Robot_Task.h | ./Function/Robot_Task.h | 删除 | 任务系统并入全局 Con_Task/Control，业务逻辑由用户自行组装 |
+| Robot_Task.c | ./Function/Robot_Task.c | 删除 | 同上 |
+| 工程小结.md | ./工程小结.md | 修改 | Task_Type 枚举列表同步 3 个新任务 |
+
+## 2026-08-15 00:32 | 恢复 Robot_Task 任务系统与 11 条阈值（撤销上轮删除，仅 Mode_4 留组装空壳）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.h | ./Function/Robot_Task.h | 新增 | 恢复：晾衣任务系统头（私有任务枚举、舵机角色宏、11 阈值 extern、业务 API） |
+| Robot_Task.c | ./Function/Robot_Task.c | 新增 | 恢复：任务实现（序列、命令解析、超时/急停/软停、示教运动） |
+| Mode_1.c | ./Mode/Mode_1.c | 修改 | 恢复 11 条晾衣阈值 AT 参数（Th_* 持久化） |
+| Mode_G.c | ./Mode/Mode_G.c | 修改 | 恢复 11 行 PARAM_FORCE 阈值注释示例 |
+| AllHeader.h | ./Top/AllHeader.h | 修改 | 恢复 Robot_Task.h include |
+| 工程小结.md | ./工程小结.md | 修改 | Task_Type 枚举列表恢复原状（撤销新增任务项） |
+| Mode_4.c | ./Mode/Mode_4.c | 修改 | 空壳改为对接 Robot_Task 私有任务系统（Setup=Robot_Task_Init），组装逻辑由用户编写 |
+
+注：Con_Task.h / Control.h / Control.c 由用户手动恢复原状（未合并全局枚举），本记录不再重复。
+
+## 2026-08-15 00:44 | 任务原语并入全局任务表 + Robot 库瘦身 + Mode_5 单任务测试（按已批准计划实施）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Task.h | ./Function/Con_Task.h | 修改 | 全局枚举 TASK_COUNT 前追加 TASK_MOTOR_TO（无超时）/TASK_SERVO_SET |
+| Control.h | ./Function/Control.h | 修改 | 舵机角色宏+角色索引宏迁入；追加 Task_Motor_To / Task_Servo_Set 回调声明 |
+| Control.c | ./Function/Control.c | 修改 | Control_TaskTable 注册 2 个新任务；s_ServoMap + 4 个回调实现 |
+| Robot_Task.h | ./Function/Robot_Task.h | 修改 | 瘦身：删私有任务枚举/回调声明/超时/Abs-Rel 声明，只留 10 阈值+保持时长常量+错误码+业务 API |
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | 瘦身：删私有任务表/示教运动函数/超时死代码；序列（晾衣8步/复位5步）与 12 条运动命令改走全局任务 |
+| Mode_1.c | ./Mode/Mode_1.c | 修改 | 删除 Th_Motor_Timeout_ms AT 条目（剩 10 条阈值） |
+| Mode_G.c | ./Mode/Mode_G.c | 修改 | 删除 Th_Motor_Timeout_ms PARAM_FORCE 注释行 |
+| Mode_5.c | ./Mode/Mode_5.c | 重写 | 单任务测试：K1=电机A/K2=电机B 转测试角度，OLED 只显示参数（TgtA/TgtB/Tol/当前角度） |
+| 工程小结.md | ./工程小结.md | 修改 | Task_Type 枚举列表同步 TASK_MOTOR_TO, TASK_SERVO_SET |
+
+## 2026-08-15 02:54 | 新增双夹爪同步任务 TASK_CLAW_SET（AB 同时闭合/张开）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Task.h | ./Function/Con_Task.h | 修改 | 枚举 TASK_COUNT 前追加 TASK_CLAW_SET（p0=夹爪A角度, p1=夹爪B角度, p2=保持ms） |
+| Control.h | ./Function/Control.h | 修改 | 追加 Task_Claw_Set_Setup/IsExit 声明 |
+| Control.c | ./Function/Control.c | 修改 | Control_TaskTable 注册 TASK_CLAW_SET；回调实现：Setup 同帧同时设 A/B 两舵机角度，IsExit 按保持时间退出 |
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | 晾衣②夹爪闭合、晾衣⑤夹爪张开、复位②夹爪张开 3 处由两行 SERVO_SET 串行改为一行 CLAW_SET 同步 |
+| Mode_5.c | ./Mode/Mode_5.c | 修改 | LCD_KEY_1/2 夹爪测试同步改为 TASK_CLAW_SET 一行入队（用户自写测试程序） |
+| 工程小结.md | ./工程小结.md | 修改 | Task_Type 枚举列表同步 TASK_CLAW_SET |

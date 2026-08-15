@@ -31,6 +31,7 @@
 #include "Con_Task.h"
 #include "Control.h"
 #include "Menu_Param.h"
+#include "Robot_Task.h"
 
 // Mode库
 #include "Mode_G.h"

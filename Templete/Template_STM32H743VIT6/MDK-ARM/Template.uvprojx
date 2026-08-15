@@ -891,6 +891,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Con_Servo.h</FilePath>
             </File>
+            <File>
+              <FileName>Robot_Task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Robot_Task.c</FilePath>
+            </File>
+            <File>
+              <FileName>Robot_Task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Robot_Task.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

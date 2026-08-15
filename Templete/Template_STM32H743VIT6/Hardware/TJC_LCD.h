@@ -40,6 +40,10 @@ bool LCD_Cmd_Check(char *keyword);                                       // 通�
 // ============== 波形发送（MCU → LCD）==============
 void TJC_LCD_Wave_Send_Float(uint8_t ch, float value);                   // 发送 float 到波形控件 s0 的指定通道(0~3)
 
+// ============== 文本/数值发送（MCU → LCD）==============
+void TJC_LCD_Send_Text(const char *comp, const char *text);              // comp.txt="..."（TJC 原生命令，\xFF\xFF\xFF 终止）
+void TJC_LCD_Send_Num(const char *comp, int32_t val);                    // comp.val=整数（TJC 原生命令，\xFF\xFF\xFF 终止）
+
 // ============== ABC Float100 参数接收（LCD → MCU）==============
 bool LCD_Get_ABC_Float100(char *keyword, float *value);                  // 解析 "keyword=整数" 帧，÷100 返回 float
 

@@ -1,0 +1,111 @@
+// Robot_Task.c — 晾衣机器人业务库实现
+// 业务: 晾衣第1轮 + 复位；阈值: LCD 脱机示教 + AT24C02 持久化
+// 命令: ABC 帧（Serial4=LCD / Serial1=调试 同集），完整帧格式 @cmd$#
+// 任务: 全部走全局任务表（Control.c 的 TASK_MOTOR_TO / TASK_SERVO_SET）
+#include "AllHeader.h"
+#include "Robot_Task.h"
+#include <string.h>
+#include <stdio.h>
+
+// ==================== 1. 阈值定义（默认值 = V2 实测）====================
+int32_t Th_Hanger_Up        = 0;        // 丝杆顶位
+int32_t Th_Hanger_Mid       = 1000;     // 丝杆中位
+int32_t Th_Hanger_Down      = 6900;     // 丝杆低位
+int32_t Th_Sigan_Step       = 330;      // 传送带一格
+int32_t Th_ClawA_Open       = 54;       // 夹爪A开
+int32_t Th_ClawA_Close      = 81;       // 夹爪A闭
+int32_t Th_ClawB_Open       = 97;       // 夹爪B开
+int32_t Th_ClawB_Close      = 68;       // 夹爪B闭
+int32_t Th_Hanger1_Open     = 135;      // 衣架1开
+int32_t Th_Hanger1_Close    = 61;       // 衣架1闭
+
+// ==================== 2. 初始化 ====================
+void Robot_Task_Init(void)
+{
+    Con_Task_Init(Control_TaskTable, TASK_COUNT);   // 注册全局任务表
+}
+
+// ==================== 3. 序列构建（只引用 Th_* 与 ROBOT_* 常量）====================
+
+// 晾衣第1轮入队（内部使用，外部走 Robot_Hang_Try 做空闲判定）
+void Robot_Hang_Enqueue(void)
+{
+    Flash_Mode_Set(Flash_Mode_Slow);
+
+    // ① 丝杆下降到底（夹爪此时已夹住衣架）
+    Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Down, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ② 夹爪闭合
+    Con_Task_Enqueue(TASK_CLAW_SET, Th_ClawA_Close, Th_ClawB_Close, ROBOT_SERVO_HOLD_CLAW_CLOSE_MS, 0);
+    // ③ 丝杆升中位（挂上晾衣杆）
+    Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Mid, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ④ 衣架1打开
+    Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, Th_Hanger1_Open, ROBOT_SERVO_HOLD_HANGER_MS, 0);
+    // ⑤ 夹爪张开
+    Con_Task_Enqueue(TASK_CLAW_SET, Th_ClawA_Open, Th_ClawB_Open, ROBOT_SERVO_HOLD_CLAW_OPEN_MS, 0);
+    // ⑥ 丝杆升顶
+    Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Up, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ⑦ 传送带步进+1格（相对当前角度，第2轮天然接续）
+    Con_Task_Enqueue(TASK_MOTOR_TO, 0, (int)Motor_Get_Angle(&Motor_A) + Th_Sigan_Step,
+                     ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ⑧ 队列自然清空即结束（无 DONE 停留，完成提示由 Mode_4 状态机负责）
+}
+
+// 复位：机械回位（任何状态可用，先清队列）
+void Robot_Reset_Start(void)
+{
+    Con_Task_Clear();
+    Flash_Mode_Set(Flash_Mode_OFF);
+
+    // ① 丝杆升顶
+    Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Up, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ② 夹爪张开
+    Con_Task_Enqueue(TASK_CLAW_SET, Th_ClawA_Open, Th_ClawB_Open, ROBOT_SERVO_HOLD_CLAW_OPEN_MS, 0);
+    // ③ 衣架1闭合
+    Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, Th_Hanger1_Close, ROBOT_SERVO_HOLD_HANGER_MS, 0);
+    // ④ 传送带回 0（绝对定位）
+    Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0, ROBOT_ANGLE_TOL_DEFAULT, 0);
+}
+
+// ==================== 4. ABC 命令解析 ====================
+// 约定: 帧已被消费则直接处理；全部不匹配必须恢复 flag，供链上后续解析器（LCD_Key_Check 等）使用
+// 运动命令: 仅空闲生效，直接入队全局任务 TASK_MOTOR_TO / TASK_SERVO_SET
+void Robot_Cmd_Handle(Serial_Typedef *ps)
+{
+//    if (!Serial_GetNewPackageFlag_ABC(ps)) return;
+
+//    char *p = ps->ABC_Data.Serial_New_Package_ABC;
+//    int v = 0;
+
+//    // ---- 业务触发（Reset/Stop 任何状态生效；Hang_Go 仅空闲）----
+//    if (strcmp(p, "Reset")   == 0) { Robot_Reset_Start(); return; }
+//    if (strcmp(p, "Hang_Go") == 0) { Robot_Hang_Try(); return; }
+
+//    // ---- 保存示教（任何状态生效，立即写 EEPROM）----
+//    if (strcmp(p, "Save_Hanger_Up")   == 0) { Th_Hanger_Up   = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Up);   return; }
+//    if (strcmp(p, "Save_Hanger_Mid")  == 0) { Th_Hanger_Mid  = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Mid);  return; }
+//    if (strcmp(p, "Save_Hanger_Down") == 0) { Th_Hanger_Down = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Down); return; }
+//    if (strcmp(p, "Save_Sigan_Step")  == 0) { Th_Sigan_Step  = s_last_sigan_rel;                     Param_AT24C02_Write(&Th_Sigan_Step);  return; }
+//    if (strcmp(p, "Save_ClawA_Open")  == 0) { Th_ClawA_Open  = (int32_t)Servo_Get_Angle(SERVO_CLAW_A); Param_AT24C02_Write(&Th_ClawA_Open);  return; }
+//    if (strcmp(p, "Save_ClawA_Close") == 0) { Th_ClawA_Close = (int32_t)Servo_Get_Angle(SERVO_CLAW_A); Param_AT24C02_Write(&Th_ClawA_Close); return; }
+//    if (strcmp(p, "Save_ClawB_Open")  == 0) { Th_ClawB_Open  = (int32_t)Servo_Get_Angle(SERVO_CLAW_B); Param_AT24C02_Write(&Th_ClawB_Open);  return; }
+//    if (strcmp(p, "Save_ClawB_Close") == 0) { Th_ClawB_Close = (int32_t)Servo_Get_Angle(SERVO_CLAW_B); Param_AT24C02_Write(&Th_ClawB_Close); return; }
+//    if (strcmp(p, "Save_Hanger1_Open")  == 0) { Th_Hanger1_Open  = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Open);  return; }
+//    if (strcmp(p, "Save_Hanger1_Close") == 0) { Th_Hanger1_Close = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Close); return; }
+
+//    // ---- 运动命令（仅空闲生效，忙时丢弃本帧）----
+//    if (sscanf(p, "Hanger_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 1, (int)Motor_Get_Angle(&Motor_B) + v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
+//    if (sscanf(p, "Hanger_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 1, v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
+//    if (sscanf(p, "Sigan_Rel:%d",  &v) == 1) { s_last_sigan_rel = v; Con_Task_Enqueue(TASK_MOTOR_TO, 0, (int)Motor_Get_Angle(&Motor_A) + v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
+//    if (sscanf(p, "Sigan_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 0, v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
+//    if (sscanf(p, "ClawA_Rel:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_A, (int)Servo_Get_Angle(SERVO_CLAW_A) + v, 0, 0); return; }
+//    if (sscanf(p, "ClawA_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_A, v, 0, 0); return; }
+//    if (sscanf(p, "ClawB_Rel:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_B, (int)Servo_Get_Angle(SERVO_CLAW_B) + v, 0, 0); return; }
+//    if (sscanf(p, "ClawB_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_B, v, 0, 0); return; }
+//    if (sscanf(p, "Hanger1_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, (int)Servo_Get_Angle(SERVO_HANGER_1) + v, 0, 0); return; }
+//    if (sscanf(p, "Hanger1_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, v, 0, 0); return; }
+//    if (sscanf(p, "Hanger2_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_2, (int)Servo_Get_Angle(SERVO_HANGER_2) + v, 0, 0); return; }
+//    if (sscanf(p, "Hanger2_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_2, v, 0, 0); return; }
+
+//    // ---- 未匹配：恢复 flag 给链上后续解析器 ----
+//    ps->ABC_Data.Serial_New_Package_Flag = 1;
+}

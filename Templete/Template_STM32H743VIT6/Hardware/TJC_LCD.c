@@ -97,6 +97,26 @@ void TJC_LCD_Wave_Send_Float(uint8_t ch, float value)
         Serial_SendBytes(&TJC_LCD_SERIAL, (uint8_t *)buf, (uint16_t)len);
 }
 
+// ============== 文本发送：MCU → LCD（组件.txt="..."，\xFF\xFF\xFF 终止）==============
+void TJC_LCD_Send_Text(const char *comp, const char *text)
+{
+    if (comp == NULL || text == NULL) return;
+    char buf[64];
+    int len = snprintf(buf, sizeof(buf), "%s.txt=\"%s\"\xFF\xFF\xFF", comp, text);
+    if (len > 0 && len < (int)sizeof(buf))
+        Serial_SendBytes(&TJC_LCD_SERIAL, (uint8_t *)buf, (uint16_t)len);
+}
+
+// ============== 数值发送：MCU → LCD（组件.val=整数，\xFF\xFF\xFF 终止）==============
+void TJC_LCD_Send_Num(const char *comp, int32_t val)
+{
+    if (comp == NULL) return;
+    char buf[48];
+    int len = snprintf(buf, sizeof(buf), "%s.val=%d\xFF\xFF\xFF", comp, (int)val);
+    if (len > 0 && len < (int)sizeof(buf))
+        Serial_SendBytes(&TJC_LCD_SERIAL, (uint8_t *)buf, (uint16_t)len);
+}
+
 // ============== ABC Float100 参数接收：LCD → MCU ==============
 bool LCD_Get_ABC_Float100(char *keyword, float *value)
 {

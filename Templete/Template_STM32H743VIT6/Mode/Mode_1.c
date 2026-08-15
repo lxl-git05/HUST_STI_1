@@ -16,6 +16,17 @@ const AT_ParamItem s_AT_Params[] = {
     { AT_PARAM_F(&IMU_Mahony_AccBiasX	   , 0.0f           )} ,
     { AT_PARAM_F(&IMU_Mahony_AccBiasY	   , 0.0f           )} ,
     { AT_PARAM_F(&IMU_Mahony_AccBiasZ	   , 0.0f           )} ,
+		// 晾衣机器人脱机阈值（Mode_4 业务）
+    { AT_PARAM_I32(&Th_Hanger_Up        , 0     )} ,   // 丝杆顶位
+    { AT_PARAM_I32(&Th_Hanger_Mid       , 1000  )} ,   // 丝杆中位
+    { AT_PARAM_I32(&Th_Hanger_Down      , 6900  )} ,   // 丝杆低位
+    { AT_PARAM_I32(&Th_Sigan_Step       , 330   )} ,   // 传送带一格
+    { AT_PARAM_I32(&Th_ClawA_Open       , 50    )} ,   // 夹爪A开
+    { AT_PARAM_I32(&Th_ClawA_Close      , 85    )} ,   // 夹爪A闭
+    { AT_PARAM_I32(&Th_ClawB_Open       , 84    )} ,   // 夹爪B开
+    { AT_PARAM_I32(&Th_ClawB_Close      , 43    )} ,   // 夹爪B闭
+    { AT_PARAM_I32(&Th_Hanger1_Open     , 150   )} ,   // 衣架1开
+    { AT_PARAM_I32(&Th_Hanger1_Close    , 70    )} ,   // 衣架1闭
 };
 
 int At_Size = sizeof(s_AT_Params)/sizeof(s_AT_Params[0]) ;
