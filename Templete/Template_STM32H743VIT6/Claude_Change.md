@@ -163,3 +163,26 @@
 | Robot_Task.c | ./Function/Robot_Task.c | 修改 | 晾衣②夹爪闭合、晾衣⑤夹爪张开、复位②夹爪张开 3 处由两行 SERVO_SET 串行改为一行 CLAW_SET 同步 |
 | Mode_5.c | ./Mode/Mode_5.c | 修改 | LCD_KEY_1/2 夹爪测试同步改为 TASK_CLAW_SET 一行入队（用户自写测试程序） |
 | 工程小结.md | ./工程小结.md | 修改 | Task_Type 枚举列表同步 TASK_CLAW_SET |
+
+## 2026-08-15 03:51 | 重写 Robot_Cmd_Handle（新 LCD 协议）+ Sigan→Trans 命名统一
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | 重写 Robot_Cmd_Handle：Hanger_Start/Back 业务触发（Start 忙时忽略）、11 条 Save 示教、7 条运动命令（帧内 = 分隔）；恢复 s_last_trans_rel 静态 |
+| Robot_Task.h | ./Function/Robot_Task.h | 修改 | Th_Sigan_Step→Th_Trans_Step；补 Robot_Cmd_Handle 声明 |
+| Mode_1.c | ./Mode/Mode_1.c | 修改 | AT 参数与 Param_Register 的 Th_Sigan_Step→Th_Trans_Step（显示名 Trans_Step） |
+| Mode_G.c | ./Mode/Mode_G.c | 修改 | PARAM_FORCE 注释 Th_Sigan_Step→Th_Trans_Step |
+| Mode_5.c | ./Mode/Mode_5.c | 修改 | K1 测试入队 Th_Sigan_Step→Th_Trans_Step |
+| Con_Motor.h | ./Function/Con_Motor.h | 修改 | 死宏 Motor_Sigan_Next_Cnt→Motor_Trans_Next_Cnt |
+
+## 2026-08-15 03:54 | 运动命令改为直接执行不入队（滑条实时重定目标）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | 7 条运动命令（Trans/Hanger Rel/Abs、ClawA/B、Hanger1）由 Con_Task_Enqueue 改为直接 Motor_SetAngle/Servo_SetAngle，去掉忙时丢弃判断，无需等待队列 |
+
+## 2026-08-15 04:09 | 新增 6 条舵机到位命令（直接执行，目标=已存阈值）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | Robot_Cmd_Handle 新增 ClawA_Open/Close、ClawB_Open/Close、Hanger1_Open/Close 6 条 strcmp 匹配，直接 Servo_SetAngle 到 Th_* 阈值，不入队 |

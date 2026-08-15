@@ -11,12 +11,12 @@
 int32_t Th_Hanger_Up        = 0;        // 丝杆顶位
 int32_t Th_Hanger_Mid       = 1000;     // 丝杆中位
 int32_t Th_Hanger_Down      = 6900;     // 丝杆低位
-int32_t Th_Sigan_Step       = 330;      // 传送带一格
+int32_t Th_Trans_Step       = 330;      // 传送带一格
 int32_t Th_ClawA_Open       = 54;       // 夹爪A开
 int32_t Th_ClawA_Close      = 81;       // 夹爪A闭
 int32_t Th_ClawB_Open       = 97;       // 夹爪B开
 int32_t Th_ClawB_Close      = 68;       // 夹爪B闭
-int32_t Th_Hanger1_Open     = 135;      // 衣架1开
+int32_t Th_Hanger1_Open     = 134;      // 衣架1开
 int32_t Th_Hanger1_Close    = 61;       // 衣架1闭
 
 // ==================== 2. 初始化 ====================
@@ -45,7 +45,7 @@ void Robot_Hang_Enqueue(void)
     // ⑥ 丝杆升顶
     Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Up, ROBOT_ANGLE_TOL_DEFAULT, 0);
     // ⑦ 传送带步进+1格（相对当前角度，第2轮天然接续）
-    Con_Task_Enqueue(TASK_MOTOR_TO, 0, (int)Motor_Get_Angle(&Motor_A) + Th_Sigan_Step,
+    Con_Task_Enqueue(TASK_MOTOR_TO, 0, (int)Motor_Get_Angle(&Motor_A) + Th_Trans_Step,
                      ROBOT_ANGLE_TOL_DEFAULT, 0);
     // ⑧ 队列自然清空即结束（无 DONE 停留，完成提示由 Mode_4 状态机负责）
 }
@@ -66,46 +66,52 @@ void Robot_Reset_Start(void)
     Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0, ROBOT_ANGLE_TOL_DEFAULT, 0);
 }
 
-// ==================== 4. ABC 命令解析 ====================
-// 约定: 帧已被消费则直接处理；全部不匹配必须恢复 flag，供链上后续解析器（LCD_Key_Check 等）使用
-// 运动命令: 仅空闲生效，直接入队全局任务 TASK_MOTOR_TO / TASK_SERVO_SET
+// ==================== 4. ABC 命令解析（Serial4=LCD，帧内 = 分隔）====================
+// 约定: 帧被处理即消费 flag；全部不匹配必须恢复 flag，供链上后续解析器（LCD_Key_Check 等）使用
+static int32_t  s_last_trans_rel = 0;   // 最近一次 Trans_Rel 值（Save_Trans_Step 兼容用）
+
 void Robot_Cmd_Handle(Serial_Typedef *ps)
 {
-//    if (!Serial_GetNewPackageFlag_ABC(ps)) return;
+    if (!Serial_GetNewPackageFlag_ABC(ps)) return;
 
-//    char *p = ps->ABC_Data.Serial_New_Package_ABC;
-//    int v = 0;
+    char *p = ps->ABC_Data.Serial_New_Package_ABC;
+    int v = 0;
 
-//    // ---- 业务触发（Reset/Stop 任何状态生效；Hang_Go 仅空闲）----
-//    if (strcmp(p, "Reset")   == 0) { Robot_Reset_Start(); return; }
-//    if (strcmp(p, "Hang_Go") == 0) { Robot_Hang_Try(); return; }
+    // ---- 业务触发（Start 忙时忽略，Back 任何状态可用：内部先清队列）----
+    if (strcmp(p, "Hanger_Start") == 0) { if (!Con_Task_IsBusy()) Robot_Hang_Enqueue(); return; }
+    if (strcmp(p, "Hanger_Back")  == 0) { Robot_Reset_Start(); return; }
 
-//    // ---- 保存示教（任何状态生效，立即写 EEPROM）----
-//    if (strcmp(p, "Save_Hanger_Up")   == 0) { Th_Hanger_Up   = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Up);   return; }
-//    if (strcmp(p, "Save_Hanger_Mid")  == 0) { Th_Hanger_Mid  = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Mid);  return; }
-//    if (strcmp(p, "Save_Hanger_Down") == 0) { Th_Hanger_Down = (int32_t)Motor_Get_Angle(&Motor_B);   Param_AT24C02_Write(&Th_Hanger_Down); return; }
-//    if (strcmp(p, "Save_Sigan_Step")  == 0) { Th_Sigan_Step  = s_last_sigan_rel;                     Param_AT24C02_Write(&Th_Sigan_Step);  return; }
-//    if (strcmp(p, "Save_ClawA_Open")  == 0) { Th_ClawA_Open  = (int32_t)Servo_Get_Angle(SERVO_CLAW_A); Param_AT24C02_Write(&Th_ClawA_Open);  return; }
-//    if (strcmp(p, "Save_ClawA_Close") == 0) { Th_ClawA_Close = (int32_t)Servo_Get_Angle(SERVO_CLAW_A); Param_AT24C02_Write(&Th_ClawA_Close); return; }
-//    if (strcmp(p, "Save_ClawB_Open")  == 0) { Th_ClawB_Open  = (int32_t)Servo_Get_Angle(SERVO_CLAW_B); Param_AT24C02_Write(&Th_ClawB_Open);  return; }
-//    if (strcmp(p, "Save_ClawB_Close") == 0) { Th_ClawB_Close = (int32_t)Servo_Get_Angle(SERVO_CLAW_B); Param_AT24C02_Write(&Th_ClawB_Close); return; }
-//    if (strcmp(p, "Save_Hanger1_Open")  == 0) { Th_Hanger1_Open  = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Open);  return; }
-//    if (strcmp(p, "Save_Hanger1_Close") == 0) { Th_Hanger1_Close = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Close); return; }
+    // ---- 保存示教（任何状态生效，立即写 EEPROM）----
+    // 舵机 6 条（LCD 在发）
+    if (strcmp(p, "Save_ClawA_Close")   == 0) { Th_ClawA_Close   = (int32_t)Servo_Get_Angle(SERVO_CLAW_A);   Param_AT24C02_Write(&Th_ClawA_Close);   return; }
+    if (strcmp(p, "Save_ClawA_Open")    == 0) { Th_ClawA_Open    = (int32_t)Servo_Get_Angle(SERVO_CLAW_A);   Param_AT24C02_Write(&Th_ClawA_Open);    return; }
+    if (strcmp(p, "Save_ClawB_Close")   == 0) { Th_ClawB_Close   = (int32_t)Servo_Get_Angle(SERVO_CLAW_B);   Param_AT24C02_Write(&Th_ClawB_Close);   return; }
+    if (strcmp(p, "Save_ClawB_Open")    == 0) { Th_ClawB_Open    = (int32_t)Servo_Get_Angle(SERVO_CLAW_B);   Param_AT24C02_Write(&Th_ClawB_Open);    return; }
+    if (strcmp(p, "Save_Hanger1_Close") == 0) { Th_Hanger1_Close = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Close); return; }
+    if (strcmp(p, "Save_Hanger1_Open")  == 0) { Th_Hanger1_Open  = (int32_t)Servo_Get_Angle(SERVO_HANGER_1); Param_AT24C02_Write(&Th_Hanger1_Open);  return; }
+    // 电机 5 条（保留兼容，LCD 暂未发）
+    if (strcmp(p, "Save_Hanger_Up")   == 0) { Th_Hanger_Up   = (int32_t)Motor_Get_Angle(&Motor_B); Param_AT24C02_Write(&Th_Hanger_Up);   return; }
+    if (strcmp(p, "Save_Hanger_Mid")  == 0) { Th_Hanger_Mid  = (int32_t)Motor_Get_Angle(&Motor_B); Param_AT24C02_Write(&Th_Hanger_Mid);  return; }
+    if (strcmp(p, "Save_Hanger_Down") == 0) { Th_Hanger_Down = (int32_t)Motor_Get_Angle(&Motor_B); Param_AT24C02_Write(&Th_Hanger_Down); return; }
+    if (strcmp(p, "Save_Trans_Step")  == 0) { Th_Trans_Step  = s_last_trans_rel;                   Param_AT24C02_Write(&Th_Trans_Step);  return; }
 
-//    // ---- 运动命令（仅空闲生效，忙时丢弃本帧）----
-//    if (sscanf(p, "Hanger_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 1, (int)Motor_Get_Angle(&Motor_B) + v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
-//    if (sscanf(p, "Hanger_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 1, v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
-//    if (sscanf(p, "Sigan_Rel:%d",  &v) == 1) { s_last_sigan_rel = v; Con_Task_Enqueue(TASK_MOTOR_TO, 0, (int)Motor_Get_Angle(&Motor_A) + v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
-//    if (sscanf(p, "Sigan_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_MOTOR_TO, 0, v, ROBOT_ANGLE_TOL_DEFAULT, 0); return; }
-//    if (sscanf(p, "ClawA_Rel:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_A, (int)Servo_Get_Angle(SERVO_CLAW_A) + v, 0, 0); return; }
-//    if (sscanf(p, "ClawA_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_A, v, 0, 0); return; }
-//    if (sscanf(p, "ClawB_Rel:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_B, (int)Servo_Get_Angle(SERVO_CLAW_B) + v, 0, 0); return; }
-//    if (sscanf(p, "ClawB_Abs:%d",  &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_CLAW_B, v, 0, 0); return; }
-//    if (sscanf(p, "Hanger1_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, (int)Servo_Get_Angle(SERVO_HANGER_1) + v, 0, 0); return; }
-//    if (sscanf(p, "Hanger1_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, v, 0, 0); return; }
-//    if (sscanf(p, "Hanger2_Rel:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_2, (int)Servo_Get_Angle(SERVO_HANGER_2) + v, 0, 0); return; }
-//    if (sscanf(p, "Hanger2_Abs:%d", &v) == 1) { Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_2, v, 0, 0); return; }
+    // ---- 运动命令（直接执行，不入队：滑条拖动实时重定目标，无需等待）----
+    if (sscanf(p, "Trans_Rel=%d",  &v) == 1) { s_last_trans_rel = v; Motor_A.Angle_Ring_Enable = 1; Motor_SetAngle(&Motor_A, (int)Motor_Get_Angle(&Motor_A) + v); return; }
+    if (sscanf(p, "Hanger_Rel=%d", &v) == 1) { Motor_B.Angle_Ring_Enable = 1; Motor_SetAngle(&Motor_B, (int)Motor_Get_Angle(&Motor_B) + v); return; }
+    if (sscanf(p, "Trans_Abs=%d",  &v) == 1) { Motor_A.Angle_Ring_Enable = 1; Motor_SetAngle(&Motor_A, v); return; }
+    if (sscanf(p, "Hanger_Abs=%d", &v) == 1) { Motor_B.Angle_Ring_Enable = 1; Motor_SetAngle(&Motor_B, v); return; }
+    if (sscanf(p, "ClawA=%d",   &v) == 1) { Servo_SetAngle(SERVO_CLAW_A,   (int16_t)v); return; }
+    if (sscanf(p, "ClawB=%d",   &v) == 1) { Servo_SetAngle(SERVO_CLAW_B,   (int16_t)v); return; }
+    if (sscanf(p, "Hanger1=%d", &v) == 1) { Servo_SetAngle(SERVO_HANGER_1, (int16_t)v); return; }
 
-//    // ---- 未匹配：恢复 flag 给链上后续解析器 ----
-//    ps->ABC_Data.Serial_New_Package_Flag = 1;
+    // ---- 舵机到位命令（直接执行，目标=已存阈值，不入队）----
+    if (strcmp(p, "ClawA_Open")    == 0) { Servo_SetAngle(SERVO_CLAW_A,   (int16_t)Th_ClawA_Open);   return; }
+    if (strcmp(p, "ClawA_Close")   == 0) { Servo_SetAngle(SERVO_CLAW_A,   (int16_t)Th_ClawA_Close);  return; }
+    if (strcmp(p, "ClawB_Open")    == 0) { Servo_SetAngle(SERVO_CLAW_B,   (int16_t)Th_ClawB_Open);   return; }
+    if (strcmp(p, "ClawB_Close")   == 0) { Servo_SetAngle(SERVO_CLAW_B,   (int16_t)Th_ClawB_Close);  return; }
+    if (strcmp(p, "Hanger1_Open")  == 0) { Servo_SetAngle(SERVO_HANGER_1, (int16_t)Th_Hanger1_Open); return; }
+    if (strcmp(p, "Hanger1_Close") == 0) { Servo_SetAngle(SERVO_HANGER_1, (int16_t)Th_Hanger1_Close); return; }
+
+    // ---- 未匹配：恢复 flag 给链上后续解析器 ----
+    ps->ABC_Data.Serial_New_Package_Flag = 1;
 }

@@ -145,7 +145,7 @@ static Servo_Typedef *const s_ServoMap[4] = {
     SERVO_CLAW_A, SERVO_CLAW_B, SERVO_HANGER_1, SERVO_HANGER_2
 };
 
-// 6. 任务: 双电机定位（无超时，堵转需外部急停中断）A电机是330度逆时针电机 B电机是上下电机
+// 6. 任务: 双电机定位（无超时，堵转需外部急停中断）A(0)电机是330度逆时针电机(Trans) B(1)电机是上下电机(Hanger)
 // TASK_MOTOR_TO: p[0]=电机(0=A/1=B), p[1]=目标角度°, p[2]=容差°
 void Task_Motor_To_Setup(float p[4])
 {

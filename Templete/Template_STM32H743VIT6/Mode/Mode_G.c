@@ -33,16 +33,16 @@ void Mode_G_Setup(void)
 //    PARAM_FORCE(Motor_B.PID_Angle.Kd,  1.0f);
 //
 //    // 晾衣机器人脱机阈值默认值（首次烧录推送用，调通后保持注释）
-//    PARAM_FORCE(Th_Hanger_Up,       0);
-//    PARAM_FORCE(Th_Hanger_Mid,      1000);
-//    PARAM_FORCE(Th_Hanger_Down,     6900);
-//    PARAM_FORCE(Th_Sigan_Step,      330);
-//    PARAM_FORCE(Th_ClawA_Open,      50);
-//    PARAM_FORCE(Th_ClawA_Close,     85);
-//    PARAM_FORCE(Th_ClawB_Open,      84);
-//    PARAM_FORCE(Th_ClawB_Close,     43);
-//    PARAM_FORCE(Th_Hanger1_Open,    150);
-//    PARAM_FORCE(Th_Hanger1_Close,   70);
+//   PARAM_FORCE(Th_Hanger_Up,       0);
+//   PARAM_FORCE(Th_Hanger_Mid,      1000);
+//   PARAM_FORCE(Th_Hanger_Down,     6900);
+//   PARAM_FORCE(Th_Trans_Step,      330);
+//   PARAM_FORCE(Th_ClawA_Open,      54);
+//   PARAM_FORCE(Th_ClawA_Close,     81);
+//   PARAM_FORCE(Th_ClawB_Open,      97);
+//   PARAM_FORCE(Th_ClawB_Close,     68);
+//   PARAM_FORCE(Th_Hanger1_Open,    135);
+//   PARAM_FORCE(Th_Hanger1_Close,   61);
 
     // ★ 从 AT24C02 恢复上次关机时的模式
     //    Param_AT24C02_Init 已将 EEPROM 值恢复到 curr_mode
@@ -68,6 +68,13 @@ void Mode_G_Loop(void)
     {
         OLED_Printf(0,0,OLED_6X8,"===Mode_G===") ;
     }
+		// 模式进入
+		if (LCD_Cmd_Check("Mode_1")) { Mode_ChangeTo(Mode_1) ;}
+		if (LCD_Cmd_Check("Mode_2")) { Mode_ChangeTo(Mode_2) ;}
+		if (LCD_Cmd_Check("Mode_3")) { Mode_ChangeTo(Mode_3) ;}
+		if (LCD_Cmd_Check("Mode_4")) { Mode_ChangeTo(Mode_4) ;}
+		if (LCD_Cmd_Check("Mode_5")) { Mode_ChangeTo(Mode_5) ;}
+		if (LCD_Cmd_Check("Mode_6")) { Mode_ChangeTo(Mode_6) ;}
 }
 
 // ========================== 系统定时器配置 ==========================

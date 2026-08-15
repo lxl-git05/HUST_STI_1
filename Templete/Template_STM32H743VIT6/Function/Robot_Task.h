@@ -24,7 +24,7 @@
 extern int32_t Th_Hanger_Up;        // 丝杆顶位  默认 0
 extern int32_t Th_Hanger_Mid;       // 丝杆中位  默认 1000
 extern int32_t Th_Hanger_Down;      // 丝杆低位  默认 6900
-extern int32_t Th_Sigan_Step;       // 传送带一格 默认 330
+extern int32_t Th_Trans_Step;       // 传送带一格 默认 330
 extern int32_t Th_ClawA_Open;       // 夹爪A开 默认 50
 extern int32_t Th_ClawA_Close;      // 夹爪A闭 默认 85
 extern int32_t Th_ClawB_Open;       // 夹爪B开 默认 84
@@ -37,5 +37,6 @@ extern int32_t Th_Hanger1_Close;    // 衣架1闭 默认 70
 void    Robot_Task_Init(void);                    // 注册全局任务表 + 清错误（Mode_4_Setup 调用）
 void Robot_Hang_Enqueue(void);										// 开始晾衣服
 void    Robot_Reset_Start(void);                  // 复位（先清队列，任何状态可用）
+void Robot_Cmd_Handle(Serial_Typedef *ps);        // ABC 命令解析（Serial4=LCD，帧内 = 分隔）
 
 #endif

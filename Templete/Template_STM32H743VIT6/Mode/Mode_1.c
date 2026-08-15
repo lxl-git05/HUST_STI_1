@@ -20,13 +20,13 @@ const AT_ParamItem s_AT_Params[] = {
     { AT_PARAM_I32(&Th_Hanger_Up        , 0     )} ,   // 丝杆顶位
     { AT_PARAM_I32(&Th_Hanger_Mid       , 1000  )} ,   // 丝杆中位
     { AT_PARAM_I32(&Th_Hanger_Down      , 6900  )} ,   // 丝杆低位
-    { AT_PARAM_I32(&Th_Sigan_Step       , 330   )} ,   // 传送带一格
-    { AT_PARAM_I32(&Th_ClawA_Open       , 50    )} ,   // 夹爪A开
-    { AT_PARAM_I32(&Th_ClawA_Close      , 85    )} ,   // 夹爪A闭
-    { AT_PARAM_I32(&Th_ClawB_Open       , 84    )} ,   // 夹爪B开
-    { AT_PARAM_I32(&Th_ClawB_Close      , 43    )} ,   // 夹爪B闭
-    { AT_PARAM_I32(&Th_Hanger1_Open     , 150   )} ,   // 衣架1开
-    { AT_PARAM_I32(&Th_Hanger1_Close    , 70    )} ,   // 衣架1闭
+    { AT_PARAM_I32(&Th_Trans_Step       , 330   )} ,   // 传送带一格
+    { AT_PARAM_I32(&Th_ClawA_Open       , 54    )} ,   // 夹爪A开
+    { AT_PARAM_I32(&Th_ClawA_Close      , 81    )} ,   // 夹爪A闭
+    { AT_PARAM_I32(&Th_ClawB_Open       , 97    )} ,   // 夹爪B开
+    { AT_PARAM_I32(&Th_ClawB_Close      , 68    )} ,   // 夹爪B闭
+    { AT_PARAM_I32(&Th_Hanger1_Open     , 135   )} ,   // 衣架1开
+    { AT_PARAM_I32(&Th_Hanger1_Close    , 61    )} ,   // 衣架1闭
 };
 
 int At_Size = sizeof(s_AT_Params)/sizeof(s_AT_Params[0]) ;
@@ -38,13 +38,23 @@ void Mode_1_Setup(void)
 	// 初始化参数编辑器
 	Param_Init();
 	// Param_Register 内会自动检测 AT 关联并载入已存值
-	Param_Register("curr_mode",&curr_mode,1,PARAM_INT8);
-	Param_Register("IMU_GX",&IMU_Mahony_GyroBiasX,0.01f,PARAM_FLOAT);
-	Param_Register("IMU_GY",&IMU_Mahony_GyroBiasY,0.01f,PARAM_FLOAT);
-	Param_Register("IMU_GZ",&IMU_Mahony_GyroBiasZ,0.01f,PARAM_FLOAT);
-	Param_Register("IMU_AX",&IMU_Mahony_AccBiasX,0.001f,PARAM_FLOAT);
-	Param_Register("IMU_AY",&IMU_Mahony_AccBiasY,0.001f,PARAM_FLOAT);
-	Param_Register("IMU_AZ",&IMU_Mahony_AccBiasZ,0.001f,PARAM_FLOAT);
+//	Param_Register("curr_mode",&curr_mode,1,PARAM_INT8);
+//	Param_Register("IMU_GX",&IMU_Mahony_GyroBiasX,0.01f,PARAM_FLOAT);
+//	Param_Register("IMU_GY",&IMU_Mahony_GyroBiasY,0.01f,PARAM_FLOAT);
+//	Param_Register("IMU_GZ",&IMU_Mahony_GyroBiasZ,0.01f,PARAM_FLOAT);
+//	Param_Register("IMU_AX",&IMU_Mahony_AccBiasX,0.001f,PARAM_FLOAT);
+//	Param_Register("IMU_AY",&IMU_Mahony_AccBiasY,0.001f,PARAM_FLOAT);
+//	Param_Register("IMU_AZ",&IMU_Mahony_AccBiasZ,0.001f,PARAM_FLOAT);
+	Param_Register("Hanger_Up",&Th_Hanger_Up,1,PARAM_INT32);
+	Param_Register("Hanger_Mid",&Th_Hanger_Mid,1,PARAM_INT32);
+	Param_Register("Hanger_Down",&Th_Hanger_Down,1,PARAM_INT32);
+	Param_Register("Trans_Step",&Th_Trans_Step,1,PARAM_INT32);
+	Param_Register("ClawA_Open",&Th_ClawA_Open,1,PARAM_INT32);
+	Param_Register("ClawA_Close",&Th_ClawA_Close,1,PARAM_INT32);
+	Param_Register("ClawB_Open",&Th_ClawB_Open,1,PARAM_INT32);
+	Param_Register("ClawB_Close",&Th_ClawB_Close,1,PARAM_INT32);
+	Param_Register("Hanger1_Open",&Th_Hanger1_Open,1,PARAM_INT32);
+	Param_Register("Hanger1_Close",&Th_Hanger1_Close,1,PARAM_INT32);
 }
 
 void Mode_1_Loop(void)

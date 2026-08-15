@@ -11,7 +11,7 @@ extern Motor_Typedef Motor_B ;
 #define Motor_Hang_Up_Cnt    0
 #define Motor_Hang_Mid_Cnt   1000
 #define Motor_Hang_Down_Cnt  6900
-#define Motor_Sigan_Next_Cnt 330
+#define Motor_Trans_Next_Cnt 330
 
 // 1. 电机初始化
 void Con_Motor_Init(void) ;

@@ -18,7 +18,7 @@ void Mode_5_Loop(void)
 {
 	OLED_Printf(0,0,OLED_6X8,"===Mode_5===") ;
 	// 逻辑: 电机
-	if (Key_Check(KEY_1, KEY_SINGLE)) Con_Task_Enqueue(TASK_MOTOR_TO, 0, Th_Sigan_Step, MODE5_TEST_TOL, 0);
+	if (Key_Check(KEY_1, KEY_SINGLE)) Con_Task_Enqueue(TASK_MOTOR_TO, 0, Th_Trans_Step, MODE5_TEST_TOL, 0);
 	if (Key_Check(KEY_2, KEY_SINGLE)) Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Down , MODE5_TEST_TOL, 0);
 	
 	if (Key_Check(KEY_1, KEY_DOUBLE)) Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0 , MODE5_TEST_TOL, 0);

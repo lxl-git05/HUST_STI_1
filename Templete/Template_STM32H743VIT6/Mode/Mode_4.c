@@ -19,6 +19,8 @@ void Mode_4_Loop(void)
 	{
 		Robot_Reset_Start() ;
 	}
+	// 校准
+	Robot_Cmd_Handle(&Serial4) ;
 	
 	// 执行
   Con_Task_Loop();  

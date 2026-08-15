@@ -91,3 +91,108 @@ void Control_Setup(void)
 
 
 
+ A(0)电机是330度逆时针电机(Trans) B(1)电机是上下电机(Hanger) ，记住了，后续不再使用Sigan名字
+  现在开始重写Robot_Cmd_Handle:
+
+```c
+// 下面两条对应开始和回位
+// 发送指令给STM32
+prints "@Hanger_Start$#",0
+// 发送指令给STM32
+prints "@Hanger_Back$#",0
+
+// 然后是电机矫正
+// 滑动赋值
+main.Send_Data.val=h0.val-50 // 发送的数据
+covx main.Send_Data.val,main.Send_Str.txt,0,0 // 数据转换为字符串
+prints "@Trans_Rel=",0
+prints main.Send_Str.txt,0
+prints "$#",0
+// 展示数据
+n0.val=main.Send_Data.val
+
+// 滑动赋值
+main.Send_Data.val=h1.val*10-500 // 发送的数据
+covx main.Send_Data.val,main.Send_Str.txt,0,0 // 数据转换为字符串
+prints "@Hanger_Rel=",0
+prints main.Send_Str.txt,0
+prints "$#",0
+// 展示数据
+n1.val=main.Send_Data.val
+
+
+// 然后是电机绝对运动
+// 滑动赋值
+main.Send_Data.val=h2.val*10-500 // 发送的数据
+covx main.Send_Data.val,main.Send_Str.txt,0,0 // 数据转换为字符串
+prints "@Trans_Abs=",0
+prints main.Send_Str.txt,0
+prints "$#",0
+// 展示数据
+n2.val=main.Send_Data.val
+
+
+// 滑动赋值
+main.Send_Data.val=h3.val*200-10000 // 发送的数据
+covx main.Send_Data.val,main.Send_Str.txt,0,0 // 数据转换为字符串
+prints "@Hanger_Abs=",0
+prints main.Send_Str.txt,0
+prints "$#",0
+// 展示数据
+n3.val=main.Send_Data.val
+
+
+// 然后是舵机矫正
+// 滑动赋值
+main.Send_Data.val=h0.val*2
+if(main.Send_Data.val>180)
+{
+  main.Send_Data.val=180
+}
+covx main.Send_Data.val,main.Send_Str.txt,0,0 // 数据转换为字符串
+prints "@ClawA=",0
+prints main.Send_Str.txt,0
+prints "$#",0
+// 展示数据
+n0.val=main.Send_Data.val
+
+/prints "@ClawB=",0
+    
+/prints "@Hanger1=",0
+    
+// 然后是舵机保存当前值
+// 发送保存要求
+prints "@Save_ClawA_Close$#",0
+// 发送保存要求
+prints "@Save_ClawA_Open$#",0
+// 发送保存要求
+prints "@Save_ClawB_Close$#",0
+// 发送保存要求
+prints "@Save_ClawB_Open$#",0
+// 发送保存要求
+prints "@Save_Hanger1_Close$#",0
+// 发送保存要求
+prints "@Save_Hanger1_Open$#",0
+
+```
+
++ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
