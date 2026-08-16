@@ -67,7 +67,7 @@ void Robot_Reset_Start(void)
     Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0, ROBOT_ANGLE_TOL_DEFAULT, 0);
 }
 
-// 收衣服：任何状态可用（先清队列）。序列：① 传送带回原位 ② 丝杆下移 ③ 松开夹爪
+// 收衣服：任何状态可用（先清队列）。① 传送带回 0 ② 衣架1松开 ③ 丝杆回顶端 ④ 最后发 @Car_Back$# 通知小车倒车
 void Robot_Shou_Start(void)
 {
     Con_Task_Clear();
@@ -79,6 +79,8 @@ void Robot_Shou_Start(void)
     Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, Th_Hanger1_Close, ROBOT_SERVO_HOLD_HANGER_MS, 0);
 		// ③ 丝杆回到顶端
 		Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Up, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ④ 序列完成后才发 @Car_Back$#（小车接完衣服再倒车）
+    Con_Task_Enqueue(TASK_SERIAL_CAR_BACK, 0, 0, 0, 0);
 }
 
 // ==================== 4. ABC 命令解析（Serial4=LCD，帧内 = 分隔）====================

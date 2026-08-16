@@ -67,4 +67,9 @@ bool Task_Servo_Set_IsExit(float p[4]) ;
 void Task_Claw_Set_Setup(float p[4]) ;
 bool Task_Claw_Set_IsExit(float p[4]) ;
 
+// 9. 任务：串口发 @Car_Back$# 通知小车倒车（收衣服序列最后一步）
+// TASK_SERIAL_CAR_BACK: 无参数，Setup 即发送，立即 Exit
+void Task_Serial_CarBack_Setup(float p[4]) ;
+bool Task_Serial_CarBack_IsExit(float p[4]) ;
+
 #endif

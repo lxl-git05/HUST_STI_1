@@ -223,3 +223,15 @@
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
 |--------|----------------------|----------|------|
 | OLED_Data.c | ./Hardware/OLED_Data.c | 修改 | 文件被保存成 UTF-8，ARMCC v5 按 GBK 解析中文字符串时吃掉引号（missing closing quote）；转回 GBK 编码，内容未变，armcc 实测编译通过 |
+
+## 2026-08-16 09:17 | 收衣服序列末尾新增 Car_Back 倒车指令（机械最后发帧 + 小车倒车状态）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Con_Task.h | ./Function/Con_Task.h | 修改 | 任务枚举新增 TASK_SERIAL_CAR_BACK（串口发帧任务，收衣服序列最后一步） |
+| Control.c | ./Function/Control.c | 修改 | 新增 Task_Serial_CarBack_Setup/IsExit（Serial3 发 @Car_Back$#，Setup 即发、立即 Exit）+ 任务表注册 |
+| Control.h | ./Function/Control.h | 修改 | 新增任务 9 声明（Task_Serial_CarBack_Setup/IsExit） |
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | Robot_Shou_Start：移除顶部发帧行，序列末尾入队 TASK_SERIAL_CAR_BACK（④ 接完衣服才发，防小车提前跑） |
+| Con_Wheel_Control.h | D:\github\2-2-STM32\STM32\Projects\Robot2026\Sheng\Car\Function\Con_Wheel_Control.h | 修改 | 小车侧：枚举新增 Car_Turn_B（直线倒车） |
+| Con_Wheel_Control.c | D:\github\2-2-STM32\STM32\Projects\Robot2026\Sheng\Car\Function\Con_Wheel_Control.c | 修改 | 小车侧：新增 Car_Turn_B_Setup/Tick/Is_Exit（目标 -50cm）+ Tick/Setup switch case + Car_Control_Change 退出分支 |
+| Mode_5.c | D:\github\2-2-STM32\STM32\Projects\Robot2026\Sheng\Car\Mode\Mode_5.c | 修改 | 小车侧：新增 Car_Back 命令接收 → next_Status = Car_Turn_B |

@@ -21,6 +21,7 @@ typedef enum {
     TASK_MOTOR_TO,          // 双电机定位: p[0]=电机(0=A/1=B), p[1]=目标角度°, p[2]=容差°（无超时）
     TASK_SERVO_SET,         // 舵机设置: p[0]=角色索引(0夹爪A/1夹爪B/2衣架1/3衣架2), p[1]=角度, p[2]=保持ms(0=立即完成)
     TASK_CLAW_SET,          // 双夹爪同步: p[0]=夹爪A角度, p[1]=夹爪B角度, p[2]=保持ms
+    TASK_SERIAL_CAR_BACK,   // 串口发 @Car_Back$# 通知小车倒车（收衣服序列最后一步，无参数）
     // ★ 枚举总数，必须放最后
     TASK_COUNT
 } Task_Type;
