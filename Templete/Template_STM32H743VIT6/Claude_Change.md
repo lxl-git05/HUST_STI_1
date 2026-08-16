@@ -186,3 +186,40 @@
 | 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
 |--------|----------------------|----------|------|
 | Robot_Task.c | ./Function/Robot_Task.c | 修改 | Robot_Cmd_Handle 新增 ClawA_Open/Close、ClawB_Open/Close、Hanger1_Open/Close 6 条 strcmp 匹配，直接 Servo_SetAngle 到 Th_* 阈值，不入队 |
+
+## 2026-08-15 05:10 | Car 工程 Serial 库替换（新库：Serial_base + Serial_porting）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Serial_base.h | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Hardware/Serial_base.h | 修改 | 用当前工程新 Serial 库覆盖（协议定义、Serial_Typedef 数据、错误码枚举），转 GBK 与 Car 工程一致 |
+| Serial_base.c | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Hardware/Serial_base.c | 修改 | 协议常量实例 + 无参 Init（新 API），转 GBK |
+| Serial_porting.h | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Function/Serial_porting.h | 新增 | 新外设层：Serial1/2/3 实例、DMA/IT 自适应收发；Serial4 已禁用（Car 无 UART4），转 GBK |
+| Serial_porting.c | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Function/Serial_porting.c | 新增 | 新实现：Idle 中断统一入口、HEX/ABC 解析、发送 API、D-Cache 维护，转 GBK |
+| Serial.h | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Function/Serial.h | 删除 | 旧库头文件，被 Serial_porting.h 取代（git 已跟踪可恢复） |
+| Serial.c | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Function/Serial.c | 删除 | 旧库实现（旧 HAL_UARTEx_RxEventCallback 等），被 Serial_porting.c 取代（git 已跟踪可恢复） |
+| AllHeader.h | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/Top/AllHeader.h | 修改 | include "Serial.h" → "Serial_porting.h"（字节级替换，保留 GBK 编码） |
+| Template.uvprojx | D:/github/2-2-STM32/STM32/Projects/Robot2026/Sheng/Car/MDK-ARM/Template.uvprojx | 修改 | Function 组文件条目 Serial.c/h → Serial_porting.c/h |
+
+## 2026-08-15 06:58 | 新增 Mode_6：晾衣后双击 KEY_1 或 LCD Hanger_Shou 收衣服（复位）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.h | ./Function/Robot_Task.h | 修改 | 业务 API 区新增 Robot_Shou_Start() 声明（收衣服，当前=复位序列） |
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | 新增 Robot_Shou_Start() 实现（封装复位序列，后续可独立扩展）；Robot_Cmd_Handle 新增 Hanger_Shou 命令（任何时刻可用） |
+| Mode_6.c | ./Mode/Mode_6.c | 修改 | 填充空模板：单击 KEY_1=晾衣、双击 KEY_1=收衣服、LCD 命令（Robot_Cmd_Handle）、Con_Task_Loop |
+| 工程小结.md | ./工程小结.md | 修改 | Mode 现状表更新：Mode_4/5/6 已填充业务；待办清单勾选该项 |
+
+## 2026-08-15 07:02 | 收衣服序列改为独立三步：①传送带回原位 ②丝杆下移 ③松夹爪
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Robot_Task.c | ./Function/Robot_Task.c | 修改 | Robot_Shou_Start() 不再复用复位序列，改为独立三步：①传送带回0 ②丝杆下移到底（Th_Hanger_Down）③松开夹爪 |
+| Robot_Task.h | ./Function/Robot_Task.h | 修改 | Robot_Shou_Start 声明注释更新为新三步序列 |
+| Mode_6.c | ./Mode/Mode_6.c | 修改 | 注释更正：双击=收衣服（去掉"复位"字样） |
+| 工程小结.md | ./工程小结.md | 修改 | Mode_6 行收衣服序列描述更新 |
+
+## 2026-08-15 08:03 | 修复 OLED_Data.c 编码错误（UTF-8 → GBK）
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| OLED_Data.c | ./Hardware/OLED_Data.c | 修改 | 文件被保存成 UTF-8，ARMCC v5 按 GBK 解析中文字符串时吃掉引号（missing closing quote）；转回 GBK 编码，内容未变，armcc 实测编译通过 |

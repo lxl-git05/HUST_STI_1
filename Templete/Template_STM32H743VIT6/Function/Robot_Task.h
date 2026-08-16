@@ -37,6 +37,7 @@ extern int32_t Th_Hanger1_Close;    // 衣架1闭 默认 70
 void    Robot_Task_Init(void);                    // 注册全局任务表 + 清错误（Mode_4_Setup 调用）
 void Robot_Hang_Enqueue(void);										// 开始晾衣服
 void    Robot_Reset_Start(void);                  // 复位（先清队列，任何状态可用）
+void    Robot_Shou_Start(void);                   // 收衣服（①传送带回原位 ②丝杆下移 ③松夹爪，任何状态可用：内部先清队列）
 void Robot_Cmd_Handle(Serial_Typedef *ps);        // ABC 命令解析（Serial4=LCD，帧内 = 分隔）
 
 #endif

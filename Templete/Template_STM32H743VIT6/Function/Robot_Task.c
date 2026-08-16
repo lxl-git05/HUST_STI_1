@@ -30,6 +30,7 @@ void Robot_Task_Init(void)
 // 晾衣第1轮入队（内部使用，外部走 Robot_Hang_Try 做空闲判定）
 void Robot_Hang_Enqueue(void)
 {
+		Serial_printf(&Serial3 , "@Car_Start$#") ;
     Flash_Mode_Set(Flash_Mode_Slow);
 
     // ① 丝杆下降到底（夹爪此时已夹住衣架）
@@ -66,6 +67,20 @@ void Robot_Reset_Start(void)
     Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0, ROBOT_ANGLE_TOL_DEFAULT, 0);
 }
 
+// 收衣服：任何状态可用（先清队列）。序列：① 传送带回原位 ② 丝杆下移 ③ 松开夹爪
+void Robot_Shou_Start(void)
+{
+    Con_Task_Clear();
+    Flash_Mode_Set(Flash_Mode_OFF);
+
+    // ① 传送带回 0（绝对定位）
+    Con_Task_Enqueue(TASK_MOTOR_TO, 0, 0, ROBOT_ANGLE_TOL_DEFAULT, 0);
+    // ② 衣架1松开
+    Con_Task_Enqueue(TASK_SERVO_SET, ROBOT_SERVO_HANGER_1, Th_Hanger1_Close, ROBOT_SERVO_HOLD_HANGER_MS, 0);
+		// ③ 丝杆回到顶端
+		Con_Task_Enqueue(TASK_MOTOR_TO, 1, Th_Hanger_Up, ROBOT_ANGLE_TOL_DEFAULT, 0);
+}
+
 // ==================== 4. ABC 命令解析（Serial4=LCD，帧内 = 分隔）====================
 // 约定: 帧被处理即消费 flag；全部不匹配必须恢复 flag，供链上后续解析器（LCD_Key_Check 等）使用
 static int32_t  s_last_trans_rel = 0;   // 最近一次 Trans_Rel 值（Save_Trans_Step 兼容用）
@@ -77,9 +92,10 @@ void Robot_Cmd_Handle(Serial_Typedef *ps)
     char *p = ps->ABC_Data.Serial_New_Package_ABC;
     int v = 0;
 
-    // ---- 业务触发（Start 忙时忽略，Back 任何状态可用：内部先清队列）----
+    // ---- 业务触发（Start 忙时忽略，Back/Shou 任何状态可用：内部先清队列）----
     if (strcmp(p, "Hanger_Start") == 0) { if (!Con_Task_IsBusy()) Robot_Hang_Enqueue(); return; }
     if (strcmp(p, "Hanger_Back")  == 0) { Robot_Reset_Start(); return; }
+    if (strcmp(p, "Hanger_Shou")  == 0) { Robot_Shou_Start(); return; }
 
     // ---- 保存示教（任何状态生效，立即写 EEPROM）----
     // 舵机 6 条（LCD 在发）
