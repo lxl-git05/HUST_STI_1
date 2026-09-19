@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Mode;../Top;../MySystem;../Hardware;../Software;../Tools;../Function;../Con_Mode;../IMU;..\AT</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Mode;../Top;../MySystem;../Hardware;../Software;../Tools;../Function;../Con_Mode;../IMU;../AT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1300,6 +1300,11 @@
               <FileName>TJC_LCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Hardware\TJC_LCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>Emm_V5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Emm_V5.c</FilePath>
             </File>
           </Files>
         </Group>

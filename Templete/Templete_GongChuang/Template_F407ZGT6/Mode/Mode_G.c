@@ -47,13 +47,6 @@ void Mode_G_Loop(void)
         OLED_Printf(0,0,OLED_6X8,"===Mode_G===") ;
     }
 		// 串口屏处理
-		
-		// 模式管理
-//		if (LCD_Cmd_Check("Con_Mode_2")) {Mode_ChangeTo(Con_Mode_2) ;} 	
-//		if (LCD_Cmd_Check("Con_Mode_3")) {Mode_ChangeTo(Con_Mode_3) ;}
-//		if (LCD_Cmd_Check("Con_Mode_4")) {Mode_ChangeTo(Con_Mode_4) ;}
-//		if (LCD_Cmd_Check("Con_Mode_5")) {Mode_ChangeTo(Con_Mode_5) ;}
-//		if (LCD_Cmd_Check("Con_Mode_6")) {Mode_ChangeTo(Con_Mode_6) ;}
 }
 
 // ========================== 系统定时器配置 ==========================
