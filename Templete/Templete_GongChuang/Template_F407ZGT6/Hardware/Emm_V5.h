@@ -1,10 +1,10 @@
 #ifndef __EMM_V5_H
 #define __EMM_V5_H
 
-#include "usart.h"
+#include "Stepper_UART.h"
 #include "stdbool.h"
 
-#define EMM_V5_HUART (huart3)				// 串口变换
+#define EMM_V5_HUART STEPPER_UART_HUART		// 串口变换
 
 /**********************************************************
 ***	Emm_V5.0步进闭环控制例程

@@ -285,3 +285,15 @@
 |--------|----------------------|----------|------|
 | 张大头步进电机代码分类.md | ./张大头步进电机代码分类.md | 新增 | 按单电机、多电机及指令类型整理 Emm_V5 API、使用流程与风险 |
 | 工程概览.md | ./工程概览.md | 修改 | 补充 Emm_V5 模块说明，并记录步进电机测试只能写在 Mode 2 的硬性约束 |
+
+## 2026-09-19 17:00 | 完善步进电机串口 DMA 收发
+
+| 文件名 | 文件路径（相对工作区） | 操作类型 | 说明 |
+|--------|----------------------|----------|------|
+| Stepper_UART.h | ./Template_F407ZGT6/Function/Stepper_UART.h | 修改 | 定义 USART3、接收缓冲区、接收状态及带长度的回调接口 |
+| Stepper_UART.c | ./Template_F407ZGT6/Function/Stepper_UART.c | 修改 | 使用 ReceiveToIdle DMA 实现初始化、帧接收与自动重启 |
+| Serial_porting.c | ./Template_F407ZGT6/Function/Serial_porting.c | 修改 | 在统一 HAL 接收回调中将 USART3 分流到步进电机模块 |
+| Emm_V5.h | ./Template_F407ZGT6/Hardware/Emm_V5.h | 修改 | 将电机发送串口配置关联到 Stepper_UART 模块 |
+| AllHeader.c | ./Template_F407ZGT6/Top/AllHeader.c | 修改 | 在全局初始化阶段启动步进电机串口接收 |
+| Mode_2.c | ./Template_F407ZGT6/Mode/Mode_2.c | 修改 | 按约定承接步进电机按键测试代码 |
+| Mode_3.c | ./Template_F407ZGT6/Mode/Mode_3.c | 修改 | 移除步进电机初始化及测试代码 |

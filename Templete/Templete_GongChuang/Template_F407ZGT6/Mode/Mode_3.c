@@ -1,10 +1,10 @@
-// ==================== Mode_3 单电机各个模式实现测试 ====================
+// ==================== Mode_3 ====================
 #include "Mode_3.h"
 #include "AllHeader.h"
 
 void Mode_3_Setup(void)
 {
-  
+
 }
 
 void Mode_3_Loop(void)

@@ -1371,6 +1371,16 @@
               <FileType>5</FileType>
               <FilePath>..\Function\Serial_porting.h</FilePath>
             </File>
+            <File>
+              <FileName>Stepper_UART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Function\Stepper_UART.c</FilePath>
+            </File>
+            <File>
+              <FileName>Stepper_UART.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Function\Stepper_UART.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "Timer_Counter.h"
+#include "Stepper_UART.h"
 
 // ============== 全局实例 ==============
 Serial_Typedef Serial1;
@@ -321,6 +322,12 @@ static Serial_Typedef* Serial_GetInstance(UART_HandleTypeDef *huart)
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
+    // USART3由步进电机模块独立处理
+    if (huart == &STEPPER_UART_HUART) {
+        Stepper_UART_RxCallback(Size);
+        return;
+    }
+
     // 1. 查找实例
     Serial_Typedef *pSerial = Serial_GetInstance(huart);
     if (pSerial == NULL) return;

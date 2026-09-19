@@ -18,6 +18,8 @@
 #include "RGB.h"
 #include "TJC_LCD.h"
 #include "IMU.h"
+#include "Emm_V5.h"
+#include "Stepper_UART.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"

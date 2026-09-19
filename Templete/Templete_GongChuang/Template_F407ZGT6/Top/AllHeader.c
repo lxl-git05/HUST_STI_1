@@ -10,6 +10,7 @@ void Initial_ALL(void)
 
 	// Software
 	Serial_Init();																// 串口初始化
+	Stepper_UART_Init() ;												// 步进电机串口初始化
 	Encoder_Init() ;														// EC11编码器EXTI初始化
 	Param_AT24C02_Init() ;													// AT24C02初始化+从EEPROM恢复参数
 
