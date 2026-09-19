@@ -4,6 +4,8 @@
 #include "usart.h"
 #include "stdbool.h"
 
+#define EMM_V5_HUART (huart3)				// 串口变换
+
 /**********************************************************
 ***	Emm_V5.0步进闭环控制例程
 ***	编写作者：ZHANGDATOU
