@@ -20,6 +20,7 @@
 #include "IMU.h"
 #include "Emm_V5.h"
 #include "Stepper_UART.h"
+#include "Stepper.h"
 
 // 软件算法库 (Software)
 #include "MyPID.h"

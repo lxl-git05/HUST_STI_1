@@ -59,7 +59,11 @@ void Timer_1ms_Callback(void)
 	Key_Tick() ;
 	// 功能2: LED闪烁指示灯
 	Flash_Mode_Tick() ;
-	// 功能3: 
+	// 功能3: Mode3步进电机1ms速度/位置规划
+	if (curr_mode == Mode_3)
+	{
+		Mode_3_1ms_Tick() ;
+	}
 
 }
 

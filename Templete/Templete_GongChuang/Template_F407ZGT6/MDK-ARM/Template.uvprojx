@@ -1306,6 +1306,11 @@
               <FileType>1</FileType>
               <FilePath>..\Hardware\Emm_V5.c</FilePath>
             </File>
+            <File>
+              <FileName>Stepper.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Hardware\Stepper.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

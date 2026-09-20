@@ -28,7 +28,7 @@ __attribute__((weak)) void Timer_20ms_Callback(void)
 
 __attribute__((weak)) void Timer_Stepper1_Pulse_Callback(void)
 {
-    // 默认空实现，由Mode_G层重写，调用Stepper_PWM_Pulse_Count
+    // 默认空实现，由步进电机库重写并累计TIM9输出脉冲
 }
 
 __attribute__((weak)) void Timer_Stepper2_Pulse_Callback(void)
@@ -53,6 +53,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Instance == TIM10)
 	{
 		Timer_10ms_Callback() ;	// 10ms中断
+	}
+	// TIM9每完成一个STEP PWM周期，累计一次步进脉冲
+	if (htim->Instance == TIM9)
+	{
+		Timer_Stepper1_Pulse_Callback() ;
 	}
 }
 

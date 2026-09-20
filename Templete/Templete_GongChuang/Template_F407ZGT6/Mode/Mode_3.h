@@ -11,4 +11,6 @@ void Mode_3_Exit(void);
 
 void Mode_3_Tick(void);
 
+void Mode_3_1ms_Tick(void);
+
 #endif

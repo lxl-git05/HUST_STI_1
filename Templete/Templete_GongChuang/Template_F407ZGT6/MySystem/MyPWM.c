@@ -57,8 +57,8 @@ void MyPWM_EnableIT(MyPWM_Typedef *pwm)
     if (pwm == 0 || pwm->htimx == 0) {
         return;
     }
-    // 优先级=1（低于 1ms Tick 的优先级 0，保证 Tick 不掉）
-    HAL_NVIC_SetPriority(pwm->Tim_IRQn, 1, 0);
+    // STEP脉冲计数必须使用最高抢占优先级，避免硬件PWM继续输出时软件漏计
+    HAL_NVIC_SetPriority(pwm->Tim_IRQn, 0, 0);
     NVIC_ClearPendingIRQ(pwm->Tim_IRQn);
     HAL_NVIC_EnableIRQ(pwm->Tim_IRQn);
     // 使能计数器更新中断（每个 PWM 周期触发一次 → 脉冲计数）
