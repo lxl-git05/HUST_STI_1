@@ -10,6 +10,7 @@
 extern volatile bool rxFrameFlag;
 extern volatile uint8_t rxCmd[STEPPER_UART_RX_BUFFER_SIZE];
 extern volatile uint16_t rxCount;
+extern volatile uint16_t rx_times;	// 串口RX次数 
 
 void Stepper_UART_Init(void);
 

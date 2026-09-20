@@ -6,6 +6,7 @@
 volatile bool rxFrameFlag = false;
 volatile uint8_t rxCmd[STEPPER_UART_RX_BUFFER_SIZE] = {0};
 volatile uint16_t rxCount = 0;
+volatile uint16_t rx_times = 0 ;	// 串口RX次数
 
 static void Stepper_UART_StartReceive(void)
 {
@@ -35,6 +36,7 @@ void Stepper_UART_RxCallback(uint16_t Size)
 
 	rxCount = Size;
 	rxFrameFlag = true;
+	rx_times ++ ;
 
 	/* 普通模式下每收到一帧都需要重新启动DMA接收。 */
 	Stepper_UART_StartReceive();
