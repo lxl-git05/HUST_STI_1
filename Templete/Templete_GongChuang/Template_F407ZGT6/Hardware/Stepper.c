@@ -5,6 +5,10 @@
 #define STEPPER_Q16_ONE            (1L << STEPPER_Q16_SHIFT)
 #define STEPPER_TICK_HZ            1000U
 
+/*
+ * Stepper1硬件实例：PE5/TIM9_CH1输出STEP，PE6输出DIR。
+ * 本库的位置是开环软件位置；电机堵转或驱动器丢脉冲时无法自行发现。
+ */
 Stepper_t Stepper1 = {
     .step_pwm = &MyPWM_Stepper1,
     .dir_gpio = &MyGPIO_Stepper_Dir,
@@ -21,6 +25,7 @@ Stepper_t Stepper1 = {
 
 static uint32_t Stepper_EnterCritical(void)
 {
+    /* 多字段命令切换必须保持一致，临界区只包围短小的寄存器/状态更新。 */
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
     return primask;
@@ -47,6 +52,7 @@ static int8_t Stepper_SignI32(int32_t value)
 
 static uint32_t Stepper_RampDeltaQ16(uint32_t rate_pps2)
 {
+    /* 将pps^2换算为每个1ms Tick应改变的Q16.16速度。 */
     uint64_t delta = ((uint64_t)rate_pps2 << STEPPER_Q16_SHIFT) / STEPPER_TICK_HZ;
     if (delta == 0U && rate_pps2 > 0U) {
         delta = 1U;
@@ -59,6 +65,7 @@ static uint32_t Stepper_RampDeltaQ16(uint32_t rate_pps2)
 
 static void Stepper_DelayUs(uint16_t delay_us)
 {
+    /* DIR翻转后使用DWT满足驱动器方向建立时间，不依赖HAL毫秒延时。 */
     uint32_t start;
     uint32_t cycles_per_us;
     uint32_t wait_cycles;
@@ -150,6 +157,7 @@ static Stepper_Status_t Stepper_SetPulseSpeed(Stepper_t *motor, int32_t signed_s
         return STEPPER_STATUS_FREQUENCY_RANGE;
     }
 
+    /* TIM9计数频率除以pps得到一个完整STEP周期的计数值。 */
     arr = counter_clock / speed_pps;
     if (arr == 0U) {
         return STEPPER_STATUS_FREQUENCY_RANGE;
@@ -164,6 +172,10 @@ static Stepper_Status_t Stepper_SetPulseSpeed(Stepper_t *motor, int32_t signed_s
     direction = Stepper_SignI32(signed_speed_pps);
 
     if (force_restart || !motor->pulse_running || motor->direction != direction) {
+        /*
+         * 从停止或换向状态启动时主动UG装载预分频寄存器，但先清UIF，
+         * 避免这个软件更新事件被误认为真实输出了一枚STEP脉冲。
+         */
         Stepper_StopHardware(motor);
         Stepper_SetDirection(motor, direction);
         __HAL_TIM_SET_AUTORELOAD(htim, arr);
@@ -178,6 +190,7 @@ static Stepper_Status_t Stepper_SetPulseSpeed(Stepper_t *motor, int32_t signed_s
         __HAL_TIM_ENABLE_IT(htim, TIM_IT_UPDATE);
         motor->pulse_running = true;
     } else {
+        /* 运行中只写预装载寄存器，让新频率在自然更新事件后生效。 */
         __HAL_TIM_SET_AUTORELOAD(htim, arr);
         __HAL_TIM_SET_COMPARE(htim, motor->step_pwm->Channel, compare);
     }
@@ -208,6 +221,7 @@ static uint32_t Stepper_GetBrakeDistance(const Stepper_t *motor)
     uint64_t speed_sq;
 
     if (motor->decel_pps2 == 0U) return UINT32_MAX;
+    /* s = v^2/(2a)，使用64位中间值避免高速度平方溢出。 */
     speed_sq = (uint64_t)speed * (uint64_t)speed;
     return (uint32_t)(speed_sq / (2ULL * motor->decel_pps2));
 }
@@ -238,6 +252,7 @@ static Stepper_Status_t Stepper_StartTrapezoidFromCurrent(Stepper_t *motor)
         return STEPPER_STATUS_OK;
     }
 
+    /* 从驱动器可可靠接受的最低频率起步，后续由1ms规划器加速。 */
     start_speed = direction * (int32_t)motor->min_speed_pps;
     motor->speed_q16 = start_speed * STEPPER_Q16_ONE;
     motor->target_speed_q16 = direction * (int32_t)motor->max_motion_speed_pps * STEPPER_Q16_ONE;
@@ -259,6 +274,7 @@ Stepper_Status_t Stepper_Init(Stepper_t *motor)
 
     htim = motor->step_pwm->htimx;
     Stepper_StopHardware(motor);
+    /* ARR和CCR开启预装载，运行中变频不会在周期中间破坏脉宽。 */
     htim->Instance->CR1 |= TIM_CR1_ARPE;
     if (motor->step_pwm->Channel == TIM_CHANNEL_1) {
         htim->Instance->CCMR1 |= TIM_CCMR1_OC1PE;
@@ -349,6 +365,7 @@ Stepper_Status_t Stepper_RunImmediate(Stepper_t *motor, int32_t signed_speed_pps
     if (status != STEPPER_STATUS_OK) return status;
 
     primask = Stepper_EnterCritical();
+    /* 任意速度命令都会取消尚未完成的位置目标，但保留累计位置。 */
     motor->target_position = motor->position_pulses;
     motor->move_total_pulses = 0U;
     motor->move_done_pulses = 0U;
@@ -485,6 +502,7 @@ Stepper_Status_t Stepper_MoveToTrapezoid(Stepper_t *motor, int32_t target_positi
         Stepper_FinishMotion(motor);
         status = STEPPER_STATUS_OK;
     } else if (motor->pulse_running && motor->direction != desired_direction) {
+        /* 运动中收到反向目标：不能直接翻DIR，先进入减速阶段。 */
         status = Stepper_SetMoveDistance(motor, target_position);
         motor->position_replan_pending = true;
         motor->state = STEPPER_STATE_POS_DECEL;
@@ -648,6 +666,7 @@ static void Stepper_TickPositionPlan(Stepper_t *motor)
         return;
     }
 
+    /* 剩余距离进入制动距离后切换减速；短行程因此自动形成三角形。 */
     brake_distance = Stepper_GetBrakeDistance(motor);
     if (motor->state != STEPPER_STATE_POS_DECEL &&
         motor->move_remaining_pulses <= brake_distance + 1U) {
@@ -688,6 +707,10 @@ void Stepper_Tick1ms(Stepper_t *motor)
 
 void Stepper_PulseIRQHandler(Stepper_t *motor)
 {
+    /*
+     * 一个TIM更新事件对应PWM完成一个周期，也就是驱动器收到一枚STEP。
+     * ISR只计数、判断终点和停PWM，复杂速度规划留在1ms Tick中完成。
+     */
     if (motor == 0 || !motor->pulse_running) return;
 
     if ((motor->direction > 0 && motor->position_pulses == INT32_MAX) ||
@@ -718,6 +741,7 @@ void Stepper_PulseIRQHandler(Stepper_t *motor)
         }
         if (motor->move_remaining_pulses == 0U ||
             motor->position_pulses == motor->target_position) {
+            /* 在产生目标脉冲的本次ISR内停机，防止自然多走下一步。 */
             motor->position_pulses = motor->target_position;
             Stepper_FinishMotion(motor);
         }
